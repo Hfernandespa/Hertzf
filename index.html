@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -258,6 +260,21 @@
             background-color: var(--primary-color);
             border-radius: 4px;
         }
+        
+        /* Estilos para o contador de acesso */
+        .access-counter {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -269,8 +286,11 @@
                 <p class="text-blue-200 mt-1">Frequências Terapêuticas & Protocolos Personalizados</p>
             </div>
             <div class="flex items-center space-x-4">
-                <div class="text-sm text-blue-200 bg-blue-800 bg-opacity-50 px-3 py-1 rounded-full">
-                    <i class="fas fa-plug mr-2" aria-hidden="true"></i>Status: <span id="audioStatus" class="font-medium">Desconectado</span>
+                <!-- Contador de acesso -->
+                <div class="access-counter">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                    <span>Acessos:</span>
+                    <span id="accessCount">0</span>
                 </div>
             </div>
         </div>
@@ -418,7 +438,7 @@
             </div>
         </section>
 
-        <!-- Layout Principal: Gerador + Banco de Dados -->
+        <!-- Layout Principal: Grid com duas colunas -->
         <div class="grid lg:grid-cols-12 gap-8">
             <!-- Coluna 1: Gerador de Frequências + Histórico -->
             <div class="lg:col-span-5 space-y-6">
@@ -560,202 +580,202 @@
                 </section>
             </div>
 
-            <!-- Coluna 2: Banco de Dados de Frequências -->
-            <div class="lg:col-span-7 space-y-6">
-                <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 id="database-heading" class="text-2xl font-semibold text-green-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências Terapêuticas</h2>
-                        <div class="text-sm text-gray-400"><span id="resultCount">0</span> resultados</div>
+            <!-- Coluna 2: Protocolos Terapêuticos -->
+            <div class="lg:col-span-7">
+                <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="protocols-heading">
+                    <h2 id="protocols-heading" class="text-2xl font-semibold mb-6 text-orange-400"><i class="fas fa-procedures mr-2" aria-hidden="true"></i>Protocolos Terapêuticos</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Protocolo 1: Geral -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-orange-300"><i class="fas fa-broadcast-tower mr-2" aria-hidden="true"></i>Protocolo Geral</h3>
+                            <p class="text-sm text-gray-300 mb-4">Protocolo completo para desparasitação geral, indicado para limpeza periódica e prevenção.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Fase 1:</strong> 20 Hz - 5 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Fase 2:</strong> 72 Hz - 7 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Fase 3:</strong> 120 Hz - 5 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Fase 4:</strong> 432 Hz - 3 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-orange-900 bg-opacity-30 rounded text-xs text-orange-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Repetir 1 vez por semana durante 4 semanas. Manter hidratação adequada.
+                            </div>
+                            <button class="mt-3 w-full bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('geral')" aria-label="Iniciar Protocolo Geral">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
+
+                        <!-- Protocolo 2: Intestinal -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-green-300"><i class="fas fa-apple-alt mr-2" aria-hidden="true"></i>Protocolo Intestinal</h3>
+                            <p class="text-sm text-gray-300 mb-4">Focado na desparasitação do trato intestinal e recuperação da flora.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Preparo:</strong> 432 Hz - 2 min (Onda Senoidal)</div>
+                                <div class="protocol-step energy"><strong>Tratamento:</strong> 120 Hz - 10 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Reforço:</strong> 440 Hz - 5 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Finalização:</strong> 528 Hz - 3 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Realizar em jejum. Repetir após 15 dias.
+                            </div>
+                            <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('intestinal')" aria-label="Iniciar Protocolo Intestinal">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
+
+                        <!-- Protocolo 3: Sistêmico -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-red-300"><i class="fas fa-heartbeat mr-2" aria-hidden="true"></i>Protocolo Sistêmico</h3>
+                            <p class="text-sm text-gray-300 mb-4">Tratamento completo para parasitas sistêmicos em ciclos de 3 dias.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Dia 1: Giárdia:</strong> 1865 Hz - 15 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Dia 2: Ancilostomídeos:</strong> 800 Hz - 15 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Dia 3:</strong> 2127 Hz - 15 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Descanso:</strong> 7 dias sem tratamento</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-red-900 bg-opacity-30 rounded text-xs text-red-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Acompanhamento médico recomendado. Repetir ciclo após 30 dias.
+                            </div>
+                            <button class="mt-3 w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('sistemico')" aria-label="Iniciar Protocolo Sistêmico">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
+
+                        <!-- Protocolo 4: Energia -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
+                            <h3 class="text-lg font-semibold mb-3 text-yellow-300"><i class="fas fa-bolt mr-2" aria-hidden="true"></i>Protocolo de Energia</h3>
+                            <p class="text-sm text-gray-300 mb-4">Para aumentar vitalidade, disposição e combater fadiga crônica.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Ativação:</strong> 25 Hz - 8 min (Onda Serra)</div>
+                                <div class="protocol-step energy"><strong>Amplificação:</strong> 50 Hz - 10 min (Onda Senoidal)</div>
+                                <div class="protocol-step energy"><strong>Manutenção:</strong> 150 Hz - 5 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-yellow-900 bg-opacity-30 rounded text-xs text-yellow-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para uso matinal. Evite antes de dormir.
+                            </div>
+                            <button class="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('energia')" aria-label="Iniciar Protocolo de Energia">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
+
+                        <!-- Protocolo 5: Foco -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
+                            <h3 class="text-lg font-semibold mb-3 text-blue-300"><i class="fas fa-brain mr-2" aria-hidden="true"></i>Protocolo de Foco</h3>
+                            <p class="text-sm text-gray-300 mb-4">Potencializa a concentração, memória e clareza mental para estudos e trabalho.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step focus"><strong>Preparação:</strong> 15 Hz - 5 min (Onda Senoidal)</div>
+                                <div class="protocol-step focus"><strong>Concentração:</strong> 40 Hz - 12 min (Onda Senoidal)</div>
+                                <div class="protocol-step focus"><strong>Manutenção:</strong> 50 Hz - 8 min (Onda Senoidal)</div>
+                                <div class="protocol-step focus"><strong>Integração:</strong> 852 Hz - 5 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-900 bg-opacity-30 rounded text-xs text-blue-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para estudo, trabalho ou atividades que exigem atenção sustentada.
+                            </div>
+                            <button class="mt-3 w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('foco')" aria-label="Iniciar Protocolo de Foco">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
+
+                        <!-- Protocolo 6: Desinflamação Intestinal -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-teal-300"><i class="fas fa-leaf mr-2" aria-hidden="true"></i>Desinflamação Intestinal</h3>
+                            <p class="text-sm text-gray-300 mb-4">Protocolo para reduzir inflamação no intestino e promover a cicatrização da mucosa.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step anti-inflammatory"><strong>Calma:</strong> 285 Hz - 8 min (Onda Senoidal)</div>
+                                <div class="protocol-step anti-inflammatory"><strong>Tratamento:</strong> 432 Hz - 12 min (Onda Senoidal)</div>
+                                <div class="protocol-step anti-inflammatory"><strong>Equilíbrio:</strong> 7.83 Hz - 10 min (Onda Senoidal)</div>
+                                <div class="protocol-step anti-inflammatory"><strong>Finalização:</strong> 528 Hz - 5 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-teal-900 bg-opacity-30 rounded text-xs text-teal-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Evite alimentos inflamatórios durante o protocolo.
+                            </div>
+                            <button class="mt-3 w-full bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('desinflamacao')" aria-label="Iniciar Protocolo de Desinflamação Intestinal">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
+
+                        <!-- Protocolo 7: Harmonia -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
+                            <h3 class="text-lg font-semibold mb-3 text-purple-300"><i class="fas fa-heart mr-2" aria-hidden="true"></i>Protocolo de Harmonia</h3>
+                            <p class="text-sm text-gray-300 mb-4">Para promover equilíbrio emocional, paz interior e harmonia interpessoal.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step harmony"><strong>Centramento:</strong> 136.1 Hz - 8 min (Onda Senoidal)</div>
+                                <div class="protocol-step harmony"><strong>Libertação:</strong> 396 Hz - 10 min (Onda Senoidal)</div>
+                                <div class="protocol-step harmony"><strong>Harmonização:</strong> 639 Hz - 12 min (Onda Senoidal)</div>
+                                <div class="protocol-step harmony"><strong>Integração:</strong> 963 Hz - 8 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-purple-900 bg-opacity-30 rounded text-xs text-purple-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Pratique respiração profunda durante a sessão.
+                            </div>
+                            <button class="mt-3 w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('harmonia')" aria-label="Iniciar Protocolo de Harmonia">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
                     </div>
-                    <!-- Busca e Filtro -->
-                    <div class="flex flex-col md:flex-row gap-4 mb-4">
-                        <div class="flex-1">
-                            <div class="relative">
-                                <label for="searchInput" class="sr-only">Buscar frequências</label>
-                                <input type="text" id="searchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Buscar frequências..." aria-describedby="search-description">
-                                <i class="fas fa-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
-                                <span id="search-description" class="sr-only">Digite para buscar frequências por nome ou descrição</span>
+
+                    <!-- Recomendações Gerais -->
+                    <div class="mt-6 bg-gray-900 rounded-lg p-4">
+                        <h4 class="font-medium text-orange-300 mb-3"><i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i>Recomendações Importantes</h4>
+                        <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
+                            <div>
+                                <h5 class="font-medium text-white mb-2">Durante o Tratamento:</h5>
+                                <ul class="space-y-1 list-disc list-inside">
+                                    <li>Mantenha-se bem hidratado</li>
+                                    <li>Evite álcool e cafeína</li>
+                                    <li>Consuma alimentos leves e naturais</li>
+                                    <li>Pratique meditação ou respiração profunda</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-medium text-white mb-2">Pós-Tratamento:</h5>
+                                <ul class="space-y-1 list-disc list-inside">
+                                    <li>Observe mudanças no bem-estar</li>
+                                    <li>Registre quaisquer efeitos percebidos</li>
+                                    <li>Repita protocolos conforme necessário</li>
+                                    <li>Consulte um profissional de saúde se houver dúvidas</li>
+                                </ul>
                             </div>
                         </div>
-                        <div>
-                            <label for="categoryFilter" class="sr-only">Filtrar por categoria</label>
-                            <select id="categoryFilter" class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" aria-describedby="category-description">
-                                <option value="">Todas as Categorias</option>
-                                <option value="relaxamento">Relaxamento</option>
-                                <option value="meditacao">Meditação</option>
-                                <option value="concentracao">Concentração</option>
-                                <option value="cura">Cura</option>
-                                <option value="sono">Sono</option>
-                                <option value="energia">Energia</option>
-                                <option value="vermifugacao">Vermifugação</option>
-                            </select>
-                            <span id="category-description" class="sr-only">Selecione uma categoria para filtrar as frequências</span>
-                        </div>
-                        <button id="showFavoritesBtn" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition" aria-label="Mostrar favoritos">
-                            <i class="fas fa-star mr-2" aria-hidden="true"></i>Favoritos
-                        </button>
-                    </div>
-                    <!-- Grade de Frequências -->
-                    <div id="frequenciesGrid" class="database-container grid md:grid-cols-2 gap-3" aria-live="polite">
-                        <!-- Frequências serão inseridas dinamicamente aqui -->
                     </div>
                 </section>
             </div>
         </div>
 
-        <!-- Protocolos Terapêuticos -->
-        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="protocols-heading">
-            <h2 id="protocols-heading" class="text-2xl font-semibold mb-6 text-orange-400"><i class="fas fa-procedures mr-2" aria-hidden="true"></i>Protocolos Terapêuticos</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Protocolo 1: Geral -->
-                <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                    <h3 class="text-lg font-semibold mb-3 text-orange-300"><i class="fas fa-broadcast-tower mr-2" aria-hidden="true"></i>Protocolo Geral</h3>
-                    <p class="text-sm text-gray-300 mb-4">Protocolo completo para desparasitação geral, indicado para limpeza periódica e prevenção.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="protocol-step energy"><strong>Fase 1:</strong> 20 Hz - 5 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Fase 2:</strong> 72 Hz - 7 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Fase 3:</strong> 120 Hz - 5 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Fase 4:</strong> 432 Hz - 3 min (Onda Senoidal)</div>
-                    </div>
-                    <div class="mt-4 p-3 bg-orange-900 bg-opacity-30 rounded text-xs text-orange-200">
-                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Repetir 1 vez por semana durante 4 semanas. Manter hidratação adequada.
-                    </div>
-                    <button class="mt-3 w-full bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('geral')" aria-label="Iniciar Protocolo Geral">
-                        <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                    </button>
-                </article>
-
-                <!-- Protocolo 2: Intestinal -->
-                <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                    <h3 class="text-lg font-semibold mb-3 text-green-300"><i class="fas fa-apple-alt mr-2" aria-hidden="true"></i>Protocolo Intestinal</h3>
-                    <p class="text-sm text-gray-300 mb-4">Focado na desparasitação do trato intestinal e recuperação da flora.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="protocol-step energy"><strong>Preparo:</strong> 432 Hz - 2 min (Onda Senoidal)</div>
-                        <div class="protocol-step energy"><strong>Tratamento:</strong> 120 Hz - 10 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Reforço:</strong> 440 Hz - 5 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Finalização:</strong> 528 Hz - 3 min (Onda Senoidal)</div>
-                    </div>
-                    <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
-                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Realizar em jejum. Repetir após 15 dias.
-                    </div>
-                    <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('intestinal')" aria-label="Iniciar Protocolo Intestinal">
-                        <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                    </button>
-                </article>
-
-                <!-- Protocolo 3: Sistêmico -->
-                <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                    <h3 class="text-lg font-semibold mb-3 text-red-300"><i class="fas fa-heartbeat mr-2" aria-hidden="true"></i>Protocolo Sistêmico</h3>
-                    <p class="text-sm text-gray-300 mb-4">Tratamento completo para parasitas sistêmicos em ciclos de 3 dias.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="protocol-step energy"><strong>Dia 1: Giárdia:</strong> 1865 Hz - 15 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Dia 2: Ancilostomídeos:</strong> 800 Hz - 15 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Dia 3:</strong> 2127 Hz - 15 min (Onda Quadrada)</div>
-                        <div class="protocol-step energy"><strong>Descanso:</strong> 7 dias sem tratamento</div>
-                    </div>
-                    <div class="mt-4 p-3 bg-red-900 bg-opacity-30 rounded text-xs text-red-200">
-                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Acompanhamento médico recomendado. Repetir ciclo após 30 dias.
-                    </div>
-                    <button class="mt-3 w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('sistemico')" aria-label="Iniciar Protocolo Sistêmico">
-                        <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                    </button>
-                </article>
-
-                <!-- Protocolo 4: Energia -->
-                <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                    <h3 class="text-lg font-semibold mb-3 text-yellow-300"><i class="fas fa-bolt mr-2" aria-hidden="true"></i>Protocolo de Energia</h3>
-                    <p class="text-sm text-gray-300 mb-4">Para aumentar vitalidade, disposição e combater fadiga crônica.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="protocol-step energy"><strong>Ativação:</strong> 25 Hz - 8 min (Onda Serra)</div>
-                        <div class="protocol-step energy"><strong>Amplificação:</strong> 50 Hz - 10 min (Onda Senoidal)</div>
-                        <div class="protocol-step energy"><strong>Manutenção:</strong> 150 Hz - 5 min (Onda Senoidal)</div>
-                    </div>
-                    <div class="mt-4 p-3 bg-yellow-900 bg-opacity-30 rounded text-xs text-yellow-200">
-                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para uso matinal. Evite antes de dormir.
-                    </div>
-                    <button class="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('energia')" aria-label="Iniciar Protocolo de Energia">
-                        <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                    </button>
-                </article>
-
-                <!-- Protocolo 5: Foco -->
-                <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                    <h3 class="text-lg font-semibold mb-3 text-blue-300"><i class="fas fa-brain mr-2" aria-hidden="true"></i>Protocolo de Foco</h3>
-                    <p class="text-sm text-gray-300 mb-4">Potencializa a concentração, memória e clareza mental para estudos e trabalho.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="protocol-step focus"><strong>Preparação:</strong> 15 Hz - 5 min (Onda Senoidal)</div>
-                        <div class="protocol-step focus"><strong>Concentração:</strong> 40 Hz - 12 min (Onda Senoidal)</div>
-                        <div class="protocol-step focus"><strong>Manutenção:</strong> 50 Hz - 8 min (Onda Senoidal)</div>
-                        <div class="protocol-step focus"><strong>Integração:</strong> 852 Hz - 5 min (Onda Senoidal)</div>
-                    </div>
-                    <div class="mt-4 p-3 bg-blue-900 bg-opacity-30 rounded text-xs text-blue-200">
-                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para estudo, trabalho ou atividades que exigem atenção sustentada.
-                    </div>
-                    <button class="mt-3 w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('foco')" aria-label="Iniciar Protocolo de Foco">
-                        <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                    </button>
-                </article>
-
-                <!-- Protocolo 6: Desinflamação Intestinal -->
-                <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                    <h3 class="text-lg font-semibold mb-3 text-teal-300"><i class="fas fa-leaf mr-2" aria-hidden="true"></i>Desinflamação Intestinal</h3>
-                    <p class="text-sm text-gray-300 mb-4">Protocolo para reduzir inflamação no intestino e promover a cicatrização da mucosa.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="protocol-step anti-inflammatory"><strong>Calma:</strong> 285 Hz - 8 min (Onda Senoidal)</div>
-                        <div class="protocol-step anti-inflammatory"><strong>Tratamento:</strong> 432 Hz - 12 min (Onda Senoidal)</div>
-                        <div class="protocol-step anti-inflammatory"><strong>Equilíbrio:</strong> 7.83 Hz - 10 min (Onda Senoidal)</div>
-                        <div class="protocol-step anti-inflammatory"><strong>Finalização:</strong> 528 Hz - 5 min (Onda Senoidal)</div>
-                    </div>
-                    <div class="mt-4 p-3 bg-teal-900 bg-opacity-30 rounded text-xs text-teal-200">
-                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Evite alimentos inflamatórios durante o protocolo.
-                    </div>
-                    <button class="mt-3 w-full bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('desinflamacao')" aria-label="Iniciar Protocolo de Desinflamação Intestinal">
-                        <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                    </button>
-                </article>
-
-                <!-- Protocolo 7: Harmonia -->
-                <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                    <h3 class="text-lg font-semibold mb-3 text-purple-300"><i class="fas fa-heart mr-2" aria-hidden="true"></i>Protocolo de Harmonia</h3>
-                    <p class="text-sm text-gray-300 mb-4">Para promover equilíbrio emocional, paz interior e harmonia interpessoal.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="protocol-step harmony"><strong>Centramento:</strong> 136.1 Hz - 8 min (Onda Senoidal)</div>
-                        <div class="protocol-step harmony"><strong>Libertação:</strong> 396 Hz - 10 min (Onda Senoidal)</div>
-                        <div class="protocol-step harmony"><strong>Harmonização:</strong> 639 Hz - 12 min (Onda Senoidal)</div>
-                        <div class="protocol-step harmony"><strong>Integração:</strong> 963 Hz - 8 min (Onda Senoidal)</div>
-                    </div>
-                    <div class="mt-4 p-3 bg-purple-900 bg-opacity-30 rounded text-xs text-purple-200">
-                        <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Pratique respiração profunda durante a sessão.
-                    </div>
-                    <button class="mt-3 w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('harmonia')" aria-label="Iniciar Protocolo de Harmonia">
-                        <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                    </button>
-                </article>
+        <!-- Banco de Dados de Frequências Terapêuticas (abaixo dos Protocolos) -->
+        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="database-heading" class="text-2xl font-semibold text-green-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências Terapêuticas</h2>
+                <div class="text-sm text-gray-400"><span id="resultCount">0</span> resultados</div>
             </div>
-
-            <!-- Recomendações Gerais -->
-            <div class="mt-6 bg-gray-900 rounded-lg p-4">
-                <h4 class="font-medium text-orange-300 mb-3"><i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i>Recomendações Importantes</h4>
-                <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
-                    <div>
-                        <h5 class="font-medium text-white mb-2">Durante o Tratamento:</h5>
-                        <ul class="space-y-1 list-disc list-inside">
-                            <li>Mantenha-se bem hidratado</li>
-                            <li>Evite álcool e cafeína</li>
-                            <li>Consuma alimentos leves e naturais</li>
-                            <li>Pratique meditação ou respiração profunda</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h5 class="font-medium text-white mb-2">Pós-Tratamento:</h5>
-                        <ul class="space-y-1 list-disc list-inside">
-                            <li>Observe mudanças no bem-estar</li>
-                            <li>Registre quaisquer efeitos percebidos</li>
-                            <li>Repita protocolos conforme necessário</li>
-                            <li>Consulte um profissional de saúde se houver dúvidas</li>
-                        </ul>
+            <!-- Busca e Filtro -->
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <label for="searchInput" class="sr-only">Buscar frequências</label>
+                        <input type="text" id="searchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Buscar frequências..." aria-describedby="search-description">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
+                        <span id="search-description" class="sr-only">Digite para buscar frequências por nome ou descrição</span>
                     </div>
                 </div>
+                <div>
+                    <label for="categoryFilter" class="sr-only">Filtrar por categoria</label>
+                    <select id="categoryFilter" class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" aria-describedby="category-description">
+                        <option value="">Todas as Categorias</option>
+                        <option value="relaxamento">Relaxamento</option>
+                        <option value="meditacao">Meditação</option>
+                        <option value="concentracao">Concentração</option>
+                        <option value="cura">Cura</option>
+                        <option value="sono">Sono</option>
+                        <option value="energia">Energia</option>
+                        <option value="vermifugacao">Vermifugação</option>
+                    </select>
+                    <span id="category-description" class="sr-only">Selecione uma categoria para filtrar as frequências</span>
+                </div>
+                <button id="showFavoritesBtn" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition" aria-label="Mostrar favoritos">
+                    <i class="fas fa-star mr-2" aria-hidden="true"></i>Favoritos
+                </button>
+            </div>
+            <!-- Grade de Frequências -->
+            <div id="frequenciesGrid" class="database-container grid md:grid-cols-2 lg:grid-cols-3 gap-3" aria-live="polite">
+                <!-- Frequências serão inseridas dinamicamente aqui -->
             </div>
         </section>
     </main>
@@ -789,4 +809,19 @@
     <script src="data/frequencies.js"></script>
     <!-- Carregar o script principal -->
     <script src="js/app.js" defer></script>
+    
+    <!-- Script para o contador de acesso -->
+    <script>
+        // Contador de acesso
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtém o contador de acesso do localStorage ou inicia com 0
+            let accessCount = localStorage.getItem('harmonizadorAccessCount') || 0;
+            accessCount = parseInt(accessCount) + 1;
+            localStorage.setItem('harmonizadorAccessCount', accessCount);
+            
+            // Atualiza o contador na página
+            document.getElementById('accessCount').textContent = accessCount;
+        });
+    </script>
 </body>
+</html>
