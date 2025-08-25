@@ -325,6 +325,36 @@
             background-color: var(--primary-color);
             border-radius: 4px;
         }
+        
+        /* Layout do Visualizador de Onda ao lado da Frequência */
+        .frequency-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        
+        .frequency-controls {
+            flex: 1;
+        }
+        
+        .wave-visualizer-small {
+            width: 120px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 640px) {
+            .frequency-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .wave-visualizer-small {
+                width: 100%;
+                height: 80px;
+                margin-top: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -455,20 +485,26 @@
                 </div>
             </div>
             <div class="space-y-4">
-                <!-- Entrada de Frequência -->
-                <div>
-                    <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
-                    <div class="flex gap-2">
-                        <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="440" min="20" max="20000" step="1" aria-describedby="frequency-description">
-                        <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
-                        </button>
-                        <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105 hidden" aria-label="Parar frequência">
-                            <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
-                        </button>
+                <!-- Entrada de Frequência com Visualizador ao Lado -->
+                <div class="frequency-input-group">
+                    <div class="frequency-controls">
+                        <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="440" min="20" max="20000" step="1" aria-describedby="frequency-description">
+                            <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
+                            </button>
+                            <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105 hidden" aria-label="Parar frequência">
+                                <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
+                            </button>
+                        </div>
+                        <span id="frequency-description" class="sr-only">Digite um valor entre 20 e 20000 Hz</span>
                     </div>
-                    <span id="frequency-description" class="sr-only">Digite um valor entre 20 e 20000 Hz</span>
+                    <div class="wave-visualizer-small">
+                        <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded" aria-label="Visualização da forma de onda"></canvas>
+                    </div>
                 </div>
+                
                 <!-- Controle de Volume -->
                 <div>
                     <label for="volume" class="block text-sm font-medium mb-2">Volume: <span id="volumeValue">50</span>%</label>
@@ -528,11 +564,6 @@
                 <button id="favoriteBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition w-full" aria-label="Adicionar aos favoritos">
                     <i class="far fa-star mr-2" aria-hidden="true"></i>Adicionar aos Favoritos
                 </button>
-                <!-- Visualizador -->
-                <div class="bg-gray-900 rounded-lg p-4 mt-4">
-                    <h3 class="text-sm font-medium mb-2 text-gray-400">Visualizador de Onda</h3>
-                    <canvas id="waveCanvas" width="300" height="150" class="w-full rounded" aria-label="Visualização da forma de onda"></canvas>
-                </div>
             </div>
         </section>
         
