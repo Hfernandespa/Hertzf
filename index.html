@@ -1069,8 +1069,27 @@
                 alert(`Iniciando terapia para ${protocolName} com frequência ${frequencies[0]} Hz. Este protocolo utiliza múltiplas frequências sequenciais para melhores resultados.`);
             }
         }
-    </script>
-</body>
+    </script> <!-- Script para definir a frequência padrão -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Verifica se a função showCurrentFrequencyInfo existe (definida em app.js)
+        if (typeof showCurrentFrequencyInfo === 'function') {
+            // Chama a função para mostrar as informações da frequência 40 Hz
+            showCurrentFrequencyInfo(40);
+        } else {
+            console.warn("Função showCurrentFrequencyInfo não encontrada. Certifique-se de que app.js foi carregado.");
+            // Fallback: Atualiza manualmente o conteúdo dos elementos de informação
+            const currentInfo = document.getElementById('currentInfo');
+            const currentDetails = document.getElementById('currentDetails');
+            const waveRecommendation = document.getElementById('waveRecommendation');
+            if (currentInfo) currentInfo.innerHTML = `<div class="text-xl font-bold text-blue-400">40 Hz</div><div class="text-lg font-medium">Foco</div>`;
+            if (currentDetails) currentDetails.innerHTML = `<div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">Concentração</span></div><div><strong>Descrição:</strong> Melhora o foco e a concentração mental.</div>`;
+            if (waveRecommendation) waveRecommendation.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-lightbulb text-yellow-500"></i><span><strong>Onda recomendada:</strong> Senoidal - Pesquisa confirmou que ondas senoidais puras aumentam a atenção sustentada.</span></div>`;
+        }
+    });
+</script>
+</body> 
 </html>
+
 
 
