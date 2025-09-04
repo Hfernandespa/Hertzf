@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Harmonizador Fernandes - Royal Raymond Rife: Biografia, Teorias e Contexto Científico sobre Terapia por Frequências">
+    <title>Royal Raymond Rife - Harmonizador Fernandes</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Estilos customizados -->
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #8b5cf6;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #fbbf24;
+            --danger-color: #ef4444;
+            --dark-bg: #1e293b;
+            --darker-bg: #0f172a;
+            --card-bg: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+        }
+
+        .harmonizador-title {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-divider {
+            border-top: 1px solid #374151;
+            margin: 2rem 0;
+        }
+
+        .reference-link {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .reference-link:hover {
+            color: #fbbf24;
+        }
+
+        .warning-box {
+            border-left: 4px solid var(--warning-color);
+            background-color: rgba(251, 191, 36, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .info-box {
+            border-left: 4px solid var(--primary-color);
+            background-color: rgba(59, 130, 246, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .quote-box {
+            border-left: 4px solid var(--secondary-color);
+            background-color: rgba(139, 92, 246, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-style: italic;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .back-button:hover {
+            background-color: #374151;
+        }
+
+        .frequency-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .frequency-table th,
+        .frequency-table td {
+            border: 1px solid #374151;
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        .frequency-table th {
+            background-color: var(--card-bg);
+            font-weight: bold;
+        }
+
+        .frequency-table tr:nth-child(even) {
+            background-color: rgba(31, 41, 55, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Cabeçalho -->
+        <header class="bg-gradient-to-r from-blue-900 to-purple-900 p-6 shadow-2xl mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold harmonizador-title">Harmonizador Fernandes</h1>
+            <p class="text-blue-200 mt-1">Explorando Frequências Terapêuticas & Contexto Científico</p>
+        </header>
+
+        <main class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+            <!-- Botão Voltar -->
+            <a href="index.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Voltar ao Harmonizador
+            </a>
+
+            <!-- Título Principal -->
+            <h1 class="text-3xl font-bold text-center mb-2 text-blue-400">Royal Raymond Rife</h1>
+            <p class="text-center text-gray-400 mb-8">Inventor, Microscopista e Polêmica em Terapia por Frequência</p>
+
+            <!-- Aviso Importante -->
+            <div class="warning-box mb-8">
+                <h3 class="font-bold text-yellow-500 flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i> Aviso Importante
+                </h3>
+                <p class="mt-2">
+                    As informações sobre Royal Rife apresentadas aqui têm caráter <strong>histórico e informativo</strong>. 
+                    Suas teorias e dispositivos <strong>não são reconhecidos pela medicina convencional</strong> e são considerados pseudociência. 
+                    Este conteúdo visa fornecer contexto crítico sobre o tema.
+                </p>
+            </div>
+
+            <!-- Conteúdo Principal -->
+            <div class="prose prose-invert max-w-none">
+                <p class="mb-4">
+                    <strong>Royal Raymond Rife</strong> (1888-1971) foi um inventor e microscopista americano dos anos 1930, 
+                    famoso por alegar que seria capaz de destruir micro-organismos causadores de doenças por meio de 
+                    vibrações eletromagnéticas específicas, utilizando um microscópio de alta ampliação e um 
+                    "ray beam" (raio de feixe), tecnologia atualmente desacreditada pela comunidade científica.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <!-- Contexto Histórico -->
+                <h2 class="text-2xl font-semibold mb-4 text-purple-400">
+                    <i class="fas fa-history mr-2"></i> Contexto Histórico e Principais Alegações
+                </h2>
+                <p class="mb-4">
+                    Na década de 1930, Rife construiu microscópios ópticos que teriam conseguido visualizar micro-organismos vivos 
+                    em ampliações muito altas. A partir dessas observações, ele postulou que cada patógeno teria uma 
+                    frequência natural de ressonância, e que ao aplicar uma onda eletromagnética nessa frequência seria possível 
+                    destruí-lo sem agredir tecidos sadios. Ele chamou esse fenômeno de "taxa oscilatória mortal" (mortal oscillatory rate, MOR).
+                </p>
+                <p class="mb-4">
+                    Rife afirmava que, dessa forma, seria possível tratar doenças como o câncer usando seu dispositivo. 
+                    No entanto, nem suas técnicas nem seus resultados foram reproduzidos ou confirmados por outros pesquisadores independentes.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <!-- Aparato Técnico -->
+                <h2 class="text-2xl font-semibold mb-4 text-green-400">
+                    <i class="fas fa-microscope mr-2"></i> Aparato Técnico
+                </h2>
+                <p class="mb-4">
+                    O microscópio de Rife usava diferentes comprimentos de onda de luz, incluindo ultravioleta, para tornar patógenos 
+                    visíveis através de técnicas de heterodinização, criando uma terceira onda perceptível ao olho humano. 
+                    Ele utilizou acessórios como espectroscópio de fenda e prismas de quartzo para conseguir focar luz ressonante 
+                    nos micro-organismos.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <!-- Frequências MOR -->
+                <h2 class="text-2xl font-semibold mb-4 text-orange-400">
+                    <i class="fas fa-wave-square mr-2"></i> Frequências "MOR" de Royal Rife
+                </h2>
+                <p class="mb-4">
+                    Royal Rife identificou diversas frequências "MOR" (taxa de oscilação mortal) supostamente capazes
+                    de destruir diferentes patógenos. No entanto, uma lista padronizada dessas frequências varia conforme
+                    relatos, já que <strong>não existe registro científico válido</strong> dessas medições.
+                </p>
+
+                <div class="info-box">
+                    <h3 class="font-bold text-blue-300 mb-2">Aviso Científico</h3>
+                    <p class="text-sm">
+                        As frequências listadas abaixo são baseadas em relatos históricos e fontes alternativas.
+                        Elas <strong>não possuem validação científica</strong> por estudos clínicos controlados.
+                        Esta informação é fornecida exclusivamente para contexto histórico.
+                    </p>
+                </div>
+
+                <h3 class="text-xl font-semibold text-purple-300 mt-4">Frequências Alegadas</h3>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>
+                        As listas contemporâneas geralmente referenciam faixas entre aproximadamente <strong>0,01 Hz a 10 MHz</strong>.
+                    </li>
+                    <li>
+                        <strong>Vírus:</strong> Faixa alegada entre <strong>728 kHz e 1,17 MHz</strong>.
+                    </li>
+                    <li>
+                        <strong>Bactérias:</strong> Variações entre algumas centenas de kHz.
+                    </li>
+                    <li>
+                        <strong>Parasitas e fungos:</strong> Cada tipo teria uma frequência específica, segundo tabelas
+                        alternativas sem validação científica.
+                    </li>
+                    <li>
+                        Apps atuais afirmam oferecer "mais de 3.000 frequências" para uso em terapia alternativa,
+                        muitas baseadas em interpretações não controladas das supostas medições originais de Rife.
+                    </li>
+                </ul>
+
+                <h3 class="text-xl font-semibold text-green-300 mt-4">Exemplos de Aplicações Alegadas</h3>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>Tratamento experimental de câncer, herpes, tuberculose, artrite, ansiedade, insônia e fadiga.</li>
+                    <li>Reequilíbrio energético, recuperação celular, relaxamento mental e bem-estar preventivo.</li>
+                    <li>Dispositivos oficiais requeriam contato elétrico ou emissão de frequências sobre a área a tratar, ou pelo corpo inteiro.</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold text-red-300 mt-4">Crítica e Regulamentação</h3>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>
+                        <strong>Nenhuma</strong> dessas frequências e aplicações foi validada por estudos clínicos
+                        controlados ou aceita por agências médicas reguladoras.
+                    </li>
+                    <li>
+                        O uso é considerado <strong>pseudociência</strong> e pode ser <strong>perigoso</strong> quando
+                        substitui tratamentos convencionais eficazes.
+                    </li>
+                </ul>
+
+                <div class="bg-gray-900 rounded-lg p-4 mt-6">
+                    <h3 class="font-bold text-gray-200 mb-2 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-blue-400"></i> Resumo
+                    </h3>
+                    <p>
+                        A utilização de frequências Rife envolve faixas de kHz a MHz para suposta destruição seletiva
+                        de patógenos e reequilíbrio energético. No entanto, todo o conhecimento sobre valores específicos
+                        e aplicações advém de fontes não científicas e relatos históricos, <strong>sem respaldo experimental
+                        robusto</strong> conforme padrões clínicos atuais.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Teorias e Controvérsias -->
+                <h2 class="text-2xl font-semibold mb-4 text-red-400">
+                    <i class="fas fa-balance-scale mr-2"></i> Teorias, Controvérsias e Pseudociência
+                </h2>
+                <p class="mb-4">
+                    Apesar do avanço técnico em microscopia para a época, as alegações de cura feitas por Rife foram desacreditadas 
+                    e sua tecnologia é hoje considerada parte da pseudomedicina, especialmente por prometer a cura de câncer e 
+                    outras doenças graves sem evidências válidas. Posteriormente, aparelhos que usavam o nome Rife passaram a ser 
+                    comercializados como curas alternativas para diversas enfermidades, resultando em diversos casos de fraude e 
+                    perigo à saúde pública.
+                </p>
+                <div class="info-box">
+                    <p>
+                        Diversos pacientes que abandonaram tratamentos convencionais para usar máquinas Rife vieram a óbito, 
+                        e muitos promotores desses dispositivos foram presos por fraude de saúde. As máquinas Rife, que produzem 
+                        ondas de radiofrequência de baixa energia, <strong>não têm qualquer efeito comprovado</strong> sobre o câncer 
+                        ou outras doenças.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Legado -->
+                <h2 class="text-2xl font-semibold mb-4 text-yellow-400">
+                    <i class="fas fa-monument mr-2"></i> Legado e Perspectivas Atuais
+                </h2>
+                <p class="mb-4">
+                    A figura de Rife foi redescoberta em círculos de medicina alternativa, principalmente após o livro 
+                    "The Cancer Cure That Worked" de Barry Lynes, que acusa uma conspiração médica pela suposta supressão 
+                    das descobertas de Rife. Porém, organizações científicas e autoridades de saúde alertam sistematicamente 
+                    para os riscos, a falta de base científica e a ineficácia dessas máquinas.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <!-- Resumo -->
+                <h2 class="text-2xl font-semibold mb-4 text-cyan-400">
+                    <i class="fas fa-list mr-2"></i> Resumo dos Fatos
+                </h2>
+                <ul class="list-disc pl-5 space-y-2 mb-6">
+                    <li>Rife alegou destruir patógenos por vibração de frequência ressonante.</li>
+                    <li>Seu microscópio e métodos não foram confirmados ou validados por pares.</li>
+                    <li>Os dispositivos Rife são categorizados atualmente como pseudociência e proibidos como tratamento médico em diversos países.</li>
+                    <li>O legado de Rife persiste em comunidades alternativas, mas não há suporte científico para suas ideias ou dispositivos.</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <!-- Referências -->
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-400">
+                    <i class="fas fa-book mr-2"></i> Referências Principais
+                </h2>
+                <ol class="list-decimal pl-5 space-y-2">
+                    <li>
+                        Wikipedia: Royal Rife 
+                        <a href="https://pt.wikipedia.org/wiki/Royal_Rife" target="_blank" class="reference-link">[Link]</a>
+                    </li>
+                    <li>
+                        Blog Unicamp: Aspectos técnicos das descobertas de Rife 
+                        <a href="https://www.blogs.unicamp.br/chivononpo/2006/05/20/royal-raymond-rife/" target="_blank" class="reference-link">[Link]</a>
+                    </li>
+                    <li>
+                        WebMD: Histórico e evidências sobre a máquina Rife 
+                        <a href="https://www.webmd.com/cancer/cancer-rife-machine-evidence" target="_blank" class="reference-link">[Link]</a>
+                    </li>
+                    <li>
+                        Cancer Research UK: Avaliação médica sobre dispositivos Rife 
+                        <a href="https://www.cancerresearchuk.org/about-cancer/treatment/complementary-alternative-therapies/individual-therapies/rife-machine-and-cancer" target="_blank" class="reference-link">[Link]</a>
+                    </li>
+                    <li>
+                        Cremesp: Alertas sobre riscos e fraudes 
+                        <a href="https://www.cremesp.org.br/?siteAcao=NoticiasC&id=6180" target="_blank" class="reference-link">[Link]</a>
+                    </li>
+                    <li>
+                        Morris, Cathryn. "Miracles or myth : the royal Raymond Rife story". 2001. 
+                        <a href="https://stars.library.ucf.edu/honorstheses1990-2015/247/" target="_blank" class="reference-link">[Link]</a>
+                    </li>
+                    <li>
+                        Consensus App: What are Rife Machines?
+                        <a href="https://consensus.app/home/blog/what-are-rife-machines/" target="_blank" class="reference-link">[Link]</a>
+                    </li>
+                </ol>
+
+                <div class="section-divider"></div>
+
+                <!-- Conclusão -->
+                <div class="quote-box">
+                    <p>
+                        Este material apresenta o panorama histórico, técnico e crítico sobre Royal Raymond Rife e suas teorias 
+                        na década de 1930, com base em fontes científicas, críticas e registros alternativos. 
+                        É fundamental buscar informações de fontes confiáveis e consultar profissionais de saúde 
+                        antes de considerar qualquer tipo de tratamento.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Rodapé -->
+        <footer class="bg-gray-800 border-t border-gray-700 py-6 mt-8 text-center text-gray-400 text-sm">
+            <p>© 2024 Harmonizador Fernandes. Informações para fins educacionais.</p>
+            <p class="mt-1">As informações aqui contidas são para fins educacionais e não substituem consultas médicas.</p>
+        </footer>
+    </div>
+</body>
+</html>
