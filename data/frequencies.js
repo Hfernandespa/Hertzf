@@ -174,15 +174,15 @@ const therapeuticFrequencies = [
         bestWave: "sine",
         waveStudy: "Estudo sobre 432Hz vs 440Hz mostrou que harmonia natural requer ondas puras."
     },
-    {
-        frequency: 440,
-        name: "Ascaris",
-        category: "vermifugacao",
-        description: "Frequência para combate de lombrigas (Ascaris lumbricoides).",
-        reference: "Journal of Parasitology Research, 2019",
-        bestWave: "square",
-        waveStudy: "Pesquisa Rife confirmou que ondas quadradas rompem a membrana celular do parasita."
-    },
+   {
+    frequency: 440,
+    name: "Ascaris",
+    category: "vermifugacao",
+    description: "Frequência para combate de lombrigas (Ascaris lumbricoides).",
+    reference: "Journal of Parasitology Research, 2019",
+    bestWave: "square",
+    waveStudy: "Pesquisa Rife confirmou que ondas quadradas rompem a membrana celular do parasita. <a href='rife.html#mor-heading' class='text-blue-400 hover:text-blue-300 underline text-xs'>(Mais sobre frequências MOR)</a>"
+},
     {
         frequency: 528,
         name: "Transformação",
@@ -244,7 +244,7 @@ const therapeuticFrequencies = [
         description: "Específica para tratamento de oxiúros (Enterobius vermicularis).",
         reference: "International Journal of Parasitology, 2018",
         bestWave: "square",
-        waveStudy: "Estudo clínico mostrou 92% de redução com protocolo de onda quadrada."
+        waveStudy: "Estudo clínico mostrou 92% de redução com protocolo de onda quadrada. <a href='rife.html#mor-heading' class='text-blue-400 hover:text-blue-300 underline text-xs'>(Mais sobre frequências MOR)</a>"
     },
     {
         frequency: 676,
@@ -366,5 +366,6 @@ window.FrequencyData = {
     therapeuticFrequencies,
     protocols
 };
+
 
 console.log("Dados de Frequências e Protocolos carregados.");
