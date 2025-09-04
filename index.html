@@ -675,14 +675,16 @@
                 <h2 id="references-heading" class="text-2xl font-semibold mb-6 text-yellow-400"><i class="fas fa-flask mr-2" aria-hidden="true"></i>Referências Científicas</h2>
                 <div class="references-container space-y-4">
                     <!-- Referências Gerais -->
-                    <div class="bg-gray-900 rounded-lg p-4">
-                        <h3 class="font-medium text-yellow-300 mb-3"><i class="fas fa-book mr-2" aria-hidden="true"></i>Referências Gerais</h3>
-                        <div class="space-y-3 text-sm">
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Royal Rife (1930s)</div>
-                                <div class="text-gray-400 text-xs">Pesquisas pioneiras em terapia por frequências para tratamento de doenças</div>
-                            </div>
-                            <div class="reference-item">
+div class="bg-gray-900 rounded-lg p-4">
+    <h3 class="font-medium text-yellow-300 mb-3"><i class="fas fa-book mr-2" aria-hidden="true"></i>Referências Gerais</h3>
+    <div class="space-y-3 text-sm">
+        <div class="reference-item">
+            <div class="font-medium text-white">Royal Rife (1930s)</div>
+            <div class="text-gray-400 text-xs">
+                Pesquisas pioneiras em terapia por frequências para tratamento de doenças.
+                <a href="rife.html" target="_blank" class="text-blue-400 hover:text-blue-300 underline text-xs">Mais informações.</a>
+            </div>
+        </div>                            <div class="reference-item">
                                 <div class="font-medium text-white">Hulda Clark (1993)</div>
                                 <div class="text-gray-400 text-xs">"The Cure for All Diseases" - Frequências específicas para parasitas</div>
                             </div>
@@ -829,25 +831,7 @@
             <i class="fas fa-arrow-up" aria-hidden="true"></i>
         </button>
     </div>
-<!-- Script para definir a frequência padrão -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Verifica se a função showCurrentFrequencyInfo existe (definida em app.js)
-        if (typeof showCurrentFrequencyInfo === 'function') {
-            // Chama a função para mostrar as informações da frequência 40 Hz
-            showCurrentFrequencyInfo(40);
-        } else {
-            console.warn("Função showCurrentFrequencyInfo não encontrada. Certifique-se de que app.js foi carregado.");
-            // Fallback: Atualiza manualmente o conteúdo dos elementos de informação
-            const currentInfo = document.getElementById('currentInfo');
-            const currentDetails = document.getElementById('currentDetails');
-            const waveRecommendation = document.getElementById('waveRecommendation');
-            if (currentInfo) currentInfo.innerHTML = `<div class="text-xl font-bold text-blue-400">40 Hz</div><div class="text-lg font-medium">Foco</div>`;
-            if (currentDetails) currentDetails.innerHTML = `<div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">Concentração</span></div><div><strong>Descrição:</strong> Melhora o foco e a concentração mental.</div>`;
-            if (waveRecommendation) waveRecommendation.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-lightbulb text-yellow-500"></i><span><strong>Onda recomendada:</strong> Senoidal - Pesquisa confirmou que ondas senoidais puras aumentam a atenção sustentada.</span></div>`;
-        }
-    });
-</script>
+
     <!-- Scripts -->
     <!-- Carregar os dados primeiro -->
     <script src="data/frequencies.js"></script>
