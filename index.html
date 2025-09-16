@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Harmonizador Fernandes v1.5 - Frequências Terapêuticas & Protocolos Personalizados">
-    <title>Harmonizador Fernandes</title>
+    <title>Harmonizador Fernandes - Versão Editável</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,6 +33,17 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
 
         /* Estilos do canvas */
@@ -312,16 +323,369 @@
                 margin-top: 1rem;
             }
         }
+        
+        /* Destaque para áreas editáveis */
+        .editable-area {
+            border: 2px dashed var(--warning-color);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .editable-label {
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: var(--dark-bg);
+            padding: 0 8px;
+            font-size: 12px;
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+        
+        /* Modal de informações sobre headphones */
+        .headphone-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .headphone-content {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--primary-color);
+            position: relative;
+        }
+        
+        .headphone-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .headphone-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .headphone-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .headphone-benefits {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .headphone-benefits h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .headphone-benefits ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .headphone-benefits li {
+            padding: 0.25rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .headphone-benefits li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .headphone-close {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: background 0.3s ease;
+        }
+        
+        .headphone-close:hover {
+            background: var(--secondary-color);
+        }
+        
+        .dont-show-again {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .dont-show-again input {
+            margin-right: 0.5rem;
+        }
+        
+        /* Cards de benefícios */
+        .benefit-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .benefit-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        /* Seção Hero no topo */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)), 
+                        url('https://images.unsplash.com/photo-1648080473344-a399955ac123?q=80&w=1974&auto=format&fit=crop') center/cover;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
+            z-index: 0;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 180px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .hero-feature:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .hero-feature:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        .hero-feature:nth-child(4) {
+            animation-delay: 1.5s;
+        }
+        
+        .hero-feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-feature-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        
+        .hero-feature-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .hero-cta {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .hero-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+        
+        /* Responsividade para a seção hero */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .hero-features {
+                gap: 1.5rem;
+            }
+            
+            .hero-feature {
+                width: 150px;
+            }
+            
+            .hero-feature-icon {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Cabeçalho com imagem de fundo */
+        .header-with-bg {
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), 
+                        url('/img/topo_freq.png') center/cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-with-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            z-index: 0;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Efeito de brilho no título */
+        .title-glow {
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
+    <!-- Modal de informações sobre headphones -->
+    <div id="headphoneModal" class="headphone-modal">
+        <div class="headphone-content">
+            <div class="headphone-icon">
+                <i class="fas fa-headphones"></i>
+            </div>
+            <h2 class="headphone-title">Importante: Use Headphones!</h2>
+            <p class="headphone-text">
+                Para uma experiência completa e eficaz com as frequências terapêuticas, recomendamos fortemente o uso de headphones de boa qualidade.
+            </p>
+            
+            <div class="headphone-benefits">
+                <h4>Benefícios do uso de headphones:</h4>
+                <ul>
+                    <li>Estimulação binaural precisa</li>
+                    <li>Isolamento de ruídos externos</li>
+                    <li>Experiência imersiva completa</li>
+                    <li>Melhor foco e concentração</li>
+                    <li>Resultados otimizados</li>
+                </ul>
+            </div>
+            
+            <p class="headphone-text">
+                As frequências terapêuticas funcionam melhor quando entregadas diretamente aos ouvidos, permitindo que o cérebro processe os estímulos de forma mais eficiente.
+            </p>
+            
+            <button id="closeHeadphoneModal" class="headphone-close">Entendi</button>
+            
+            <div class="dont-show-again">
+                <input type="checkbox" id="dontShowAgain">
+                <label for="dontShowAgain">Não mostrar novamente</label>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <!-- Cabeçalho -->
-        <header class="bg-gradient-to-r from-blue-900 to-purple-900 p-6 shadow-2xl" role="banner">
-            <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <!-- Cabeçalho com imagem de fundo -->
+        <header class="header-with-bg p-8 shadow-2xl rounded-b-2xl" role="banner">
+            <div class="header-content container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-3xl md:text-4xl font-bold harmonizador-title">Harmonizador Fernandes</h1>
-                    <p class="text-blue-200 mt-1">Frequências Terapêuticas & Protocolos Personalizados</p>
+                    <h1 class="text-4xl md:text-5xl font-bold harmonizador-title title-glow">Harmonizador Fernandes</h1>
+                    <p class="text-blue-200 mt-2 text-lg">Frequências Terapêuticas & Protocolos Personalizados</p>
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- hitwebcounter Code START -->
@@ -332,6 +696,54 @@
                 </div>
             </div>
         </header>
+
+        <!-- Seção Hero -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2 class="hero-title">Equilibre Sua Energia Vital</h2>
+                <p class="hero-subtitle">
+                    Descubra o poder das frequências terapêuticas para transformar seu bem-estar físico, mental e emocional com protocolos personalizados e cientificamente desenvolvidos.
+                </p>
+                
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Foco & Clareza</h3>
+                        <p class="hero-feature-text">Aumente sua concentração e capacidade cognitiva</p>
+                    </div>
+                    
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Energia Vital</h3>
+                        <p class="hero-feature-text">Combata a fadiga e recupere sua vitalidade</p>
+                    </div>
+                    
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Equilíbrio Emocional</h3>
+                        <p class="hero-feature-text">Encontre paz interior e bem-estar</p>
+                    </div>
+                    
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Sono Reparador</h3>
+                        <p class="hero-feature-text">Melhore a qualidade do seu descanso</p>
+                    </div>
+                </div>
+                
+                <button class="hero-cta" onclick="document.getElementById('generatorSection').scrollIntoView({behavior: 'smooth'})">
+                    Começar Agora <i class="fas fa-arrow-down ml-2"></i>
+                </button>
+            </div>
+        </section>
 
         <!-- Main Content -->
         <main class="space-y-8">
@@ -385,7 +797,7 @@
                                 <div class="frequency-controls">
                                     <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
                                     <div class="flex gap-2">
-<input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1" aria-describedby="frequency-description">
+                                        <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1" aria-describedby="frequency-description">
                                         <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
                                             <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
                                         </button>
@@ -443,19 +855,37 @@
                                 </div>
                             </div>
 
+                            <!-- Benefícios das Frequências (Modificado) -->
+                            <div class="space-y-3">
+                                <div class="benefit-card">
+                                    <h4><i class="fas fa-bolt text-yellow-400"></i> Energia e Vitalidade</h4>
+                                    <p>Frequências específicas como 25 Hz e 50 Hz ajudam a aumentar os níveis de energia, combater a fadiga e melhorar a disposição para atividades diárias.</p>
+                                </div>
+                                
+                                <div class="benefit-card">
+                                    <h4><i class="fas fa-brain text-blue-400"></i> Foco e Concentração</h4>
+                                    <p>Frequências na faixa de 40 Hz (ondas Gama) estão associadas à melhora da cognição, memória e capacidade de concentração prolongada.</p>
+                                </div>
+                                
+                                <div class="benefit-card">
+                                    <h4><i class="fas fa-heart text-red-400"></i> Bem-estar Emocional</h4>
+                                    <p>Frequências como 285 Hz e 639 Hz podem ajudar a reduzir sintomas de depressão, ansiedade e promover equilíbrio emocional.</p>
+                                </div>
+                            </div>
+
                             <!-- Current Frequency Info -->
                             <div id="currentInfo" class="bg-gray-900 rounded-lg p-4">
-                                <div class="text-xl font-bold text-blue-400">440 Hz</div>
-                                <div class="text-lg font-medium">Ascaris</div>
+                                <div class="text-xl font-bold text-blue-400">40 Hz</div>
+                                <div class="text-lg font-medium">Foco e Concentração</div>
                             </div>
                             <div id="currentDetails" class="bg-gray-900 rounded-lg p-4 text-sm">
-                                <div><strong>Categoria:</strong> <span class="category-badge bg-red-600">Vermifugação</span></div>
-                                <div><strong>Descrição:</strong> Frequência para combate de lombrigas (Ascaris lumbricoides).</div>
+                                <div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">Concentração</span></div>
+                                <div><strong>Descrição:</strong> Frequência para melhorar foco cognitivo e clareza mental.</div>
                             </div>
                             <div id="waveRecommendation" class="bg-gray-900 rounded-lg p-4 text-sm">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-lightbulb text-yellow-500"></i>
-                                    <span><strong>Onda recomendada:</strong> Quadrada - Pesquisa Rife confirmou que ondas quadradas rompem a membrana celular do parasita.</span>
+                                    <span><strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável para estimulação cognitiva.</span>
                                 </div>
                             </div>
 
@@ -516,132 +946,137 @@
             <!-- Protocolos Terapêuticos -->
             <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="protocols-heading">
                 <h2 id="protocols-heading" class="text-2xl font-semibold mb-6 text-orange-400"><i class="fas fa-procedures mr-2" aria-hidden="true"></i>Protocolos Terapêuticos</h2>
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Protocolo 1: Geral -->
-                    <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                        <h3 class="text-lg font-semibold mb-3 text-orange-300"><i class="fas fa-broadcast-tower mr-2" aria-hidden="true"></i>Protocolo Geral</h3>
-                        <p class="text-sm text-gray-300 mb-4">Protocolo completo para desparasitação geral, indicado para limpeza periódica e prevenção.</p>
-                        <div class="space-y-2 text-sm">
-                            <div class="protocol-step energy"><strong>Fase 1:</strong> 20 Hz - 5 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Fase 2:</strong> 72 Hz - 7 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Fase 3:</strong> 120 Hz - 5 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Fase 4:</strong> 432 Hz - 3 min (Onda Senoidal)</div>
-                        </div>
-                        <div class="mt-4 p-3 bg-orange-900 bg-opacity-30 rounded text-xs text-orange-200">
-                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Repetir 1 vez por semana durante 4 semanas. Manter hidratação adequada.
-                        </div>
-                        <button class="mt-3 w-full bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('geral')" aria-label="Iniciar Protocolo Geral">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                        </button>
-                    </article>
+                
+                <!-- Área Editável de Protocolos -->
+                <div class="editable-area">
+                    <div class="editable-label">ÁREA EDITÁVEL - PROTOCOLOS</div>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Protocolo 1: Geral -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-orange-300"><i class="fas fa-broadcast-tower mr-2" aria-hidden="true"></i>Protocolo Geral</h3>
+                            <p class="text-sm text-gray-300 mb-4">Protocolo completo para desparasitação geral, indicado para limpeza periódica e prevenção.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Fase 1:</strong> 20 Hz - 5 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Fase 2:</strong> 72 Hz - 7 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Fase 3:</strong> 120 Hz - 5 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Fase 4:</strong> 432 Hz - 3 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-orange-900 bg-opacity-30 rounded text-xs text-orange-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Repetir 1 vez por semana durante 4 semanas. Manter hidratação adequada.
+                            </div>
+                            <button class="mt-3 w-full bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('geral')" aria-label="Iniciar Protocolo Geral">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
 
-                    <!-- Protocolo 2: Intestinal -->
-                    <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                        <h3 class="text-lg font-semibold mb-3 text-green-300"><i class="fas fa-apple-alt mr-2" aria-hidden="true"></i>Protocolo Intestinal</h3>
-                        <p class="text-sm text-gray-300 mb-4">Focado na desparasitação do trato intestinal e recuperação da flora.</p>
-                        <div class="space-y-2 text-sm">
-                            <div class="protocol-step energy"><strong>Preparo:</strong> 432 Hz - 2 min (Onda Senoidal)</div>
-                            <div class="protocol-step energy"><strong>Tratamento:</strong> 120 Hz - 10 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Reforço:</strong> 440 Hz - 5 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Finalização:</strong> 528 Hz - 3 min (Onda Senoidal)</div>
-                        </div>
-                        <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
-                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Realizar em jejum. Repetir após 15 dias.
-                        </div>
-                        <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('intestinal')" aria-label="Iniciar Protocolo Intestinal">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                        </button>
-                    </article>
+                        <!-- Protocolo 2: Intestinal -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-green-300"><i class="fas fa-apple-alt mr-2" aria-hidden="true"></i>Protocolo Intestinal</h3>
+                            <p class="text-sm text-gray-300 mb-4">Focado na desparasitação do trato intestinal e recuperação da flora.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Preparo:</strong> 432 Hz - 2 min (Onda Senoidal)</div>
+                                <div class="protocol-step energy"><strong>Tratamento:</strong> 120 Hz - 10 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Reforço:</strong> 440 Hz - 5 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Finalização:</strong> 528 Hz - 3 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Realizar em jejum. Repetir após 15 dias.
+                            </div>
+                            <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('intestinal')" aria-label="Iniciar Protocolo Intestinal">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
 
-                    <!-- Protocolo 3: Sistêmico -->
-                    <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                        <h3 class="text-lg font-semibold mb-3 text-red-300"><i class="fas fa-heartbeat mr-2" aria-hidden="true"></i>Protocolo Sistêmico</h3>
-                        <p class="text-sm text-gray-300 mb-4">Tratamento completo para parasitas sistêmicos em ciclos de 3 dias.</p>
-                        <div class="space-y-2 text-sm">
-                            <div class="protocol-step energy"><strong>Dia 1: Giárdia:</strong> 1865 Hz - 15 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Dia 2: Ancilostomídeos:</strong> 800 Hz - 15 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Dia 3:</strong> 2127 Hz - 15 min (Onda Quadrada)</div>
-                            <div class="protocol-step energy"><strong>Descanso:</strong> 7 dias sem tratamento</div>
-                        </div>
-                        <div class="mt-4 p-3 bg-red-900 bg-opacity-30 rounded text-xs text-red-200">
-                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Acompanhamento médico recomendado. Repetir ciclo após 30 dias.
-                        </div>
-                        <button class="mt-3 w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('sistemico')" aria-label="Iniciar Protocolo Sistêmico">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                        </button>
-                    </article>
+                        <!-- Protocolo 3: Sistêmico -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-red-300"><i class="fas fa-heartbeat mr-2" aria-hidden="true"></i>Protocolo Sistêmico</h3>
+                            <p class="text-sm text-gray-300 mb-4">Tratamento completo para parasitas sistêmicos em ciclos de 3 dias.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Dia 1: Giárdia:</strong> 1865 Hz - 15 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Dia 2: Ancilostomídeos:</strong> 800 Hz - 15 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Dia 3:</strong> 2127 Hz - 15 min (Onda Quadrada)</div>
+                                <div class="protocol-step energy"><strong>Descanso:</strong> 7 dias sem tratamento</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-red-900 bg-opacity-30 rounded text-xs text-red-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Acompanhamento médico recomendado. Repetir ciclo após 30 dias.
+                            </div>
+                            <button class="mt-3 w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('sistemico')" aria-label="Iniciar Protocolo Sistêmico">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
 
-                    <!-- Protocolo 4: Energia -->
-                    <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                        <h3 class="text-lg font-semibold mb-3 text-yellow-300"><i class="fas fa-bolt mr-2" aria-hidden="true"></i>Protocolo de Energia</h3>
-                        <p class="text-sm text-gray-300 mb-4">Para aumentar vitalidade, disposição e combater fadiga crônica.</p>
-                        <div class="space-y-2 text-sm">
-                            <div class="protocol-step energy"><strong>Ativação:</strong> 25 Hz - 8 min (Onda Serra)</div>
-                            <div class="protocol-step energy"><strong>Amplificação:</strong> 50 Hz - 10 min (Onda Senoidal)</div>
-                            <div class="protocol-step energy"><strong>Estabilização:</strong> 100 Hz - 7 min (Onda Serra)</div>
-                            <div class="protocol-step energy"><strong>Integração:</strong> 432 Hz - 5 min (Onda Senoidal)</div>
-                        </div>
-                        <div class="mt-4 p-3 bg-yellow-900 bg-opacity-30 rounded text-xs text-yellow-200">
-                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para uso matinal. Evite antes de dormir.
-                        </div>
-                        <button class="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('energia')" aria-label="Iniciar Protocolo de Energia">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                        </button>
-                    </article>
+                        <!-- Protocolo 4: Energia -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
+                            <h3 class="text-lg font-semibold mb-3 text-yellow-300"><i class="fas fa-bolt mr-2" aria-hidden="true"></i>Protocolo de Energia</h3>
+                            <p class="text-sm text-gray-300 mb-4">Para aumentar vitalidade, disposição e combater fadiga crônica.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step energy"><strong>Ativação:</strong> 25 Hz - 8 min (Onda Serra)</div>
+                                <div class="protocol-step energy"><strong>Amplificação:</strong> 50 Hz - 10 min (Onda Senoidal)</div>
+                                <div class="protocol-step energy"><strong>Estabilização:</strong> 100 Hz - 7 min (Onda Serra)</div>
+                                <div class="protocol-step energy"><strong>Integração:</strong> 432 Hz - 5 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-yellow-900 bg-opacity-30 rounded text-xs text-yellow-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para uso matinal. Evite antes de dormir.
+                            </div>
+                            <button class="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('energia')" aria-label="Iniciar Protocolo de Energia">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
 
-                    <!-- Protocolo 5: Foco -->
-                    <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                        <h3 class="text-lg font-semibold mb-3 text-blue-300"><i class="fas fa-brain mr-2" aria-hidden="true"></i>Protocolo de Foco</h3>
-                        <p class="text-sm text-gray-300 mb-4">Potencializa a concentração, memória e clareza mental para estudos e trabalho.</p>
-                        <div class="space-y-2 text-sm">
-                            <div class="protocol-step focus"><strong>Preparação:</strong> 15 Hz - 5 min (Onda Senoidal)</div>
-                            <div class="protocol-step focus"><strong>Concentração:</strong> 40 Hz - 12 min (Onda Senoidal)</div>
-                            <div class="protocol-step focus"><strong>Manutenção:</strong> 50 Hz - 8 min (Onda Senoidal)</div>
-                            <div class="protocol-step focus"><strong>Integração:</strong> 852 Hz - 5 min (Onda Senoidal)</div>
-                        </div>
-                        <div class="mt-4 p-3 bg-blue-900 bg-opacity-30 rounded text-xs text-blue-200">
-                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para estudo, trabalho ou atividades que exigem atenção sustentada.
-                        </div>
-                        <button class="mt-3 w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('foco')" aria-label="Iniciar Protocolo de Foco">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                        </button>
-                    </article>
+                        <!-- Protocolo 5: Foco -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
+                            <h3 class="text-lg font-semibold mb-3 text-blue-300"><i class="fas fa-brain mr-2" aria-hidden="true"></i>Protocolo de Foco</h3>
+                            <p class="text-sm text-gray-300 mb-4">Potencializa a concentração, memória e clareza mental para estudos e trabalho.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step focus"><strong>Preparação:</strong> 15 Hz - 5 min (Onda Senoidal)</div>
+                                <div class="protocol-step focus"><strong>Concentração:</strong> 40 Hz - 12 min (Onda Senoidal)</div>
+                                <div class="protocol-step focus"><strong>Manutenção:</strong> 50 Hz - 8 min (Onda Senoidal)</div>
+                                <div class="protocol-step focus"><strong>Integração:</strong> 852 Hz - 5 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-900 bg-opacity-30 rounded text-xs text-blue-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para estudo, trabalho ou atividades que exigem atenção sustentada.
+                            </div>
+                            <button class="mt-3 w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('foco')" aria-label="Iniciar Protocolo de Foco">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
 
-                    <!-- Protocolo 6: Desinflamação Intestinal -->
-                    <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                        <h3 class="text-lg font-semibold mb-3 text-teal-300"><i class="fas fa-leaf mr-2" aria-hidden="true"></i>Desinflamação Intestinal</h3>
-                        <p class="text-sm text-gray-300 mb-4">Protocolo para reduzir inflamação no intestino e promover a cicatrização da mucosa.</p>
-                        <div class="space-y-2 text-sm">
-                            <div class="protocol-step anti-inflammatory"><strong>Calma:</strong> 285 Hz - 8 min (Onda Senoidal)</div>
-                            <div class="protocol-step anti-inflammatory"><strong>Tratamento:</strong> 432 Hz - 12 min (Onda Senoidal)</div>
-                            <div class="protocol-step anti-inflammatory"><strong>Equilíbrio:</strong> 7.83 Hz - 10 min (Onda Senoidal)</div>
-                            <div class="protocol-step anti-inflammatory"><strong>Harmonização:</strong> 639 Hz - 7 min (Onda Senoidal)</div>
-                        </div>
-                        <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
-                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Combinar com dieta anti-inflamatória. Repetir 3 vezes por semana.
-                        </div>
-                        <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('desinflamacao')" aria-label="Iniciar Protocolo de Desinflamação Intestinal">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                        </button>
-                    </article>
+                        <!-- Protocolo 6: Desinflamação Intestinal -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
+                            <h3 class="text-lg font-semibold mb-3 text-teal-300"><i class="fas fa-leaf mr-2" aria-hidden="true"></i>Desinflamação Intestinal</h3>
+                            <p class="text-sm text-gray-300 mb-4">Protocolo para reduzir inflamação no intestino e promover a cicatrização da mucosa.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step anti-inflammatory"><strong>Calma:</strong> 285 Hz - 8 min (Onda Senoidal)</div>
+                                <div class="protocol-step anti-inflammatory"><strong>Tratamento:</strong> 432 Hz - 12 min (Onda Senoidal)</div>
+                                <div class="protocol-step anti-inflammatory"><strong>Equilíbrio:</strong> 7.83 Hz - 10 min (Onda Senoidal)</div>
+                                <div class="protocol-step anti-inflammatory"><strong>Harmonização:</strong> 639 Hz - 7 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Combinar com dieta anti-inflamatória. Repetir 3 vezes por semana.
+                            </div>
+                            <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('desinflamacao')" aria-label="Iniciar Protocolo de Desinflamação Intestinal">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
 
-                    <!-- Protocolo 7: Harmonia -->
-                    <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                        <h3 class="text-lg font-semibold mb-3 text-purple-300"><i class="fas fa-heart mr-2" aria-hidden="true"></i>Protocolo de Harmonia</h3>
-                        <p class="text-sm text-gray-300 mb-4">Para promover equilíbrio emocional, paz interior e harmonia interpessoal.</p>
-                        <div class="space-y-2 text-sm">
-                            <div class="protocol-step harmony"><strong>Centramento:</strong> 136.1 Hz - 8 min (Onda Senoidal)</div>
-                            <div class="protocol-step harmony"><strong>Conexão:</strong> 639 Hz - 10 min (Onda Senoidal)</div>
-                            <div class="protocol-step harmony"><strong>Expansão:</strong> 852 Hz - 8 min (Onda Senoidal)</div>
-                            <div class="protocol-step harmony"><strong>Integração:</strong> 963 Hz - 7 min (Onda Senoidal)</div>
-                        </div>
-                        <div class="mt-4 p-3 bg-purple-900 bg-opacity-30 rounded text-xs text-purple-200">
-                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Pratique respiração profunda durante a sessão.
-                        </div>
-                        <button class="mt-3 w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('harmonia')" aria-label="Iniciar Protocolo de Harmonia">
-                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                        </button>
-                    </article>
+                        <!-- Protocolo 7: Harmonia -->
+                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
+                            <h3 class="text-lg font-semibold mb-3 text-purple-300"><i class="fas fa-heart mr-2" aria-hidden="true"></i>Protocolo de Harmonia</h3>
+                            <p class="text-sm text-gray-300 mb-4">Para promover equilíbrio emocional, paz interior e harmonia interpessoal.</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="protocol-step harmony"><strong>Centramento:</strong> 136.1 Hz - 8 min (Onda Senoidal)</div>
+                                <div class="protocol-step harmony"><strong>Conexão:</strong> 639 Hz - 10 min (Onda Senoidal)</div>
+                                <div class="protocol-step harmony"><strong>Expansão:</strong> 852 Hz - 8 min (Onda Senoidal)</div>
+                                <div class="protocol-step harmony"><strong>Integração:</strong> 963 Hz - 7 min (Onda Senoidal)</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-purple-900 bg-opacity-30 rounded text-xs text-purple-200">
+                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Pratique respiração profunda durante a sessão.
+                            </div>
+                            <button class="mt-3 w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('harmonia')" aria-label="Iniciar Protocolo de Harmonia">
+                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
+                            </button>
+                        </article>
+                    </div>
                 </div>
 
                 <!-- Recomendações Gerais -->
@@ -673,166 +1108,73 @@
             <!-- Seção de Referências Científicas -->
             <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="references-heading">
                 <h2 id="references-heading" class="text-2xl font-semibold mb-6 text-yellow-400"><i class="fas fa-flask mr-2" aria-hidden="true"></i>Referências Científicas</h2>
-                <div class="references-container space-y-4">
-                    <!-- Referências Gerais -->
-<div class="bg-gray-900 rounded-lg p-4">
-    <h3 class="font-medium text-yellow-300 mb-3"><i class="fas fa-book mr-2" aria-hidden="true"></i>Referências Gerais</h3>
-    <div class="space-y-3 text-sm">
-        <div class="reference-item">
-            <div class="font-medium text-white">Royal Rife (1930s)</div>
-            <div class="text-gray-400 text-xs">
-                Pesquisas pioneiras em terapia por frequências para tratamento de doenças.
-                <a href="rife.html" target="_blank" class="text-blue-400 hover:text-blue-300 underline text-xs">Mais informações.</a>
-            </div>
-        </div>                            <div class="reference-item">
-                                <div class="font-medium text-white">Hulda Clark (1993)</div>
-                                <div class="text-gray-400 text-xs">"The Cure for All Diseases" - Frequências específicas para parasitas</div>
-                            </div>
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Nikola Tesla (1900s)</div>
-                                <div class="text-gray-400 text-xs">Pesquisas sobre campos eletromagnéticos e suas aplicações terapêuticas</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Referências Frequências Solfeggio -->
-                    <div class="bg-gray-900 rounded-lg p-4">
-                        <h3 class="font-medium text-purple-300 mb-3"><i class="fas fa-music mr-2" aria-hidden="true"></i>Frequências Solfeggio</h3>
-                        <div class="space-y-3 text-sm">
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Journal of Music Therapy (2020)</div>
-                                <div class="text-gray-400 text-xs">396 Hz: Efeitos calmantes no sistema nervoso parassimpático</div>
-                            </div>
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Frontiers in Psychology (2019)</div>
-                                <div class="text-gray-400 text-xs">Estudo sobre ondas Gamma confirmou superioridade das ondas senoidais puras.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Referências Ondas Cerebrais -->
-                    <div class="bg-gray-900 rounded-lg p-4">
-                        <h3 class="font-medium text-blue-300 mb-3"><i class="fas fa-brain mr-2" aria-hidden="true"></i>Ondas Cerebrais</h3>
-                        <div class="space-y-3 text-sm">
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Sleep Medicine Reviews (2020)</div>
-                                <div class="text-gray-400 text-xs">Eficácia das ondas Delta (0.5-4 Hz) no sono profundo e regeneração celular</div>
-                            </div>
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Nature Human Behaviour (2018)</div>
-                                <div class="text-gray-400 text-xs">Ondas Beta (14-30 Hz) associadas a estados de foco e alerta</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Referências Energia e Foco -->
-                    <div class="bg-gray-900 rounded-lg p-4">
-                        <h3 class="font-medium text-yellow-300 mb-3"><i class="fas fa-bolt mr-2" aria-hidden="true"></i>Energia e Foco</h3>
-                        <div class="space-y-3 text-sm">
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Energy Medicine (2019)</div>
-                                <div class="text-gray-400 text-xs">25 Hz: Estimulação de bioenergia e vitalidade</div>
-                            </div>
-                            <div class="reference-item">
-                                <div class="font-medium text-white">Neuropsychologia (2020)</div>
-                                <div class="text-gray-400 text-xs">50 Hz: Clareza mental e foco cognitivo</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Info Section -->
-                    <div class="bg-gray-900 rounded-lg p-4">
-                        <h2 class="text-xl font-semibold mb-4">Sobre as Frequências Terapêuticas</h2>
-                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-300">
-                            <div>
-                                <h3 class="font-medium text-white mb-2">Ondas Cerebrais</h3>
-                                <ul class="space-y-1">
-                                    <li>• Delta (0.5-4 Hz): Sono profundo, cura</li>
-                                    <li>• Theta (4-8 Hz): Meditação, criatividade</li>
-                                    <li>• Alpha (8-14 Hz): Relaxamento, calma</li>
-                                    <li>• Beta (14-30 Hz): Foco, alerta</li>
-                                    <li>• Gamma (30-100 Hz): Cognição superior</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-white mb-2">Tipos de Ondas</h3>
-                                <ul class="space-y-1">
-                                    <li>• <strong>Senoidal:</strong> Onda pura, suave</li>
-                                    <li>• <strong>Quadrada:</strong> Rica em harmônicos</li>
-                                    <li>• <strong>Triangular:</strong> Transições suaves</li>
-                                    <li>• <strong>Dente de Serra:</strong> Transição linear</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-white mb-2">Aplicações Terapêuticas</h3>
-                                <ul class="space-y-1">
-                                    <li>• Relaxamento e Redução de Estresse</li>
-                                    <li>• Melhora da Qualidade do Sono</li>
-                                    <li>• Aumento da Concentração</li>
-                                    <li>• Alívio de Dor</li>
-                                    <li>• Estimulação da Criatividade</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Guia de Eficiência por Tipo de Onda -->
-<!-- Ondas Quadradas e Rife -->
-<div class="bg-gray-900 rounded-lg p-4">
-    <h3 class="text-lg font-medium text-red-400 mb-4">Ondas Quadradas & Terapia Rife</h3>
-    <div class="space-y-3 text-sm">
-        <p>
-            As ondas quadradas são ricas em harmônicos e foram associadas por Royal Rife à destruição de patógenos.
-            Ele alegava que frequências específicas poderiam "atingir a frequência de ressonância" de vírus, bactérias e
-            parasitas, levando-os à destruição.
-        </p>
-        <p>
-            <strong>Ressalto:</strong> Essas alegações não são comprovadas cientificamente. As chamadas frequências
-            "MOR" (Mortal Oscillatory Rate) de Rife carecem de validação por estudos clínicos.
-            <a href="rife.html#mor-heading" class="text-blue-400 hover:text-blue-300 underline">Mais detalhes sobre as frequências MOR.</a>
-        </p>
-        <div class="bg-gray-800 p-3 rounded text-xs">
-            <strong>Exemplos mencionados:</strong>
-            <ul class="list-disc pl-4 mt-1 space-y-1">
-                <li>440 Hz (Ascaris) - Onda Quadrada: "Pesquisa Rife confirmou..."</li>
-                <li>120 Hz (Oxiúros) - Onda Quadrada: "Estudo clínico mostrou..."</li>
-                <li>Outras frequências de vermifugação também utilizam onda quadrada.</li>
-            </ul>
-            <p class="mt-2 text-yellow-300">
-                <i class="fas fa-exclamation-triangle mr-1"></i>
-                Estas referências são baseadas em interpretações não validadas das supostas descobertas de Rife.
-            </p>
-        </div>
-    </div>
-</div>                    
-<div class="bg-gray-900 rounded-lg p-4">
-                        <h2 class="text-lg font-medium mb-4 text-green-400"><i class="fas fa-chart-line mr-2" aria-hidden="true"></i>Guia de Eficiência por Tipo de Onda</h2>
-                        <div class="space-y-6">
-                            <!-- Solfeggio Frequencies -->
-                            <div class="bg-gray-900 rounded-lg p-4">
-                                <h3 class="text-lg font-medium text-purple-400 mb-4">Frequências Solfeggio</h3>
-                                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div class="bg-gray-800 rounded p-3">
-                                        <h4 class="font-medium text-white mb-2">396 Hz - Libertação do Medo</h4>
-                                        <div class="wave-efficiency space-y-1 text-sm">
-                                            <div class="efficiency-high">⭐⭐⭐⭐⭐ Onda Senoidal</div>
-                                            <div class="text-gray-400 text-xs">Estudo: Journal of Music Therapy (2020) mostrou que ondas senoidais puras promovem relaxamento profundo.</div>
-                                        </div>
+                
+                <!-- Área Editável de Referências -->
+                <div class="editable-area">
+                    <div class="editable-label">ÁREA EDITÁVEL - REFERÊNCIAS</div>
+                    <div class="references-container space-y-4">
+                        <!-- Referências Gerais -->
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h3 class="font-medium text-yellow-300 mb-3"><i class="fas fa-book mr-2" aria-hidden="true"></i>Referências Gerais</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="reference-item">
+                                    <div class="font-medium text-white">Royal Rife (1930s)</div>
+                                    <div class="text-gray-400 text-xs">
+                                        Pesquisas pioneiras em terapia por frequências para tratamento de doenças.
+                                        <a href="rife.html" target="_blank" class="text-blue-400 hover:text-blue-300 underline text-xs">Mais informações.</a>
                                     </div>
-                                    <div class="bg-gray-800 rounded p-3">
-                                        <h4 class="font-medium text-white mb-2">417 Hz - Facilitação de Mudança</h4>
-                                        <div class="wave-efficiency space-y-1 text-sm">
-                                            <div class="efficiency-high">⭐⭐⭐⭐⭐ Onda Quadrada</div>
-                                            <div class="text-gray-400 text-xs">Pesquisa: Alternative Therapies (2019) indicou ondas quadradas para quebra de padrões negativos.</div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-gray-800 rounded p-3">
-                                        <h4 class="font-medium text-white mb-2">741 Hz - Despertar</h4>
-                                        <div class="wave-efficiency space-y-1 text-sm">
-                                            <div class="efficiency-high">⭐⭐⭐⭐⭐ Onda Triangular</div>
-                                            <div class="text-gray-400 text-xs">Pesquisa: Consciousness and Cognition (2017) indicou que ondas triangulares estimulam melhor o despertar da intuição.</div>
-                                        </div>
-                                    </div>
+                                </div>
+                                <div class="reference-item">
+                                    <div class="font-medium text-white">Hulda Clark (1993)</div>
+                                    <div class="text-gray-400 text-xs">"The Cure for All Diseases" - Frequências específicas para parasitas</div>
+                                </div>
+                                <div class="reference-item">
+                                    <div class="font-medium text-white">Nikola Tesla (1900s)</div>
+                                    <div class="text-gray-400 text-xs">Pesquisas sobre campos eletromagnéticos e suas aplicações terapêuticas</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Referências Frequências Solfeggio -->
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h3 class="font-medium text-purple-300 mb-3"><i class="fas fa-music mr-2" aria-hidden="true"></i>Frequências Solfeggio</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="reference-item">
+                                    <div class="font-medium text-white">Journal of Music Therapy (2020)</div>
+                                    <div class="text-gray-400 text-xs">396 Hz: Efeitos calmantes no sistema nervoso parassimpático</div>
+                                </div>
+                                <div class="reference-item">
+                                    <div class="font-medium text-white">Frontiers in Psychology (2019)</div>
+                                    <div class="text-gray-400 text-xs">Estudo sobre ondas Gamma confirmou superioridade das ondas senoidais puras.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ondas Quadradas e Rife -->
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-red-400 mb-4">Ondas Quadradas & Terapia Rife</h3>
+                            <div class="space-y-3 text-sm">
+                                <p>
+                                    As ondas quadradas são ricas em harmônicos e foram associadas por Royal Rife à destruição de patógenos.
+                                    Ele alegava que frequências específicas poderiam "atingir a frequência de ressonância" de vírus, bactérias e
+                                    parasitas, levando-os à destruição.
+                                </p>
+                                <p>
+                                    <strong>Ressalto:</strong> Essas alegações não são comprovadas cientificamente. As chamadas frequências
+                                    "MOR" (Mortal Oscillatory Rate) de Rife carecem de validação por estudos clínicos.
+                                    <a href="rife.html#mor-heading" class="text-blue-400 hover:text-blue-300 underline">Mais detalhes sobre as frequências MOR.</a>
+                                </p>
+                                <div class="bg-gray-800 p-3 rounded text-xs">
+                                    <strong>Exemplos mencionados:</strong>
+                                    <ul class="list-disc pl-4 mt-1 space-y-1">
+                                        <li>440 Hz (Ascaris) - Onda Quadrada: "Pesquisa Rife confirmou..."</li>
+                                        <li>120 Hz (Oxiúros) - Onda Quadrada: "Estudo clínico mostrou..."</li>
+                                        <li>Outras frequências de vermifugação também utilizam onda quadrada.</li>
+                                    </ul>
+                                    <p class="mt-2 text-yellow-300">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        Estas referências são baseadas em interpretações não validadas das supostas descobertas de Rife.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -861,10 +1203,204 @@
     </div>
 
     <!-- Scripts -->
-    <!-- Carregar os dados primeiro -->
-    <script src="data/frequencies.js"></script>
-    <!-- Carregar o script principal -->
-    <script src="js/app.js" defer></script>
+    <script>
+        // Script básico para funcionalidades essenciais
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se o modal de headphones já foi fechado anteriormente
+            const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
+            const headphoneModal = document.getElementById('headphoneModal');
+            
+            if (!headphoneModalClosed) {
+                headphoneModal.style.display = 'flex';
+            } else {
+                headphoneModal.style.display = 'none';
+            }
+            
+            // Fechar modal de headphones
+            document.getElementById('closeHeadphoneModal').addEventListener('click', function() {
+                const dontShowAgain = document.getElementById('dontShowAgain').checked;
+                
+                if (dontShowAgain) {
+                    localStorage.setItem('headphoneModalClosed', 'true');
+                }
+                
+                headphoneModal.style.display = 'none';
+            });
+            
+            // Simulação de banco de dados de frequências
+            const frequencies = [
+                { id: 1, name: "Foco e Concentração", frequency: 40, category: "concentracao", description: "Frequência para melhorar foco cognitivo e clareza mental." },
+                { id: 2, name: "Energia e Vitalidade", frequency: 25, category: "energia", description: "Aumenta os níveis de energia e combate a fadiga." },
+                { id: 3, name: "Bem-Estar Emocional", frequency: 285, category: "cura", description: "Ajuda a reduzir sintomas de depressão e ansiedade." },
+                { id: 4, name: "Relaxamento Profundo", frequency: 285, category: "relaxamento", description: "Induz estado de relaxamento profundo." },
+                { id: 5, name: "Meditação", frequency: 432, category: "meditacao", description: "Frequência para práticas meditativas." },
+                { id: 6, name: "Cura e Reparo", frequency: 528, category: "cura", description: "Frequência associada à cura e reparação celular." },
+                { id: 7, name: "Sono Profundo", frequency: 2.5, category: "sono", description: "Auxilia no sono profundo e reparador." },
+                { id: 8, name: "Concentração Avançada", frequency: 50, category: "concentracao", description: "Melhora a capacidade de concentração prolongada." }
+            ];
+            
+            // Função para renderizar frequências
+            function renderFrequencies(filteredFrequencies = frequencies) {
+                const grid = document.getElementById('frequenciesGrid');
+                grid.innerHTML = '';
+                
+                filteredFrequencies.forEach(freq => {
+                    const card = document.createElement('div');
+                    card.className = 'frequency-card bg-gray-900 rounded-lg p-4';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-lg font-bold text-blue-400">${freq.frequency} Hz</div>
+                                <div class="font-medium">${freq.name}</div>
+                                <div class="text-sm text-gray-400 mt-1">${freq.description}</div>
+                            </div>
+                            <span class="category-badge bg-${getCategoryColor(freq.category)}-600">${getCategoryName(freq.category)}</span>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => selectFrequency(freq));
+                    grid.appendChild(card);
+                });
+                
+                document.getElementById('resultCount').textContent = filteredFrequencies.length;
+            }
+            
+            function getCategoryColor(category) {
+                const colors = {
+                    relaxamento: 'blue',
+                    meditacao: 'purple',
+                    concentracao: 'blue',
+                    cura: 'green',
+                    sono: 'indigo',
+                    energia: 'yellow',
+                    vermifugacao: 'red'
+                };
+                return colors[category] || 'gray';
+            }
+            
+            function getCategoryName(category) {
+                const names = {
+                    relaxamento: 'Relaxamento',
+                    meditacao: 'Meditação',
+                    concentracao: 'Concentração',
+                    cura: 'Cura',
+                    sono: 'Sono',
+                    energia: 'Energia',
+                    vermifugacao: 'Vermifugação'
+                };
+                return names[category] || category;
+            }
+            
+            function selectFrequency(freq) {
+                document.getElementById('frequency').value = freq.frequency;
+                document.getElementById('currentInfo').innerHTML = `
+                    <div class="text-xl font-bold text-blue-400">${freq.frequency} Hz</div>
+                    <div class="text-lg font-medium">${freq.name}</div>
+                `;
+                document.getElementById('currentDetails').innerHTML = `
+                    <div><strong>Categoria:</strong> <span class="category-badge bg-${getCategoryColor(freq.category)}-600">${getCategoryName(freq.category)}</span></div>
+                    <div><strong>Descrição:</strong> ${freq.description}</div>
+                `;
+                
+                // Atualizar recomendação de onda
+                let waveRecommendation = '';
+                if (freq.category === 'energia') {
+                    waveRecommendation = '<strong>Onda recomendada:</strong> Serra - Estimula a ativação energética de forma eficaz.';
+                } else if (freq.category === 'concentracao') {
+                    waveRecommendation = '<strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave para estimulação cognitiva.';
+                } else if (freq.category === 'cura') {
+                    waveRecommendation = '<strong>Onda recomendada:</strong> Senoidal - Promove uma sensação de calma e bem-estar.';
+                } else {
+                    waveRecommendation = '<strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável.';
+                }
+                
+                document.getElementById('waveRecommendation').innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        <span>${waveRecommendation}</span>
+                    </div>
+                `;
+                
+                // Adicionar ao histórico
+                addToHistory(freq);
+            }
+            
+            function addToHistory(freq) {
+                const historyList = document.getElementById('historyList');
+                const historyItem = document.createElement('div');
+                historyItem.className = 'text-sm py-1 border-b border-gray-700';
+                historyItem.innerHTML = `${freq.frequency} Hz - ${freq.name}`;
+                historyList.insertBefore(historyItem, historyList.firstChild);
+                
+                // Manter apenas os 5 mais recentes
+                while (historyList.children.length > 5) {
+                    historyList.removeChild(historyList.lastChild);
+                }
+            }
+            
+            // Inicializar
+            renderFrequencies();
+            
+            // Event listeners
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filtered = frequencies.filter(freq => 
+                    freq.name.toLowerCase().includes(searchTerm) || 
+                    freq.description.toLowerCase().includes(searchTerm)
+                );
+                renderFrequencies(filtered);
+            });
+            
+            document.getElementById('categoryFilter').addEventListener('change', function(e) {
+                const category = e.target.value;
+                const filtered = category ? frequencies.filter(freq => freq.category === category) : frequencies;
+                renderFrequencies(filtered);
+            });
+            
+            // Botão de favoritos (placeholder)
+            document.getElementById('favoriteBtn').addEventListener('click', function() {
+                alert('Funcionalidade de favoritos será implementada em breve!');
+            });
+            
+            // Botão de timer (placeholder)
+            document.getElementById('timerBtn').addEventListener('click', function() {
+                alert('Funcionalidade de timer será implementada em breve!');
+            });
+            
+            // Botões de tipo de onda
+            document.querySelectorAll('.wave-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.wave-type-btn').forEach(b => {
+                        b.classList.remove('bg-blue-600');
+                        b.classList.add('bg-gray-700');
+                    });
+                    this.classList.remove('bg-gray-700');
+                    this.classList.add('bg-blue-600');
+                });
+            });
+            
+            // Botão voltar ao topo
+            const topBtn = document.getElementById('topBtn');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    topBtn.classList.add('show');
+                } else {
+                    topBtn.classList.remove('show');
+                }
+            });
+            
+            topBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Função para iniciar protocolos (placeholder)
+            window.startProtocol = function(protocolName) {
+                alert(`Iniciando protocolo: ${protocolName}\n\nEsta funcionalidade será implementada em breve!`);
+            };
+        });
+    </script>
 </body>
 </html>
-
