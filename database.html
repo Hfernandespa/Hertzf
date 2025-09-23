@@ -1,0 +1,502 @@
+<!-- Adicione este script antes do fechamento do body -->
+<script>
+// Dados do CAFL (inclua todos os dados processados aqui)
+const caflData = `CAFL
+Lista de frequências anotadas consolidada, v2023_05_25, turf@mindspring.com
+Todas as frequências em Hz
+Inflamação abdominal - 2720, 2489, 2170, 2000, 1865, 1800, 1600, 1550, 880, 832, 802, 787, 776, 727, 660, 465, 450, 444, 440, 428, 380, 250, 146, 125, 95, 72, 20, 1,2
+Dor abdominal - 10000, 3000, 95, 3
+[... resto dos dados ...]`;
+
+// Classe do Banco de Dados
+class FrequencyDatabase {
+    constructor() {
+        this.frequencies = [];
+        this.filteredFrequencies = [];
+        this.currentPage = 1;
+        this.itemsPerPage = 25;
+        this.filters = {
+            search: '',
+            category: '',
+            minFreq: '',
+            maxFreq: '',
+            waveType: ''
+        };
+        this.sortBy = 'name';
+        this.init();
+    }
+
+    init() {
+        // Processar dados do CAFL
+        this.frequencies = this.processCAFLData(caflData);
+        this.filteredFrequencies = [...this.frequencies];
+        this.setupEventListeners();
+        this.updateStats();
+        this.render();
+        
+        // Esconder loading
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    processCAFLData(data) {
+        const lines = data.split('\n');
+        const frequencies = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line || line.startsWith('CAFL') || line.startsWith('Lista de frequências') || line.startsWith('Todas as frequências')) {
+                continue;
+            }
+            
+            if (line.includes(' - ')) {
+                const parts = line.split(' - ');
+                if (parts.length >= 2) {
+                    const name = parts[0].trim();
+                    const freqValues = parts[1].trim();
+                    
+                    // Determinar categoria baseada no nome
+                    let category = 'geral';
+                    const nameLower = name.toLowerCase();
+                    
+                    if (nameLower.includes('inflamação') || nameLower.includes('inflamacao')) category = 'inflamacao';
+                    else if (nameLower.includes('dor') || nameLower.includes('algia')) category = 'dor';
+                    else if (nameLower.includes('infec') || nameLower.includes('bacteria') || nameLower.includes('bacillus')) category = 'bacteria';
+                    else if (nameLower.includes('virus') || nameLower.includes('vírus')) category = 'virus';
+                    else if (nameLower.includes('fungo') || nameLower.includes('aspergillus') || nameLower.includes('candida')) category = 'fungo';
+                    else if (nameLower.includes('cancer') || nameLower.includes('tumor') || nameLower.includes('carcinoma')) category = 'cancer';
+                    else if (nameLower.includes('parasita') || nameLower.includes('ameba') || nameLower.includes('giardia')) category = 'parasita';
+                    else if (nameLower.includes('asma') || nameLower.includes('bronquite') || nameLower.includes('respiratorio')) category = 'respiratorio';
+                    else if (nameLower.includes('pele') || nameLower.includes('dermat') || nameLower.includes('acne')) category = 'pele';
+                    else if (nameLower.includes('ansiedade') || nameLower.includes('depress') || nameLower.includes('mental')) category = 'mental';
+                    else if (nameLower.includes('sistema nervoso') || nameLower.includes('neuro') || nameLower.includes('als') || nameLower.includes('alzheimer')) category = 'sistema-nervoso';
+                    else if (nameLower.includes('digestivo') || nameLower.includes('intestinal') || nameLower.includes('colite') || nameLower.includes('fígado')) category = 'sistema-digestivo';
+                    
+                    frequencies.push({
+                        id: frequencies.length + 1,
+                        name: name,
+                        frequency: freqValues,
+                        category: category,
+                        description: `Frequências para tratamento de ${name}`,
+                        source: 'CAFL v2023_05_25',
+                        waveType: 'square',
+                        duration: '5-10 min'
+                    });
+                }
+            }
+        }
+        
+        return frequencies;
+    }
+
+    setupEventListeners() {
+        // Busca rápida
+        document.getElementById('quickSearch').addEventListener('input', (e) => {
+            this.filters.search = e.target.value.toLowerCase();
+            this.applyFilters();
+        });
+
+        // Filtros
+        document.getElementById('categoryFilter').addEventListener('change', (e) => {
+            this.filters.category = e.target.value;
+            this.applyFilters();
+        });
+
+        document.getElementById('minFreq').addEventListener('input', (e) => {
+            this.filters.minFreq = e.target.value;
+        });
+
+        document.getElementById('maxFreq').addEventListener('input', (e) => {
+            this.filters.maxFreq = e.target.value;
+        });
+
+        document.getElementById('waveTypeFilter').addEventListener('change', (e) => {
+            this.filters.waveType = e.target.value;
+            this.applyFilters();
+        });
+
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            this.sortBy = e.target.value;
+            this.applyFilters();
+        });
+
+        // Botões
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            this.applyFilters();
+        });
+
+        document.getElementById('clearFilters').addEventListener('click', () => {
+            this.clearFilters();
+        });
+
+        document.getElementById('exportData').addEventListener('click', () => {
+            this.exportData();
+        });
+
+        document.getElementById('itemsPerPage').addEventListener('change', (e) => {
+            this.itemsPerPage = parseInt(e.target.value);
+            this.currentPage = 1;
+            this.render();
+        });
+    }
+
+    applyFilters() {
+        this.filteredFrequencies = this.frequencies.filter(freq => {
+            // Filtro de busca
+            if (this.filters.search && 
+                !freq.name.toLowerCase().includes(this.filters.search) &&
+                !freq.description.toLowerCase().includes(this.filters.search)) {
+                return false;
+            }
+
+            // Filtro de categoria
+            if (this.filters.category && freq.category !== this.filters.category) {
+                return false;
+            }
+
+            // Filtro de faixa de frequência
+            if (this.filters.minFreq || this.filters.maxFreq) {
+                const freqs = freq.frequency.split(',').map(f => parseFloat(f.trim()));
+                const min = this.filters.minFreq ? parseFloat(this.filters.minFreq) : 0;
+                const max = this.filters.maxFreq ? parseFloat(this.filters.maxFreq) : Infinity;
+
+                if (!freqs.some(f => f >= min && f <= max)) {
+                    return false;
+                }
+            }
+
+            // Filtro de tipo de onda
+            if (this.filters.waveType && freq.waveType !== this.filters.waveType) {
+                return false;
+            }
+
+            return true;
+        });
+
+        // Ordenar
+        this.filteredFrequencies.sort((a, b) => {
+            switch (this.sortBy) {
+                case 'name':
+                    return a.name.localeCompare(b.name);
+                case 'frequency':
+                    const aFreq = parseFloat(a.frequency.split(',')[0]);
+                    const bFreq = parseFloat(b.frequency.split(',')[0]);
+                    return aFreq - bFreq;
+                case 'category':
+                    return a.category.localeCompare(b.category);
+                default:
+                    return 0;
+            }
+        });
+
+        this.currentPage = 1;
+        this.render();
+        this.updateStats();
+    }
+
+    clearFilters() {
+        this.filters = {
+            search: '',
+            category: '',
+            minFreq: '',
+            maxFreq: '',
+            waveType: ''
+        };
+        
+        document.getElementById('quickSearch').value = '';
+        document.getElementById('categoryFilter').value = '';
+        document.getElementById('minFreq').value = '';
+        document.getElementById('maxFreq').value = '';
+        document.getElementById('waveTypeFilter').value = '';
+        
+        this.applyFilters();
+    }
+
+    updateStats() {
+        document.getElementById('totalCount').textContent = this.frequencies.length;
+        document.getElementById('filteredCount').textContent = this.filteredFrequencies.length;
+        
+        // Contar categorias
+        const categories = [...new Set(this.frequencies.map(f => f.category))];
+        document.getElementById('categoryCount').textContent = categories.length;
+        
+        // Calcular faixa de frequência
+        const allFreqs = this.frequencies.flatMap(f => 
+            f.frequency.split(',').map(freq => parseFloat(freq.trim()))
+        ).filter(freq => !isNaN(freq));
+        
+        const minFreq = Math.min(...allFreqs);
+        const maxFreq = Math.max(...allFreqs);
+        document.getElementById('freqRange').textContent = `${minFreq.toFixed(1)}-${maxFreq.toFixed(1)}`;
+    }
+
+    render() {
+        const container = document.getElementById('resultsContainer');
+        container.innerHTML = '';
+
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        const pageItems = this.filteredFrequencies.slice(start, end);
+
+        pageItems.forEach(freq => {
+            const card = this.createFrequencyCard(freq);
+            container.appendChild(card);
+        });
+
+        this.renderPagination();
+        this.updateShowingInfo();
+    }
+
+    createFrequencyCard(freq) {
+        const card = document.createElement('div');
+        card.className = 'frequency-card bg-gray-800 rounded-lg p-4 fade-in';
+        
+        const firstFreq = freq.frequency.split(',')[0].trim();
+        const freqCount = freq.frequency.split(',').length;
+        
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-lg font-semibold text-white">${freq.name}</h3>
+                <span class="category-badge bg-${this.getCategoryColor(freq.category)}-600 text-white">
+                    ${this.getCategoryName(freq.category)}
+                </span>
+            </div>
+            
+            <div class="mb-3">
+                <div class="text-sm text-gray-400 mb-1">Frequências (${freqCount})</div>
+                <div class="font-mono text-sm text-blue-400">${firstFreq}${freqCount > 1 ? '...' : ''} Hz</div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>${freq.duration}
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="database.useFrequency(${freq.id})" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition">
+                        <i class="fas fa-play mr-1"></i>Usar
+                    </button>
+                    <button onclick="database.showDetails(${freq.id})" class="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-sm transition">
+                        <i class="fas fa-info-circle mr-1"></i>Detalhes
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+
+    getCategoryColor(category) {
+        const colors = {
+            'inflamacao': 'red',
+            'dor': 'orange',
+            'bacteria': 'yellow',
+            'virus': 'purple',
+            'fungo': 'green',
+            'cancer': 'pink',
+            'parasita': 'indigo',
+            'respiratorio': 'blue',
+            'pele': 'teal',
+            'mental': 'purple',
+            'sistema-nervoso': 'blue',
+            'sistema-digestivo': 'green',
+            'geral': 'gray'
+        };
+        return colors[category] || 'gray';
+    }
+
+    getCategoryName(category) {
+        const names = {
+            'inflamacao': 'Inflamação',
+            'dor': 'Dor',
+            'bacteria': 'Bactéria',
+            'virus': 'Vírus',
+            'fungo': 'Fungo',
+            'cancer': 'Câncer',
+            'parasita': 'Parasita',
+            'respiratorio': 'Respiratório',
+            'pele': 'Pele',
+            'mental': 'Mental/Emocional',
+            'sistema-nervoso': 'Sistema Nervoso',
+            'sistema-digestivo': 'Sistema Digestivo',
+            'geral': 'Geral'
+        };
+        return names[category] || category;
+    }
+
+    renderPagination() {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        const totalPages = Math.ceil(this.filteredFrequencies.length / this.itemsPerPage);
+        
+        if (totalPages <= 1) return;
+
+        // Botão Anterior
+        const prevBtn = document.createElement('button');
+        prevBtn.className = `px-3 py-1 rounded-lg ${this.currentPage === 1 ? 'bg-gray-700 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-500'}`;
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.disabled = this.currentPage === 1;
+        prevBtn.onclick = () => {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.render();
+            }
+        };
+        pagination.appendChild(prevBtn);
+
+        // Números de página
+        const maxVisible = 5;
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+        
+        if (endPage - startPage < maxVisible - 1) {
+            startPage = Math.max(1, endPage - maxVisible + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `px-3 py-1 rounded-lg ${i === this.currentPage ? 'bg-blue-600' : 'bg-gray-600 hover:bg-gray-500'}`;
+            pageBtn.textContent = i;
+            pageBtn.onclick = () => {
+                this.currentPage = i;
+                this.render();
+            };
+            pagination.appendChild(pageBtn);
+        }
+
+        // Botão Próximo
+        const nextBtn = document.createElement('button');
+        nextBtn.className = `px-3 py-1 rounded-lg ${this.currentPage === totalPages ? 'bg-gray-700 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-500'}`;
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = this.currentPage === totalPages;
+        nextBtn.onclick = () => {
+            if (this.currentPage < totalPages) {
+                this.currentPage++;
+                this.render();
+            }
+        };
+        pagination.appendChild(nextBtn);
+    }
+
+    updateShowingInfo() {
+        const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+        const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredFrequencies.length);
+        
+        document.getElementById('showingStart').textContent = start;
+        document.getElementById('showingEnd').textContent = end;
+        document.getElementById('totalResults').textContent = this.filteredFrequencies.length;
+    }
+
+    useFrequency(id) {
+        const freq = this.frequencies.find(f => f.id === id);
+        if (freq) {
+            const firstFreq = freq.frequency.split(',')[0].trim();
+            
+            // Atualizar o gerador de frequências
+            document.getElementById('frequency').value = firstFreq;
+            document.getElementById('currentInfo').innerHTML = `
+                <div class="text-xl font-bold text-blue-400">${firstFreq} Hz</div>
+                <div class="text-lg font-medium">${freq.name}</div>
+            `;
+            
+            // Rol até o gerador
+            document.getElementById('generatorSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    showDetails(id) {
+        const freq = this.frequencies.find(f => f.id === id);
+        if (freq) {
+            const modal = document.getElementById('detailModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalTitle.textContent = freq.name;
+            
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-semibold text-blue-400 mb-2">Frequências</h4>
+                        <div class="bg-gray-800 p-3 rounded-lg">
+                            <code class="text-sm text-green-400">${freq.frequency}</code>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-blue-400 mb-2">Informações</h4>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="text-gray-400">Categoria:</span> ${this.getCategoryName(freq.category)}</div>
+                            <div><span class="text-gray-400">Tipo de Onda:</span> ${freq.waveType}</div>
+                            <div><span class="text-gray-400">Duração:</span> ${freq.duration}</div>
+                            <div><span class="text-gray-400">Fonte:</span> ${freq.source}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h4 class="font-semibold text-blue-400 mb-2">Descrição</h4>
+                    <p class="text-gray-300">${freq.description}</p>
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="database.useFrequency(${freq.id})" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+                        <i class="fas fa-play mr-2"></i>Usar Frequência
+                    </button>
+                    <button onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg">
+                        Fechar
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    exportData() {
+        const data = this.filteredFrequencies.map(freq => ({
+            Nome: freq.name,
+            Frequencias: freq.frequency,
+            Categoria: this.getCategoryName(freq.category),
+            Descricao: freq.description,
+            Fonte: freq.source,
+            'Tipo de Onda': freq.waveType,
+            Duracao: freq.duration
+        }));
+        
+        const csv = this.convertToCSV(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'cafl_frequencies.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    convertToCSV(data) {
+        const headers = Object.keys(data[0]);
+        const csvHeaders = headers.join(',');
+        const csvRows = data.map(row => 
+            headers.map(header => `"${row[header] || ''}"`).join(',')
+        );
+        return csvHeaders + '\n' + csvRows.join('\n');
+    }
+}
+
+// Função global para fechar modal
+function closeModal() {
+    const modal = document.getElementById('detailModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// Inicializar o banco de dados quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    // Seu código existente...
+    
+    // Inicializar o banco de dados
+    window.database = new FrequencyDatabase();
+});
+</script>
