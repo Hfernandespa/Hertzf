@@ -163,7 +163,32 @@ aqui está o codigo vamos fazer as alterações: <!DOCTYPE html>
         .timer-progress {
             transition: width 1s linear;
         }
+<!-- No header do seu index.html, procure a seção de navegação e adicione: -->
+<nav class="hidden md:flex space-x-6">
+    <a href="#generator" class="text-blue-400 hover:text-blue-300 transition">Gerador</a>
+    <a href="#protocols" class="text-orange-400 hover:text-orange-300 transition">Protocolos</a>
+    <a href="#references" class="text-yellow-400 hover:text-yellow-300 transition">Referências</a>
+    <!-- Adicione este novo link -->
+    <a href="database.html" class="text-green-400 hover:text-green-300 transition">
+        <i class="fas fa-database mr-1"></i>Banco de Dados
+    </a>
+</nav>
 
+<!-- Se também tiver um menu mobile, adicione lá também: -->
+<div class="md:hidden">
+    <button id="mobileMenuBtn" class="text-gray-400 hover:text-white">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+    <div id="mobileMenu" class="hidden absolute top-full left-0 right-0 bg-gray-800 rounded-lg shadow-lg mt-2 p-4">
+        <a href="#generator" class="block py-2 text-blue-400 hover:text-blue-300">Gerador</a>
+        <a href="#protocols" class="block py-2 text-orange-400 hover:text-orange-300">Protocolos</a>
+        <a href="#references" class="block py-2 text-yellow-400 hover:text-yellow-300">Referências</a>
+        <!-- Adicione este novo link -->
+        <a href="database.html" class="block py-2 text-green-400 hover:text-green-300">
+            <i class="fas fa-database mr-2"></i>Banco de Dados
+        </a>
+    </div>
+</div>
         /* Botão voltar ao topo */
         #topBtn {
             position: fixed;
@@ -1628,3 +1653,4 @@ aqui está o codigo vamos fazer as alterações: <!DOCTYPE html>
     </script>
 </body>
 </html> guarde estre codigo e vamos add novas informações
+
