@@ -616,7 +616,7 @@
         /* Cabeçalho com imagem de fundo */
         .header-with-bg {
             background: linear-gradient(to right, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), 
-                        url('/img/img_topo.png') center/cover;
+                        url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=2070&auto=format&fit=crop') center/cover;
             position: relative;
             overflow: hidden;
         }
@@ -667,7 +667,7 @@
             </div>
             
             <p class="headphone-text">
-                As frequências terapêuticas funcionam melhor quando entregadas diretamente aos ouvidos, permitindo que o cérebro processe os estímulos de forma mais eficiente.
+                As frequências terapêuticas funcionam melhor quando entregues diretamente aos ouvidos, permitindo que o cérebro processe os estímulos de forma mais eficiente.
             </p>
             
             <button id="closeHeadphoneModal" class="headphone-close">Entendi</button>
@@ -1206,6 +1206,17 @@
     <script>
         // Script básico para funcionalidades essenciais
         document.addEventListener('DOMContentLoaded', function() {
+            // Variáveis para controle de áudio
+            let audioContext;
+            let oscillator;
+            let gainNode;
+            let isPlaying = false;
+            let waveType = 'sine';
+            let currentFrequency = 40;
+            let timerInterval;
+            let timerSeconds = 0;
+            let isTimerActive = false;
+            
             // Verificar se o modal de headphones já foi fechado anteriormente
             const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
             const headphoneModal = document.getElementById('headphoneModal');
@@ -1226,6 +1237,210 @@
                 
                 headphoneModal.style.display = 'none';
             });
+            
+            // Inicializar o contexto de áudio
+            function initAudioContext() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            
+            // Função para tocar a frequência
+            function playTone() {
+                if (isPlaying) return;
+                
+                initAudioContext();
+                
+                // Obter a frequência do input
+                currentFrequency = parseFloat(document.getElementById('frequency').value);
+                
+                // Criar um oscilador
+                oscillator = audioContext.createOscillator();
+                gainNode = audioContext.createGain();
+                
+                // Configurar o tipo de onda
+                oscillator.type = waveType;
+                
+                // Configurar a frequência
+                oscillator.frequency.setValueAtTime(currentFrequency, audioContext.currentTime);
+                
+                // Configurar o volume (0 a 1)
+                const volume = document.getElementById('volume').value / 100;
+                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+                
+                // Conectar o oscilador ao nó de ganho e ao destino
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Iniciar o oscilador
+                oscillator.start();
+                
+                isPlaying = true;
+                
+                // Atualizar a interface
+                document.getElementById('playBtn').classList.add('hidden');
+                document.getElementById('stopBtn').classList.remove('hidden');
+                
+                // Adicionar ao histórico
+                addToHistory({
+                    frequency: currentFrequency,
+                    name: document.querySelector('#currentInfo .text-lg.font-medium').textContent || 'Frequência Personalizada'
+                });
+                
+                // Desenhar a onda no canvas
+                drawWave();
+            }
+            
+            // Função para parar a frequência
+            function stopTone() {
+                if (!isPlaying) return;
+                
+                // Parar o oscilador
+                if (oscillator) {
+                    oscillator.stop();
+                    oscillator.disconnect();
+                    oscillator = null;
+                }
+                
+                // Desconectar o nó de ganho
+                if (gainNode) {
+                    gainNode.disconnect();
+                    gainNode = null;
+                }
+                
+                isPlaying = false;
+                
+                // Atualizar a interface
+                document.getElementById('playBtn').classList.remove('hidden');
+                document.getElementById('stopBtn').classList.add('hidden');
+                
+                // Parar o timer se estiver ativo
+                if (isTimerActive) {
+                    stopTimer();
+                }
+            }
+            
+            // Função para desenhar a onda no canvas
+            function drawWave() {
+                const canvas = document.getElementById('waveCanvas');
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                // Limpar o canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Configurar o estilo da linha
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                
+                // Iniciar o caminho
+                ctx.beginPath();
+                
+                // Desenhar a forma de onda baseada no tipo selecionado
+                const amplitude = height / 3;
+                const frequency = currentFrequency / 100; // Ajustar para visualização
+                const centerY = height / 2;
+                
+                for (let x = 0; x < width; x++) {
+                    let y;
+                    
+                    switch (waveType) {
+                        case 'sine':
+                            y = centerY + amplitude * Math.sin(x * frequency * 0.1);
+                            break;
+                        case 'square':
+                            y = centerY + amplitude * (Math.sin(x * frequency * 0.1) > 0 ? 1 : -1);
+                            break;
+                        case 'sawtooth':
+                            y = centerY + amplitude * (2 * (x * frequency * 0.1 / (2 * Math.PI) - Math.floor(0.5 + x * frequency * 0.1 / (2 * Math.PI))));
+                            break;
+                        case 'triangle':
+                            const t = (x * frequency * 0.1) % (2 * Math.PI);
+                            y = centerY + amplitude * (2 * Math.abs(2 * (t / (2 * Math.PI) - Math.floor(t / (2 * Math.PI) + 0.5))) - 1);
+                            break;
+                        default:
+                            y = centerY;
+                    }
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                // Finalizar o caminho
+                ctx.stroke();
+                
+                // Continuar animando se estiver tocando
+                if (isPlaying) {
+                    requestAnimationFrame(drawWave);
+                }
+            }
+            
+            // Função para atualizar o volume
+            function updateVolume() {
+                const volume = document.getElementById('volume').value;
+                document.getElementById('volumeValue').textContent = volume;
+                
+                if (gainNode) {
+                    gainNode.gain.setValueAtTime(volume / 100, audioContext.currentTime);
+                }
+            }
+            
+            // Função para iniciar o timer
+            function startTimer() {
+                const minutes = prompt("Digite o tempo em minutos:", "5");
+                if (!minutes || isNaN(minutes)) return;
+                
+                timerSeconds = parseInt(minutes) * 60;
+                isTimerActive = true;
+                
+                // Mostrar o container do timer
+                document.getElementById('timerContainer').classList.remove('hidden');
+                
+                // Atualizar o display do timer
+                updateTimerDisplay();
+                
+                // Configurar o intervalo do timer
+                timerInterval = setInterval(() => {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    
+                    // Atualizar a barra de progresso
+                    const totalSeconds = parseInt(minutes) * 60;
+                    const progress = ((totalSeconds - timerSeconds) / totalSeconds) * 100;
+                    document.getElementById('timerProgress').style.width = `${progress}%`;
+                    
+                    // Verificar se o timer terminou
+                    if (timerSeconds <= 0) {
+                        stopTimer();
+                        stopTone();
+                        alert("Timer concluído!");
+                    }
+                }, 1000);
+            }
+            
+            // Função para parar o timer
+            function stopTimer() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                isTimerActive = false;
+                document.getElementById('timerContainer').classList.add('hidden');
+            }
+            
+            // Função para atualizar o display do timer
+            function updateTimerDisplay() {
+                const hours = Math.floor(timerSeconds / 3600);
+                const minutes = Math.floor((timerSeconds % 3600) / 60);
+                const seconds = timerSeconds % 60;
+                
+                const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timerDisplay').textContent = display;
+            }
             
             // Simulação de banco de dados de frequências
             const frequencies = [
@@ -1341,6 +1556,11 @@
             renderFrequencies();
             
             // Event listeners
+            document.getElementById('playBtn').addEventListener('click', playTone);
+            document.getElementById('stopBtn').addEventListener('click', stopTone);
+            document.getElementById('volume').addEventListener('input', updateVolume);
+            document.getElementById('timerBtn').addEventListener('click', startTimer);
+            
             document.getElementById('searchInput').addEventListener('input', function(e) {
                 const searchTerm = e.target.value.toLowerCase();
                 const filtered = frequencies.filter(freq => 
@@ -1361,20 +1581,24 @@
                 alert('Funcionalidade de favoritos será implementada em breve!');
             });
             
-            // Botão de timer (placeholder)
-            document.getElementById('timerBtn').addEventListener('click', function() {
-                alert('Funcionalidade de timer será implementada em breve!');
-            });
-            
             // Botões de tipo de onda
             document.querySelectorAll('.wave-type-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
+                    // Atualizar o tipo de onda
+                    waveType = this.dataset.wave;
+                    
+                    // Atualizar a interface
                     document.querySelectorAll('.wave-type-btn').forEach(b => {
                         b.classList.remove('bg-blue-600');
                         b.classList.add('bg-gray-700');
                     });
                     this.classList.remove('bg-gray-700');
                     this.classList.add('bg-blue-600');
+                    
+                    // Se estiver tocando, atualizar o oscilador
+                    if (isPlaying && oscillator) {
+                        oscillator.type = waveType;
+                    }
                 });
             });
             
