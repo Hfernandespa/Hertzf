@@ -1,0 +1,719 @@
+/* Cole todo este conteúdo no arquivo css/style.css */
+
+/* Variáveis CSS para facilitar manutenção */
+:root {
+    --primary-color: #3b82f6;
+    --secondary-color: #8b5cf6;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --warning-color: #fbbf24;
+    --danger-color: #ef4444;
+    --dark-bg: #1e293b;
+    --darker-bg: #0f172a;
+    --card-bg: #1f2937;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+}
+
+/* Animações */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Estilos do canvas */
+#waveCanvas {
+    background: linear-gradient(to bottom, var(--dark-bg), var(--darker-bg));
+}
+
+/* Cards de frequência */
+.frequency-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.frequency-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.frequency-card.selected {
+    background-color: rgba(59, 130, 246, 0.2);
+    border: 2px solid var(--primary-color);
+}
+
+/* Badge de categoria */
+.category-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+
+/* Destaque de busca */
+.search-highlight {
+    background-color: rgba(59, 130, 246, 0.3);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* Passos de protocolo */
+.protocol-step {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.protocol-step::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+}
+
+.protocol-step.energy::before { background: var(--accent-color); }
+.protocol-step.focus::before { background: var(--primary-color); }
+.protocol-step.anti-inflammatory::before { background: var(--success-color); }
+.protocol-step.harmony::before { background: var(--secondary-color); }
+
+/* Título estilizado */
+.harmonizador-title {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Container do banco de dados */
+.database-container {
+    height: 600px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+.database-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.database-container::-webkit-scrollbar-track {
+    background: var(--card-bg);
+}
+
+.database-container::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+}
+
+/* Container do Top 10 */
+.top10-container {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+.top10-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.top10-container::-webkit-scrollbar-track {
+    background: var(--card-bg);
+}
+
+.top10-container::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+}
+
+/* Estilos do timer */
+.timer-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.timer-progress {
+    transition: width 1s linear;
+}
+
+/* Botão voltar ao topo */
+#topBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+#topBtn.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#topBtn:hover {
+    transform: translateY(-3px);
+}
+
+/* Destaque de protocolo */
+.protocol-highlight {
+    animation: pulse 2s infinite;
+}
+
+/* Eficiência alta */
+.efficiency-high {
+    color: var(--warning-color);
+}
+
+/* Itens de referência */
+.reference-item {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.reference-item::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* Eficiência da onda */
+.wave-efficiency {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Input do timer */
+.timer-input {
+    width: 3rem;
+    text-align: center;
+}
+
+/* Melhorias de acessibilidade */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Melhorias de foco para acessibilidade */
+button:focus,
+input:focus,
+select:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Melhorias para modo de alto contraste */
+@media (prefers-contrast: high) {
+    .frequency-card:hover,
+    .frequency-card.selected {
+        border-width: 3px;
+    }
+}
+
+/* Melhorias para redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+    .frequency-card,
+    #topBtn,
+    .timer-progress,
+    .protocol-highlight {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* Container de referências com rolagem */
+.references-container {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+.references-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.references-container::-webkit-scrollbar-track {
+    background: var(--card-bg);
+}
+
+.references-container::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+}
+
+/* Layout do Visualizador de Onda ao lado da Frequência */
+.frequency-input-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.frequency-controls {
+    flex: 1;
+}
+
+.wave-visualizer-small {
+    width: 120px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 768px) {
+    .frequency-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .wave-visualizer-small {
+        width: 100%;
+        height: 100px;
+        margin-top: 1rem;
+    }
+}
+
+/* Destaque para áreas editáveis */
+.editable-area {
+    border: 2px dashed var(--warning-color);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    position: relative;
+}
+
+.editable-label {
+    position: absolute;
+    top: -12px;
+    left: 15px;
+    background: var(--dark-bg);
+    padding: 0 8px;
+    font-size: 12px;
+    color: var(--warning-color);
+    font-weight: bold;
+}
+
+/* Modal de informações sobre headphones */
+.headphone-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: slideIn 0.5s ease;
+}
+
+.headphone-content {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--primary-color);
+    position: relative;
+}
+
+.headphone-icon {
+    font-size: 4rem;
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.headphone-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.headphone-text {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.headphone-benefits {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.headphone-benefits h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.headphone-benefits ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.headphone-benefits li {
+    padding: 0.25rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.headphone-benefits li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.headphone-close {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+    transition: background 0.3s ease;
+}
+
+.headphone-close:hover {
+    background: var(--secondary-color);
+}
+
+.dont-show-again {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.dont-show-again input {
+    margin-right: 0.5rem;
+}
+
+/* Cards de benefícios */
+.benefit-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.benefit-card h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.benefit-card p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Seção Hero no topo */
+.hero-section {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)), 
+                url('https://images.unsplash.com/photo-164808047334-a399955ac123?q=80&w=1974&auto=format&fit=crop') center/cover;
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin-bottom: 2rem;
+}
+
+.hero-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.hero-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 180px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.hero-feature:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.hero-feature:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.hero-feature:nth-child(4) {
+    animation-delay: 1.5s;
+}
+
+.hero-feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-feature-title {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.hero-feature-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.hero-cta {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+/* Responsividade para a seção hero */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .hero-features {
+        gap: 1.5rem;
+    }
+    
+    .hero-feature {
+        width: 150px;
+    }
+    
+    .hero-feature-icon {
+        font-size: 2rem;
+    }
+}
+
+/* Cabeçalho com imagem de fundo */
+.header-with-bg {
+    background: linear-gradient(to right, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), 
+                url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=2070&auto=format&fit=crop') center/cover;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-with-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+    z-index: 0;
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Efeito de brilho no título */
+.title-glow {
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+/* ESTILOS ADICIONAIS PARA O BANCO DE DADOS */
+.database-container-main {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-highlight {
+    background-color: rgba(59, 130, 246, 0.3);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.frequency-card-db {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.frequency-card-db:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary-color);
+}
+
+.category-badge-db {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+
+.filter-section-db {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-card-db {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border-left: 4px solid var(--primary-color);
+}
+
+.modal-content-db {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border: 2px solid var(--primary-color);
+}
+
+/* Scrollbar personalizada */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid var(--primary-color);
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
