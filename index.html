@@ -1,22 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Harmonizador Fernandes v1.5 - Frequências Terapêuticas & Protocolos Personalizados">
-    <title>Harmonizador Fernandes - Versão Modular</title>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- Nosso CSS customizado -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
+<!-- Cole isto dentro da tag <body> do seu index.html -->
 <body class="bg-gray-900 text-white min-h-screen">
-    <!-- Modal de headphones -->
+    <!-- Modal de informações sobre headphones -->
     <div id="headphoneModal" class="headphone-modal">
         <div class="headphone-content">
             <div class="headphone-icon"><i class="fas fa-headphones"></i></div>
@@ -42,7 +26,7 @@
     </div>
 
     <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <!-- Cabeçalho -->
+        <!-- Cabeçalho com imagem de fundo -->
         <header class="header-with-bg p-8 shadow-2xl rounded-b-2xl" role="banner">
             <div class="header-content container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
@@ -92,20 +76,157 @@
 
         <!-- Main Content -->
         <main class="space-y-8">
+            <!-- Layout Principal: Gerador + Banco de Dados + Referências -->
             <div class="grid lg:grid-cols-12 gap-8">
                 <!-- Coluna 1: Gerador de Frequências + Histórico -->
                 <div class="lg:col-span-5 space-y-6">
                     <section id="generatorSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                        <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2"></i>Gerador de Frequências</h2>
-                        <!-- ... (Copie o resto do HTML da seção do gerador aqui) ... -->
-                        <!-- Para brevidade, não vou colar todo o HTML, mas você deve copiar todo o conteúdo <main> do seu arquivo original para cá. -->
+                        <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
+                        <!-- Protocol Controls (inicialmente oculto) -->
+                        <div id="protocolControls" class="protocol-controls hidden mb-6 p-4 bg-gray-900 rounded-lg">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-purple-400"><i class="fas fa-tasks mr-2" aria-hidden="true"></i><span id="protocolName">Protocolo Ativo</span></h3>
+                                <button id="exitProtocolBtn" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Sair do protocolo">
+                                    <i class="fas fa-times mr-1" aria-hidden="true"></i>Sair
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Progresso do Protocolo</span>
+                                    <span id="protocolProgressText">0/0</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2.5" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    <div id="protocolProgressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist"></div>
+                            <div class="flex justify-between">
+                                <button id="prevStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Passo anterior">
+                                    <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
+                                </button>
+                                <div class="text-center">
+                                    <div class="text-sm text-gray-400">Passo Atual</div>
+                                    <div id="currentStepName" class="font-medium">-</div>
+                                </div>
+                                <button id="nextStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Próximo passo">
+                                    Próximo<i class="fas fa-chevron-right ml-2" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="frequency-input-group">
+                                <div class="frequency-controls">
+                                    <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1" aria-describedby="frequency-description">
+                                        <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
+                                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
+                                        </button>
+                                        <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105 hidden" aria-label="Parar frequência">
+                                            <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
+                                        </button>
+                                    </div>
+                                    <div id="frequency-description" class="sr-only">Insira uma frequência entre 20 Hz e 20.000 Hz</div>
+                                </div>
+                                <div class="wave-visualizer-small bg-gray-900 rounded-lg p-2">
+                                    <h3 class="text-xs font-medium mb-1 text-gray-400 text-center">Onda em Tempo Real</h3>
+                                    <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded" aria-label="Visualização da forma de onda"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="volume" class="block text-sm font-medium mb-2">Volume: <span id="volumeValue">50</span>%</label>
+                                <input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="50" aria-describedby="volume-description">
+                                <div id="volume-description" class="sr-only">Ajuste o volume de 0% a 100%</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Tipo de Onda</label>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sine" aria-label="Onda Senoidal">Senoidal</button>
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">Quadrada</button>
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">Serra</button>
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">Triangular</button>
+                                </div>
+                            </div>
+                            <div>
+                                <button id="timerBtn" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 w-full" aria-label="Definir timer">
+                                    <i class="fas fa-clock mr-2" aria-hidden="true"></i>Programar Timer
+                                </button>
+                            </div>
+                            <div class="mt-3 bg-gray-900 rounded-lg p-3 hidden" id="timerContainer">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-400">Tempo Restante</span>
+                                    <div id="timerDisplay" class="timer-display text-blue-400">00:00:00</div>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div id="timerProgress" class="timer-progress bg-purple-600 h-full rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div id="currentInfo" class="bg-gray-900 rounded-lg p-4">
+                                <div class="text-xl font-bold text-blue-400">40 Hz</div>
+                                <div class="text-lg font-medium">Foco e Concentração</div>
+                            </div>
+                            <div id="currentDetails" class="bg-gray-900 rounded-lg p-4 text-sm">
+                                <div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">Concentração</span></div>
+                                <div><strong>Descrição:</strong> Frequência para melhorar foco cognitivo e clareza mental.</div>
+                            </div>
+                            <div id="waveRecommendation" class="bg-gray-900 rounded-lg p-4 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-lightbulb text-yellow-500"></i>
+                                    <span><strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável para estimulação cognitiva.</span>
+                                </div>
+                            </div>
+                            <button id="favoriteBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition w-full" aria-label="Adicionar aos favoritos">
+                                <i class="far fa-star mr-2"></i>Adicionar aos Favoritos
+                            </button>
+                        </div>
+                    </section>
+                    <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="history-heading">
+                        <h3 id="history-heading" class="text-lg font-semibold mb-4 text-purple-400"><i class="fas fa-history mr-2" aria-hidden="true"></i>Histórico Recente</h3>
+                        <div id="historyList" class="space-y-1 max-h-32 overflow-y-auto" aria-live="polite"></div>
                     </section>
                 </div>
-                <!-- Coluna 2: Banco de Dados -->
+
+                <!-- Coluna 2: Banco de Dados de Frequências -->
                 <div class="lg:col-span-7 space-y-6">
                     <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
-                        <!-- ... (Copie o resto do HTML da seção do banco de dados aqui) ... -->
+                        <h2 id="database-heading" class="text-2xl font-semibold mb-4 text-blue-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Frequências</h2>
+                        
+                        <!-- Search and Filter Section -->
+                        <div class="filter-section-db p-4 rounded-lg mb-4">
+                            <input type="text" id="searchInput" placeholder="Buscar por nome ou frequência..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 mb-3">
+                            <div class="flex flex-wrap gap-2">
+                                <button class="filter-btn active bg-blue-600 text-white px-3 py-1 rounded-full text-sm" data-category="all">Todas</button>
+                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="energy">Energia</button>
+                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="focus">Foco</button>
+                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="anti-inflammatory">Anti-inflamatório</button>
+                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="harmony">Harmonia</button>
+                            </div>
+                        </div>
+
+                        <!-- Frequencies List Container -->
+                        <div id="frequencyListContainer" class="database-container custom-scrollbar p-4 rounded-lg">
+                            <!-- Frequencies will be dynamically inserted here -->
+                        </div>
                     </section>
+
+                    <!-- Top 10 and Protocols Section -->
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <!-- Top 10 Frequencies -->
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="top10-heading">
+                            <h3 id="top10-heading" class="text-xl font-semibold mb-4 text-yellow-400"><i class="fas fa-trophy mr-2" aria-hidden="true"></i>Top 10 Frequências</h3>
+                            <div id="top10List" class="top10-container custom-scrollbar space-y-2">
+                                <!-- Top 10 list will be dynamically inserted here -->
+                            </div>
+                        </section>
+
+                        <!-- Protocols List -->
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="protocols-list-heading">
+                            <h3 id="protocols-list-heading" class="text-xl font-semibold mb-4 text-purple-400"><i class="fas fa-list-ul mr-2" aria-hidden="true"></i>Protocolos Personalizados</h3>
+                            <div id="protocolListContainer" class="space-y-2">
+                                <!-- Protocols will be dynamically inserted here -->
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
         </main>
@@ -122,4 +243,3 @@
     <script src="js/protocols.js"></script>
     <script src="js/app.js"></script>
 </body>
-</html>
