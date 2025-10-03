@@ -1,4 +1,20 @@
-<!-- Cole isto dentro da tag <body> do seu index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Harmonizador Fernandes v1.5 - Frequências Terapêuticas & Protocolos Personalizados">
+    <title>Harmonizador Fernandes - Versão Modular</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Nosso CSS customizado -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
 <body class="bg-gray-900 text-white min-h-screen">
     <!-- Modal de informações sobre headphones -->
     <div id="headphoneModal" class="headphone-modal">
@@ -82,6 +98,7 @@
                 <div class="lg:col-span-5 space-y-6">
                     <section id="generatorSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
                         <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
+
                         <!-- Protocol Controls (inicialmente oculto) -->
                         <div id="protocolControls" class="protocol-controls hidden mb-6 p-4 bg-gray-900 rounded-lg">
                             <div class="flex justify-between items-center mb-4">
@@ -90,6 +107,7 @@
                                     <i class="fas fa-times mr-1" aria-hidden="true"></i>Sair
                                 </button>
                             </div>
+                            <!-- Progress Bar -->
                             <div class="mb-4">
                                 <div class="flex justify-between text-sm mb-1">
                                     <span>Progresso do Protocolo</span>
@@ -99,7 +117,11 @@
                                     <div id="protocolProgressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                                 </div>
                             </div>
-                            <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist"></div>
+                            <!-- Step Indicators -->
+                            <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist">
+                                <!-- Indicadores serão adicionados dinamicamente -->
+                            </div>
+                            <!-- Step Navigation -->
                             <div class="flex justify-between">
                                 <button id="prevStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Passo anterior">
                                     <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
@@ -113,7 +135,9 @@
                                 </button>
                             </div>
                         </div>
+
                         <div class="space-y-4">
+                            <!-- Frequency Input e Visualizer -->
                             <div class="frequency-input-group">
                                 <div class="frequency-controls">
                                     <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
@@ -133,20 +157,34 @@
                                     <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded" aria-label="Visualização da forma de onda"></canvas>
                                 </div>
                             </div>
+
+                            <!-- Volume Control -->
                             <div>
                                 <label for="volume" class="block text-sm font-medium mb-2">Volume: <span id="volumeValue">50</span>%</label>
                                 <input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="50" aria-describedby="volume-description">
                                 <div id="volume-description" class="sr-only">Ajuste o volume de 0% a 100%</div>
                             </div>
+
+                            <!-- Wave Type Selection -->
                             <div>
                                 <label class="block text-sm font-medium mb-2">Tipo de Onda</label>
                                 <div class="grid grid-cols-4 gap-2">
-                                    <button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sine" aria-label="Onda Senoidal">Senoidal</button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">Quadrada</button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">Serra</button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">Triangular</button>
+                                    <button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sine" aria-label="Onda Senoidal">
+                                        <i class="fas fa-wave-square mr-1" aria-hidden="true"></i>Senoidal
+                                    </button>
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">
+                                        <i class="fas fa-square-wave mr-1" aria-hidden="true"></i>Quadrada
+                                    </button>
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">
+                                        <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Serra
+                                    </button>
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">
+                                        <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Triangular
+                                    </button>
                                 </div>
                             </div>
+
+                            <!-- Timer -->
                             <div>
                                 <button id="timerBtn" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 w-full" aria-label="Definir timer">
                                     <i class="fas fa-clock mr-2" aria-hidden="true"></i>Programar Timer
@@ -161,6 +199,8 @@
                                     <div id="timerProgress" class="timer-progress bg-purple-600 h-full rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
+
+                            <!-- Current Frequency Info -->
                             <div id="currentInfo" class="bg-gray-900 rounded-lg p-4">
                                 <div class="text-xl font-bold text-blue-400">40 Hz</div>
                                 <div class="text-lg font-medium">Foco e Concentração</div>
@@ -175,55 +215,108 @@
                                     <span><strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável para estimulação cognitiva.</span>
                                 </div>
                             </div>
+
+                            <!-- Favorite Button -->
                             <button id="favoriteBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition w-full" aria-label="Adicionar aos favoritos">
                                 <i class="far fa-star mr-2"></i>Adicionar aos Favoritos
                             </button>
                         </div>
                     </section>
+
+                    <!-- Seção de Histórico -->
                     <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="history-heading">
                         <h3 id="history-heading" class="text-lg font-semibold mb-4 text-purple-400"><i class="fas fa-history mr-2" aria-hidden="true"></i>Histórico Recente</h3>
-                        <div id="historyList" class="space-y-1 max-h-32 overflow-y-auto" aria-live="polite"></div>
+                        <div id="historyList" class="space-y-1 max-h-32 overflow-y-auto" aria-live="polite">
+                            <!-- Itens do histórico serão adicionados aqui -->
+                        </div>
                     </section>
                 </div>
 
                 <!-- Coluna 2: Banco de Dados de Frequências -->
                 <div class="lg:col-span-7 space-y-6">
                     <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
-                        <h2 id="database-heading" class="text-2xl font-semibold mb-4 text-blue-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Frequências</h2>
-                        
-                        <!-- Search and Filter Section -->
-                        <div class="filter-section-db p-4 rounded-lg mb-4">
-                            <input type="text" id="searchInput" placeholder="Buscar por nome ou frequência..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 mb-3">
-                            <div class="flex flex-wrap gap-2">
-                                <button class="filter-btn active bg-blue-600 text-white px-3 py-1 rounded-full text-sm" data-category="all">Todas</button>
-                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="energy">Energia</button>
-                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="focus">Foco</button>
-                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="anti-inflammatory">Anti-inflamatório</button>
-                                <button class="filter-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-full text-sm" data-category="harmony">Harmonia</button>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 id="database-heading" class="text-2xl font-semibold text-purple-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências</h2>
+                            <div class="flex gap-2">
+                                <button class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Atualizar banco de dados">
+                                    <i class="fas fa-sync-alt mr-1" aria-hidden="true"></i>Atualizar
+                                </button>
+                                <button class="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Adicionar frequência">
+                                    <i class="fas fa-plus mr-1" aria-hidden="true"></i>Adicionar
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Frequencies List Container -->
-                        <div id="frequencyListContainer" class="database-container custom-scrollbar p-4 rounded-lg">
-                            <!-- Frequencies will be dynamically inserted here -->
+                        <!-- Search and Filter -->
+                        <div class="filter-section-db rounded-lg p-4 mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="col-span-2">
+                                    <div class="relative">
+                                        <input type="text" id="searchFrequency" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Buscar frequências...">
+                                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                        <option value="">Todas as Categorias</option>
+                                        <option value="Energia">Energia</option>
+                                        <option value="Concentração">Concentração</option>
+                                        <option value="Relaxamento">Relaxamento</option>
+                                        <option value="Meditação">Meditação</option>
+                                        <option value="Emocional">Emocional</option>
+                                        <option value="Cura">Cura</option>
+                                        <option value="Espiritual">Espiritual</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="stats-card-db rounded-lg p-4">
+                                <div class="text-2xl font-bold text-blue-400">256</div>
+                                <div class="text-sm text-gray-400">Total de Frequências</div>
+                            </div>
+                            <div class="stats-card-db rounded-lg p-4">
+                                <div class="text-2xl font-bold text-green-400">7</div>
+                                <div class="text-sm text-gray-400">Categorias</div>
+                            </div>
+                            <div class="stats-card-db rounded-lg p-4">
+                                <div class="text-2xl font-bold text-purple-400">12</div>
+                                <div class="text-sm text-gray-400">Protocolos</div>
+                            </div>
+                            <div class="stats-card-db rounded-lg p-4">
+                                <div class="text-2xl font-bold text-yellow-400">24</div>
+                                <div class="text-sm text-gray-400">Frequências Favoritas</div>
+                            </div>
+                        </div>
+
+                        <!-- Frequency Database -->
+                        <div class="database-container-main rounded-lg p-4 mb-6">
+                            <div class="database-container custom-scrollbar">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="frequencyListContainer">
+                                    <!-- Frequências serão inseridas aqui pelo JS -->
+                                </div>
+                            </div>
                         </div>
                     </section>
 
-                    <!-- Top 10 and Protocols Section -->
+                    <!-- Top 10 Frequencies -->
                     <div class="grid lg:grid-cols-2 gap-6">
-                        <!-- Top 10 Frequencies -->
                         <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="top10-heading">
-                            <h3 id="top10-heading" class="text-xl font-semibold mb-4 text-yellow-400"><i class="fas fa-trophy mr-2" aria-hidden="true"></i>Top 10 Frequências</h3>
-                            <div id="top10List" class="top10-container custom-scrollbar space-y-2">
-                                <!-- Top 10 list will be dynamically inserted here -->
+                            <h3 id="top10-heading" class="text-lg font-semibold mb-4 text-yellow-400"><i class="fas fa-trophy mr-2" aria-hidden="true"></i>Top 10 Frequências Mais Usadas</h3>
+                            <div class="top10-container custom-scrollbar">
+                                <div class="space-y-3" id="top10List">
+                                    <!-- Top 10 será inserido aqui pelo JS -->
+                                </div>
                             </div>
                         </section>
-
-                        <!-- Protocols List -->
+                        
+                        <!-- Protocolos Personalizados -->
                         <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="protocols-list-heading">
-                            <h3 id="protocols-list-heading" class="text-xl font-semibold mb-4 text-purple-400"><i class="fas fa-list-ul mr-2" aria-hidden="true"></i>Protocolos Personalizados</h3>
-                            <div id="protocolListContainer" class="space-y-2">
-                                <!-- Protocols will be dynamically inserted here -->
+                            <h3 id="protocols-list-heading" class="text-lg font-semibold mb-4 text-purple-400"><i class="fas fa-list-ul mr-2" aria-hidden="true"></i>Protocolos Personalizados</h3>
+                            <div class="space-y-3" id="protocolListContainer">
+                                <!-- Protocolos serão inseridos aqui pelo JS -->
                             </div>
                         </section>
                     </div>
@@ -233,7 +326,9 @@
     </div>
 
     <!-- Botão voltar ao topo -->
-    <button id="topBtn" title="Voltar ao topo"><i class="fas fa-arrow-up"></i></button>
+    <button id="topBtn" title="Voltar ao topo">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <!-- Scripts (A ordem é importante!) -->
     <script src="js/database.js"></script>
@@ -243,3 +338,4 @@
     <script src="js/protocols.js"></script>
     <script src="js/app.js"></script>
 </body>
+</html>
