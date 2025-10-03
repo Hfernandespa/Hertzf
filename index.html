@@ -16,30 +16,35 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
-    <!-- Modal de informações sobre headphones -->
-    <div id="headphoneModal" class="headphone-modal">
-        <div class="headphone-content">
-            <div class="headphone-icon"><i class="fas fa-headphones"></i></div>
-            <h2 class="headphone-title">Importante: Use Headphones!</h2>
-            <p class="headphone-text">Para uma experiência completa e eficaz com as frequências terapêuticas, recomendamos fortemente o uso de headphones de boa qualidade.</p>
-            <div class="headphone-benefits">
-                <h4>Benefícios do uso de headphones:</h4>
-                <ul>
-                    <li>Estimulação binaural precisa</li>
-                    <li>Isolamento de ruídos externos</li>
-                    <li>Experiência imersiva completa</li>
-                    <li>Melhor foco e concentração</li>
-                    <li>Resultados otimizados</li>
-                </ul>
-            </div>
-            <p class="headphone-text">As frequências terapêuticas funcionam melhor quando entregues diretamente aos ouvidos, permitindo que o cérebro processe os estímulos de forma mais eficiente.</p>
-            <button id="closeHeadphoneModal" class="headphone-close">Entendi</button>
-            <div class="dont-show-again">
-                <input type="checkbox" id="dontShowAgain">
-                <label for="dontShowAgain">Não mostrar novamente</label>
-            </div>
-        </div>
-    </div>
+    <!-- SUBSTITUA O SCRIPT ANTIGO POR ESTE NOVO -->
+<script>
+    console.log(">>> Script de fechamento do modal está sendo executado.");
+
+    // Pega os elementos diretamente
+    const modal = document.getElementById('headphoneModal');
+    const closeBtn = document.getElementById('closeHeadphoneModal');
+    const dontShowCheckbox = document.getElementById('dontShowAgain');
+
+    console.log(">>> Modal encontrado:", modal);
+    console.log(">>> Botão Fechar encontrado:", closeBtn);
+
+    // Adiciona o evento de clique de forma mais direta
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            console.log(">>> Botão 'Entendi' foi clicado!");
+            if (modal) {
+                modal.style.display = 'none';
+                console.log(">>> Modal deveria estar escondido agora.");
+            }
+            if (dontShowCheckbox && dontShowCheckbox.checked) {
+                localStorage.setItem('dontShowHeadphoneModal', 'true');
+                console.log(">>> Preferência 'Não mostrar novamente' salva.");
+            }
+        };
+    } else {
+        console.error(">>> ERRO: O botão 'closeHeadphoneModal' NÃO foi encontrado na página.");
+    }
+</script>
 
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Cabeçalho com imagem de fundo -->
@@ -339,3 +344,4 @@
     <script src="js/app.js"></script>
 </body>
 </html>
+
