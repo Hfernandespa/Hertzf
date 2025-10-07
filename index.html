@@ -968,7 +968,7 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
-
+        
         /* Estilos específicos para o banco de dados */
         .db-section {
             display: none;
@@ -1018,35 +1018,6 @@
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-        }
-
-        /* Notificação */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary-color);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        .notification.success {
-            background: var(--success-color);
-        }
-
-        .notification.error {
-            background: var(--danger-color);
-        }
-
-        .notification.warning {
-            background: var(--warning-color);
         }
     </style>
 </head>
@@ -1171,7 +1142,7 @@
                 <div class="grid lg:grid-cols-12 gap-8">
                     <!-- Coluna 1: Gerador de Frequências + Histórico -->
                     <div class="lg:col-span-5 space-y-6">
-                        <section id="generatorSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
                             <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
 
                             <!-- Protocol Controls (inicialmente oculto) -->
@@ -1371,9 +1342,9 @@
                                         <label class="filter-label" for="evidenceFilter">Evidência Científica</label>
                                         <select id="evidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                             <option value="">Qualquer Nível</option>
-                                            <option value="high">Alta</option>
-                                            <option value="medium">Média</option>
-                                            <option value="low">Baixa</option>
+                                            <option value="high">Alta Evidência</option>
+                                            <option value="medium">Evidência Média</option>
+                                            <option value="low">Baixa Evidência</option>
                                         </select>
                                     </div>
                                     
@@ -1383,7 +1354,7 @@
                                             <option value="name">Nome</option>
                                             <option value="frequency">Frequência</option>
                                             <option value="category">Categoria</option>
-                                            <option value="efficiency">Eficiência</option>
+                                            <option value="evidence">Evidência</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1400,9 +1371,7 @@
                             
                             <!-- Container de Resultados -->
                             <div id="resultsContainer" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
-                                <div class="db-loading">
-                                    <div class="db-loading-spinner"></div>
-                                </div>
+                                <!-- Resultados serão inseridos dinamicamente -->
                             </div>
                             
                             <!-- Paginação -->
@@ -1488,9 +1457,6 @@
                             <button id="dbClearFilters" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
                                 <i class="fas fa-times mr-2"></i>Limpar Filtros
                             </button>
-                            <button id="dbExportData" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-download mr-2"></i>Exportar Dados
-                            </button>
                         </div>
                     </div>
                     
@@ -1526,7 +1492,7 @@
     </div>
 
     <!-- Botão voltar ao topo -->
-    <button id="topBtn" title="Voltar ao topo">
+    <button id="topBtn" class="top-btn" onclick="scrollToTop()" aria-label="Voltar ao topo">
         <i class="fas fa-arrow-up"></i>
     </button>
 
@@ -1544,10 +1510,28 @@
         let history = [];
         let favorites = [];
         let protocols = [];
-        let activeProtocol = null;
-        let currentStep = 0;
+        let currentProtocol = null;
+        let currentStepIndex = 0;
         
-        // Variáveis para o banco de dados
+        // Dados do banco de frequências terapêuticas
+        const frequencyDatabase = [
+            { id: 1, name: "Foco e Concentração", frequency: 40, category: "concentracao", description: "Frequência para melhorar foco cognitivo e clareza mental.", evidence: "high", waveType: "sine", duration: "15-30 min" },
+            { id: 2, name: "Energia Vital", frequency: 25, category: "energia", description: "Aumenta os níveis de energia e combate a fadiga.", evidence: "medium", waveType: "square", duration: "10-20 min" },
+            { id: 3, name: "Relaxamento Profundo", frequency: 528, category: "relaxamento", description: "Promove relaxamento profundo e redução do estresse.", evidence: "high", waveType: "sine", duration: "20-30 min" },
+            { id: 4, name: "Sono Reparador", frequency: 2.5, category: "sono", description: "Auxilia na indução do sono e melhora sua qualidade.", evidence: "medium", waveType: "sine", duration: "30-60 min" },
+            { id: 5, name: "Meditação", frequency: 432, category: "meditacao", description: "Frequência sagrada para meditação e equilíbrio espiritual.", evidence: "low", waveType: "sine", duration: "15-45 min" },
+            { id: 6, name: "Vermifugação", frequency: 20, category: "vermifugacao", description: "Auxilia na eliminação de parasitas intestinais.", evidence: "low", waveType: "square", duration: "7-10 min" },
+            { id: 7, name: "Anti-inflamatório", frequency: 678, category: "anti-inflamatorio", description: "Reduz processos inflamatórios no corpo.", evidence: "medium", waveType: "sawtooth", duration: "15-20 min" },
+            { id: 8, name: "Cura Celular", frequency: 528, category: "cura", description: "Estimula processos de cura e regeneração celular.", evidence: "high", waveType: "sine", duration: "20-30 min" },
+            { id: 9, name: "Bem-Estar Emocional", frequency: 396, category: "relaxamento", description: "Libera medo e culpa, promovendo bem-estar emocional.", evidence: "medium", waveType: "sine", duration: "15-25 min" },
+            { id: 10, name: "Consciência Elevada", frequency: 963, category: "meditacao", description: "Conecta com estados elevados de consciência.", evidence: "low", waveType: "sine", duration: "20-40 min" }
+        ];
+        
+        let filteredFrequencies = [...frequencyDatabase];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        
+        // Variáveis globais para o banco de dados CAFL
         let caflData = [];
         let filteredCaflData = [];
         let dbCurrentPage = 1;
@@ -1560,8 +1544,8 @@
             waveType: ''
         };
         let dbSortBy = 'name';
-        
-        // ======== INICIALIZAÇÃO ========
+
+        // ======== FUNÇÕES DE INICIALIZAÇÃO ========
         document.addEventListener('DOMContentLoaded', () => {
             // Verificar se deve mostrar o modal de headphones
             const dontShowAgain = localStorage.getItem('dontShowHeadphonesModal');
@@ -1569,26 +1553,35 @@
                 document.getElementById('headphoneModal').style.display = 'flex';
             }
             
+            // Inicializar o AudioContext
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error('Web Audio API não é suportada neste navegador.');
+            }
+            
             // Configurar event listeners
             setupEventListeners();
             
-            // Inicializar o áudio
-            initAudio();
-            
-            // Carregar dados do banco de dados local
-            loadLocalData();
+            // Renderizar banco de frequências inicial
+            renderFrequencies();
             
             // Inicializar com a seção do gerador visível
             showSection('generator');
             
-            // Configurar o botão voltar ao topo
-            setupScrollToTop();
-            
-            // Inicializar o visualizador de onda
-            initWaveVisualizer();
+            // Configurar botão voltar ao topo
+            window.onscroll = () => {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    document.getElementById('topBtn').classList.add('show');
+                } else {
+                    document.getElementById('topBtn').classList.remove('show');
+                }
+            };
         });
+
+        // ======== FUNÇÕES DO BANCO DE DADOS CAFL ========
         
-        // ======== FUNÇÕES DE NAVEGAÇÃO ========
+        // Função para alternar entre as seções
         function showSection(section) {
             // Esconder todas as seções
             document.querySelectorAll('.db-section').forEach(sec => {
@@ -1610,439 +1603,7 @@
             }
         }
         
-        // ======== FUNÇÕES DO ÁUDIO ========
-        function initAudio() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
-            } catch (e) {
-                console.error('Erro ao inicializar o áudio:', e);
-                showNotification('Seu navegador não suporta a Web Audio API', 'error');
-            }
-        }
-        
-        function playFrequency() {
-            if (isPlaying) return;
-            
-            const frequency = parseFloat(document.getElementById('frequency').value);
-            if (isNaN(frequency) || frequency < 20 || frequency > 20000) {
-                showNotification('Por favor, insira uma frequência válida entre 20 Hz e 20.000 Hz', 'error');
-                return;
-            }
-            
-            try {
-                oscillator = audioContext.createOscillator();
-                gainNode = audioContext.createGain();
-                
-                oscillator.type = currentWaveType;
-                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-                
-                const volume = document.getElementById('volume').value / 100;
-                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(analyser);
-                analyser.connect(audioContext.destination);
-                
-                oscillator.start();
-                isPlaying = true;
-                
-                // Atualizar UI
-                document.getElementById('playBtn').classList.add('hidden');
-                document.getElementById('stopBtn').classList.remove('hidden');
-                
-                // Adicionar ao histórico
-                addToHistory(frequency);
-                
-                // Iniciar visualização
-                visualizeWave();
-                
-                // Iniciar timer se estiver ativo
-                if (timerSeconds > 0) {
-                    startTimer();
-                }
-                
-                showNotification(`Tocando ${frequency} Hz`, 'success');
-            } catch (e) {
-                console.error('Erro ao tocar a frequência:', e);
-                showNotification('Erro ao tocar a frequência', 'error');
-            }
-        }
-        
-        function stopFrequency() {
-            if (!isPlaying) return;
-            
-            try {
-                oscillator.stop();
-                isPlaying = false;
-                
-                // Atualizar UI
-                document.getElementById('playBtn').classList.remove('hidden');
-                document.getElementById('stopBtn').classList.add('hidden');
-                
-                // Parar visualização
-                if (animationId) {
-                    cancelAnimationFrame(animationId);
-                }
-                
-                // Parar timer
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                }
-                
-                showNotification('Frequência parada', 'info');
-            } catch (e) {
-                console.error('Erro ao parar a frequência:', e);
-            }
-        }
-        
-        // ======== VISUALIZADOR DE ONDA ========
-        function initWaveVisualizer() {
-            const canvas = document.getElementById('waveCanvas');
-            const canvasCtx = canvas.getContext('2d');
-            
-            // Desenhar onda inicial
-            drawWaveform(canvasCtx, canvas.width, canvas.height, 40);
-        }
-        
-        function visualizeWave() {
-            const canvas = document.getElementById('waveCanvas');
-            const canvasCtx = canvas.getContext('2d');
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            
-            function draw() {
-                animationId = requestAnimationFrame(draw);
-                
-                analyser.getByteTimeDomainData(dataArray);
-                
-                canvasCtx.fillStyle = 'rgb(15, 23, 42)';
-                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                canvasCtx.lineWidth = 2;
-                canvasCtx.strokeStyle = 'rgb(59, 130, 246)';
-                canvasCtx.beginPath();
-                
-                const sliceWidth = canvas.width * 1.0 / bufferLength;
-                let x = 0;
-                
-                for (let i = 0; i < bufferLength; i++) {
-                    const v = dataArray[i] / 128.0;
-                    const y = v * canvas.height / 2;
-                    
-                    if (i === 0) {
-                        canvasCtx.moveTo(x, y);
-                    } else {
-                        canvasCtx.lineTo(x, y);
-                    }
-                    
-                    x += sliceWidth;
-                }
-                
-                canvasCtx.lineTo(canvas.width, canvas.height / 2);
-                canvasCtx.stroke();
-            }
-            
-            draw();
-        }
-        
-        function drawWaveform(ctx, width, height, frequency) {
-            ctx.fillStyle = 'rgb(15, 23, 42)';
-            ctx.fillRect(0, 0, width, height);
-            
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'rgb(59, 130, 246)';
-            ctx.beginPath();
-            
-            const amplitude = height / 3;
-            const centerY = height / 2;
-            const cycles = 3;
-            
-            for (let x = 0; x < width; x++) {
-                const radians = (x / width) * Math.PI * 2 * cycles;
-                let y;
-                
-                switch (currentWaveType) {
-                    case 'sine':
-                        y = centerY + Math.sin(radians) * amplitude;
-                        break;
-                    case 'square':
-                        y = centerY + (Math.sin(radians) > 0 ? amplitude : -amplitude);
-                        break;
-                    case 'sawtooth':
-                        y = centerY + ((radians % (Math.PI * 2)) / (Math.PI * 2) - 0.5) * amplitude * 2;
-                        break;
-                    case 'triangle':
-                        const period = Math.PI * 2;
-                        const phase = radians % period;
-                        if (phase < period / 2) {
-                            y = centerY + (phase / (period / 2) - 0.5) * amplitude * 2;
-                        } else {
-                            y = centerY + (1 - (phase - period / 2) / (period / 2) - 0.5) * amplitude * 2;
-                        }
-                        break;
-                    default:
-                        y = centerY + Math.sin(radians) * amplitude;
-                }
-                
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            
-            ctx.stroke();
-        }
-        
-        // ======== FUNÇÕES DO TIMER ========
-        function setupTimer() {
-            const hours = parseInt(document.getElementById('timerHours').value) || 0;
-            const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
-            const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
-            
-            timerSeconds = hours * 3600 + minutes * 60 + seconds;
-            
-            if (timerSeconds <= 0) {
-                showNotification('Por favor, defina um tempo válido', 'error');
-                return;
-            }
-            
-            document.getElementById('timerContainer').classList.remove('hidden');
-            updateTimerDisplay();
-            
-            if (isPlaying) {
-                startTimer();
-            }
-            
-            showNotification('Timer configurado', 'success');
-        }
-        
-        function startTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            
-            timerInterval = setInterval(() => {
-                timerSeconds--;
-                updateTimerDisplay();
-                
-                if (timerSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    stopFrequency();
-                    showNotification('Timer concluído', 'success');
-                }
-            }, 1000);
-        }
-        
-        function updateTimerDisplay() {
-            const hours = Math.floor(timerSeconds / 3600);
-            const minutes = Math.floor((timerSeconds % 3600) / 60);
-            const seconds = timerSeconds % 60;
-            
-            const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            document.getElementById('timerDisplay').textContent = display;
-            
-            // Atualizar barra de progresso
-            const totalTime = parseInt(document.getElementById('timerHours').value) * 3600 + 
-                             parseInt(document.getElementById('timerMinutes').value) * 60 + 
-                             parseInt(document.getElementById('timerSeconds').value);
-            const progress = ((totalTime - timerSeconds) / totalTime) * 100;
-            document.getElementById('timerProgress').style.width = `${progress}%`;
-        }
-        
-        // ======== FUNÇÕES DE HISTÓRICO E FAVORITOS ========
-        function addToHistory(frequency) {
-            const timestamp = new Date().toLocaleTimeString();
-            history.unshift({ frequency, timestamp });
-            
-            // Manter apenas os 10 mais recentes
-            if (history.length > 10) {
-                history = history.slice(0, 10);
-            }
-            
-            updateHistoryDisplay();
-            saveLocalData();
-        }
-        
-        function updateHistoryDisplay() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-            
-            if (history.length === 0) {
-                historyList.innerHTML = '<div class="text-gray-500 text-sm text-center py-2">Nenhum histórico</div>';
-                return;
-            }
-            
-            history.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'flex justify-between items-center py-1 px-2 hover:bg-gray-700 rounded cursor-pointer';
-                historyItem.innerHTML = `
-                    <span class="text-sm">${item.frequency} Hz</span>
-                    <span class="text-xs text-gray-400">${item.timestamp}</span>
-                `;
-                historyItem.addEventListener('click', () => {
-                    document.getElementById('frequency').value = item.frequency;
-                    updateFrequencyInfo(item.frequency);
-                });
-                historyList.appendChild(historyItem);
-            });
-        }
-        
-        function toggleFavorite() {
-            const frequency = parseFloat(document.getElementById('frequency').value);
-            const index = favorites.findIndex(f => f.frequency === frequency);
-            
-            if (index === -1) {
-                // Adicionar aos favoritos
-                favorites.push({
-                    frequency,
-                    name: document.getElementById('currentInfo').querySelector('.text-lg').textContent,
-                    category: document.querySelector('#currentDetails .category-badge').textContent
-                });
-                document.getElementById('favoriteBtn').innerHTML = '<i class="fas fa-star mr-2"></i>Remover dos Favoritos';
-                showNotification('Adicionado aos favoritos', 'success');
-            } else {
-                // Remover dos favoritos
-                favorites.splice(index, 1);
-                document.getElementById('favoriteBtn').innerHTML = '<i class="far fa-star mr-2"></i>Adicionar aos Favoritos';
-                showNotification('Removido dos favoritos', 'info');
-            }
-            
-            saveLocalData();
-        }
-        
-        // ======== FUNÇÕES DE INFORMAÇÕES DE FREQUÊNCIA ========
-        function updateFrequencyInfo(frequency) {
-            // Atualizar informações básicas
-            document.getElementById('currentInfo').innerHTML = `
-                <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
-                <div class="text-lg font-medium">${getFrequencyName(frequency)}</div>
-            `;
-            
-            // Atualizar detalhes
-            const category = getFrequencyCategory(frequency);
-            document.getElementById('currentDetails').innerHTML = `
-                <div><strong>Categoria:</strong> <span class="category-badge bg-${getCategoryColor(category)}-600">${getCategoryName(category)}</span></div>
-                <div><strong>Descrição:</strong> ${getFrequencyDescription(frequency)}</div>
-            `;
-            
-            // Atualizar recomendação de onda
-            const waveType = getRecommendedWaveType(frequency);
-            document.getElementById('waveRecommendation').innerHTML = `
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-lightbulb text-yellow-500"></i>
-                    <span><strong>Onda recomendada:</strong> ${getWaveTypeName(waveType)} - ${getWaveTypeDescription(waveType)}</span>
-                </div>
-            `;
-            
-            // Verificar se é favorito
-            const isFavorite = favorites.some(f => f.frequency === frequency);
-            document.getElementById('favoriteBtn').innerHTML = isFavorite 
-                ? '<i class="fas fa-star mr-2"></i>Remover dos Favoritos'
-                : '<i class="far fa-star mr-2"></i>Adicionar aos Favoritos';
-        }
-        
-        function getFrequencyName(frequency) {
-            const frequencyInfo = {
-                20: 'Energia Vital',
-                25: 'Energia e Vitalidade',
-                40: 'Foco e Concentração',
-                50: 'Energia e Vitalidade',
-                100: 'Alívio da Dor',
-                285: 'Bem-Estar Emocional',
-                396: 'Liberação de Medo',
-                417: 'Transformação',
-                528: 'Amor e Cura',
-                639: 'Relacionamentos',
-                741: 'Despertar da Intuição',
-                852: 'Retorno à Ordem Espiritual',
-                963: 'Conexão Divina'
-            };
-            
-            return frequencyInfo[frequency] || 'Frequência Personalizada';
-        }
-        
-        function getFrequencyCategory(frequency) {
-            if (frequency >= 20 && frequency < 50) return 'energia';
-            if (frequency >= 50 && frequency < 100) return 'cura';
-            if (frequency >= 285 && frequency < 400) return 'mental';
-            if (frequency >= 396 && frequency < 1000) return 'espiritual';
-            return 'personalizada';
-        }
-        
-        function getFrequencyDescription(frequency) {
-            const descriptions = {
-                20: 'Frequência para aumentar os níveis de energia e combater a fadiga.',
-                25: 'Estimula o corpo e a mente, aumentando a vitalidade.',
-                40: 'Ondas Gama associadas à melhora da cognição e concentração.',
-                50: 'Promove energia e vitalidade para atividades diárias.',
-                100: 'Ajuda a aliviar dores e desconfortos físicos.',
-                285: 'Pode ajudar a reduzir sintomas de depressão e ansiedade.',
-                396: 'Liberação de medos e sentimentos negativos.',
-                417: 'Facilita transformações e mudanças na vida.',
-                528: 'Conhecida como frequência do amor e da cura.',
-                639: 'Harmoniza relacionamentos e conexões.',
-                741: 'Desperta a intuição e a percepção.',
-                852: 'Ajuda a retornar ao equilíbrio espiritual.',
-                963: 'Conecta com estados de consciência elevados.'
-            };
-            
-            return descriptions[frequency] || 'Frequência personalizada para uso terapêutico.';
-        }
-        
-        function getRecommendedWaveType(frequency) {
-            if (frequency >= 20 && frequency < 50) return 'sine';
-            if (frequency >= 50 && frequency < 100) return 'square';
-            if (frequency >= 285 && frequency < 400) return 'sine';
-            if (frequency >= 396 && frequency < 1000) return 'triangle';
-            return 'sine';
-        }
-        
-        function getWaveTypeName(waveType) {
-            const names = {
-                'sine': 'Senoidal',
-                'square': 'Quadrada',
-                'sawtooth': 'Dente de Serra',
-                'triangle': 'Triangular'
-            };
-            return names[waveType] || waveType;
-        }
-        
-        function getWaveTypeDescription(waveType) {
-            const descriptions = {
-                'sine': 'Proporciona uma experiência suave e agradável.',
-                'square': 'Mais intensa, ideal para tratamentos físicos.',
-                'sawtooth': 'Energizante, boa para estimulação mental.',
-                'triangle': 'Equilibrada, combina suavidade e eficácia.'
-            };
-            return descriptions[waveType] || 'Tipo de onda padrão.';
-        }
-        
-        function getCategoryColor(category) {
-            const colors = {
-                'energia': 'yellow',
-                'cura': 'green',
-                'mental': 'purple',
-                'espiritual': 'blue',
-                'personalizada': 'gray'
-            };
-            return colors[category] || 'gray';
-        }
-        
-        function getCategoryName(category) {
-            const names = {
-                'energia': 'Energia',
-                'cura': 'Cura',
-                'mental': 'Mental',
-                'espiritual': 'Espiritual',
-                'personalizada': 'Personalizada'
-            };
-            return names[category] || 'Personalizada';
-        }
-        
-        // ======== FUNÇÕES DO BANCO DE DADOS CAFL ========
+        // Função para carregar os dados do CAFL
         function loadCaflData() {
             // Mostrar loading
             document.getElementById('dbResultsContainer').innerHTML = `
@@ -2151,7 +1712,7 @@ Asma_v - 3125, 3124, 890, 886, 871, 822, 782, 756, 712, 665, 633, 521, 515, 487,
 Astrocitoma (use Câncer, astrocitoma)
 Ataxia (incoordenação dos músculos. Resultados lentos em alguns casos) - 2720, 2170, 1800, 1600, 1500, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20
 Ataxia_espástica - 9,19, 8,25, 7,69
-Aterosclerose (os micróbios comumente presentes na placa são herpes zoster e pneumonia por clamídia, este conjunto combina os dois. Use também magnésio e vitamina C para ajudar a reduzir depósitos minerais) - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471,66, 470,9, 941,8, 3767,3, 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
+Aterosclerose (os micróbios comumente presentes na placa são herpes zoster e pneumonia por clamídia, este conjunto combina os dois. Use também magnésio e vitamina C para ajudar a reduzir depósitos minerais) - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471, 66, 470,9, 941,8, 3767,3, 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
 Pé de atleta (veja também as frequências de Epidermophyton floccinum, Tinea e Trichophyton rubrum. Use todas as frequências por 5 min) - 20, 379, 727, 787, 880, 5000, 644, 766, 464, 802, 1552, 9999, 752, 923, 3176, 304
 Atmênico_Alb - 562
 Distúrbio_do_déficit_de_atenção (Provavelmente é importante evitar conservantes, aspartame, corantes, MSG e outras toxinas potenciais, além de limitar açúcar e amidos, mas garantir proteína adequada e bons óleos na dieta. Experimente Shigella, Chlamydia pneum. e antisséptico geral)
@@ -2266,6 +1827,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             }, 1000);
         }
         
+        // Função para processar os dados do CAFL
         function processCaflData(data) {
             const lines = data.split('\n');
             const frequencies = [];
@@ -2316,6 +1878,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return frequencies;
         }
         
+        // Função para configurar os event listeners do banco de dados
         function setupDbEventListeners() {
             // Busca rápida
             document.getElementById('dbQuickSearch').addEventListener('input', (e) => {
@@ -2350,12 +1913,9 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             document.getElementById('dbClearFilters').addEventListener('click', () => {
                 clearDbFilters();
             });
-            
-            document.getElementById('dbExportData').addEventListener('click', () => {
-                exportDbData();
-            });
         }
         
+        // Função para aplicar os filtros do banco de dados
         function applyDbFilters() {
             filteredCaflData = caflData.filter(freq => {
                 // Filtro de busca
@@ -2410,6 +1970,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             updateDbStats();
         }
         
+        // Função para limpar os filtros do banco de dados
         function clearDbFilters() {
             dbFilters = {
                 search: '',
@@ -2428,6 +1989,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             applyDbFilters();
         }
         
+        // Função para renderizar os resultados do banco de dados
         function renderDbResults() {
             const container = document.getElementById('dbResultsContainer');
             container.innerHTML = '';
@@ -2457,6 +2019,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             renderDbPagination();
         }
         
+        // Função para criar um card de frequência para o banco de dados
         function createDbFrequencyCard(freq) {
             const card = document.createElement('div');
             card.className = 'frequency-card bg-gray-800 rounded-lg p-4 fade-in';
@@ -2495,6 +2058,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return card;
         }
         
+        // Função para obter a cor da categoria
         function getDbCategoryColor(category) {
             const colors = {
                 'inflamacao': 'red',
@@ -2514,6 +2078,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return colors[category] || 'gray';
         }
         
+        // Função para obter o nome da categoria
         function getDbCategoryName(category) {
             const names = {
                 'inflamacao': 'Inflamação',
@@ -2533,6 +2098,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return names[category] || 'Geral';
         }
         
+        // Função para usar uma frequência do banco de dados
         function useDbFrequency(id) {
             const freq = caflData.find(f => f.id === id);
             if (freq) {
@@ -2547,10 +2113,11 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
                 updateFrequencyInfo(firstFreq);
                 
                 // Mostrar notificação
-                showNotification(`Frequência ${firstFreq} Hz carregada no gerador`, 'success');
+                showNotification(`Frequência ${firstFreq} Hz carregada no gerador`);
             }
         }
         
+        // Função para mostrar detalhes de uma frequência do banco de dados
         function showDbDetails(id) {
             const freq = caflData.find(f => f.id === id);
             if (freq) {
@@ -2598,11 +2165,13 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             }
         }
         
+        // Função para fechar o modal do banco de dados
         function closeDbModal() {
             document.getElementById('dbDetailModal').classList.add('hidden');
             document.getElementById('dbDetailModal').classList.remove('flex');
         }
         
+        // Função para obter o nome do tipo de onda
         function getDbWaveTypeName(waveType) {
             const names = {
                 'sine': 'Senoidal',
@@ -2613,6 +2182,7 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return names[waveType] || waveType;
         }
         
+        // Função para renderizar a paginação do banco de dados
         function renderDbPagination() {
             const container = document.getElementById('dbPagination');
             container.innerHTML = '';
@@ -2670,134 +2240,74 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             container.appendChild(nextBtn);
         }
         
+        // Função para atualizar as estatísticas do banco de dados
         function updateDbStats() {
             document.getElementById('dbResultCount').textContent = filteredCaflData.length;
         }
         
-        function exportDbData() {
-            if (filteredCaflData.length === 0) {
-                showNotification('Nenhum dado para exportar', 'warning');
-                return;
-            }
+        // Função para mostrar notificações
+        function showNotification(message) {
+            // Criar elemento de notificação
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center';
+            notification.innerHTML = `
+                <i class="fas fa-info-circle mr-2"></i>
+                <span>${message}</span>
+            `;
             
-            // Criar conteúdo CSV
-            let csvContent = "Nome,Categoria,Frequências,Descrição,Fonte,Duração,Tipo de Onda\n";
+            document.body.appendChild(notification);
             
-            filteredCaflData.forEach(item => {
-                csvContent += `"${item.name}","${getDbCategoryName(item.category)}","${item.frequency}","${item.description}","${item.source}","${item.duration}","${getDbWaveTypeName(item.waveType)}"\n`;
-            });
-            
-            // Criar blob e download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'cafl_frequencies.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('Dados exportados com sucesso', 'success');
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
         }
+
+        // ======== FUNÇÕES DO GERADOR DE FREQUÊNCIAS ========
         
-        // ======== FUNÇÕES DE EVENT LISTENERS ========
         function setupEventListeners() {
-            // Botões de áudio
+            // Play/Stop buttons
             document.getElementById('playBtn').addEventListener('click', playFrequency);
             document.getElementById('stopBtn').addEventListener('click', stopFrequency);
             
-            // Controle de volume
-            document.getElementById('volume').addEventListener('input', (e) => {
+            // Volume control
+            const volumeSlider = document.getElementById('volume');
+            volumeSlider.addEventListener('input', (e) => {
                 document.getElementById('volumeValue').textContent = e.target.value;
-                if (gainNode && isPlaying) {
-                    gainNode.gain.setValueAtTime(e.target.value / 100, audioContext.currentTime);
+                if (gainNode) {
+                    gainNode.gain.value = e.target.value / 100;
                 }
             });
             
-            // Seleção de tipo de onda
+            // Wave type buttons
             document.querySelectorAll('.wave-type-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    // Remover classe ativa de todos os botões
                     document.querySelectorAll('.wave-type-btn').forEach(b => {
                         b.classList.remove('bg-blue-600');
                         b.classList.add('bg-gray-700');
                     });
-                    
-                    // Adicionar classe ativa ao botão clicado
                     e.target.classList.remove('bg-gray-700');
                     e.target.classList.add('bg-blue-600');
-                    
-                    // Atualizar tipo de onda
                     currentWaveType = e.target.dataset.wave;
-                    
-                    // Atualizar visualização
-                    const canvas = document.getElementById('waveCanvas');
-                    const canvasCtx = canvas.getContext('2d');
-                    drawWaveform(canvasCtx, canvas.width, canvas.height, parseFloat(document.getElementById('frequency').value) || 40);
-                    
-                    // Atualizar recomendação
-                    updateFrequencyInfo(parseFloat(document.getElementById('frequency').value) || 40);
                 });
             });
             
-            // Timer
-            document.getElementById('timerBtn').addEventListener('click', () => {
-                // Criar modal para configurar timer
-                const timerModal = document.createElement('div');
-                timerModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                timerModal.innerHTML = `
-                    <div class="bg-gray-800 rounded-xl p-6 max-w-md w-full">
-                        <h3 class="text-xl font-semibold mb-4">Configurar Timer</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Horas</label>
-                                <input type="number" id="timerHours" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2" min="0" max="23" value="0">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Minutos</label>
-                                <input type="number" id="timerMinutes" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2" min="0" max="59" value="5">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Segundos</label>
-                                <input type="number" id="timerSeconds" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2" min="0" max="59" value="0">
-                            </div>
-                        </div>
-                        <div class="flex justify-end space-x-2 mt-6">
-                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg">Cancelar</button>
-                            <button onclick="setupTimer(); this.closest('.fixed').remove();" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">Configurar</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(timerModal);
+            // Frequency input
+            document.getElementById('frequency').addEventListener('input', (e) => {
+                updateFrequencyInfo(e.target.value);
             });
             
-            // Favoritos
+            // Timer button
+            document.getElementById('timerBtn').addEventListener('click', setupTimer);
+            
+            // Favorite button
             document.getElementById('favoriteBtn').addEventListener('click', toggleFavorite);
             
-            // Input de frequência
-            document.getElementById('frequency').addEventListener('input', (e) => {
-                const frequency = parseFloat(e.target.value);
-                if (!isNaN(frequency)) {
-                    updateFrequencyInfo(frequency);
-                    
-                    // Atualizar visualização
-                    const canvas = document.getElementById('waveCanvas');
-                    const canvasCtx = canvas.getContext('2d');
-                    drawWaveform(canvasCtx, canvas.width, canvas.height, frequency);
-                }
-            });
-            
-            // Modal de headphones
-            document.getElementById('closeHeadphoneModal').addEventListener('click', () => {
-                document.getElementById('headphoneModal').style.display = 'none';
-                
-                if (document.getElementById('dontShowAgain').checked) {
-                    localStorage.setItem('dontShowHeadphonesModal', 'true');
-                }
-            });
-            
-            // Filtros do banco de dados principal
+            // Filters for frequency database
             document.getElementById('minFreqRange').addEventListener('input', (e) => {
                 document.getElementById('minFreqValue').textContent = e.target.value;
             });
@@ -2808,13 +2318,414 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             
             document.getElementById('applyFilters').addEventListener('click', applyFilters);
             document.getElementById('clearFilters').addEventListener('click', clearFilters);
+            document.getElementById('sortBy').addEventListener('change', applyFilters);
+            
+            // Headphone modal
+            document.getElementById('closeHeadphoneModal').addEventListener('click', closeHeadphoneModal);
+            document.getElementById('dontShowAgain').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    localStorage.setItem('dontShowHeadphonesModal', 'true');
+                } else {
+                    localStorage.removeItem('dontShowHeadphonesModal');
+                }
+            });
+            
+            // Protocol controls
+            document.getElementById('exitProtocolBtn').addEventListener('click', exitProtocol);
+            document.getElementById('prevStepBtn').addEventListener('click', prevProtocolStep);
+            document.getElementById('nextStepBtn').addEventListener('click', nextProtocolStep);
         }
         
-        // ======== FUNÇÕES DE FILTROS DO BANCO DE DADOS PRINCIPAL ========
+        function playFrequency() {
+            if (!audioContext) return;
+            
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            if (isNaN(frequency) || frequency < 20 || frequency > 20000) {
+                showNotification('Por favor, insira uma frequência válida entre 20 Hz e 20.000 Hz');
+                return;
+            }
+            
+            // Stop any currently playing sound
+            if (isPlaying) {
+                stopFrequency();
+            }
+            
+            // Create oscillator
+            oscillator = audioContext.createOscillator();
+            gainNode = audioContext.createGain();
+            analyser = audioContext.createAnalyser();
+            
+            // Set oscillator properties
+            oscillator.type = currentWaveType;
+            oscillator.frequency.value = frequency;
+            
+            // Set volume
+            const volume = document.getElementById('volume').value / 100;
+            gainNode.gain.value = volume;
+            
+            // Connect nodes
+            oscillator.connect(gainNode);
+            gainNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            // Start playing
+            oscillator.start();
+            isPlaying = true;
+            
+            // Update UI
+            document.getElementById('playBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            
+            // Start visualization
+            visualizeWave();
+            
+            // Add to history
+            addToHistory(frequency);
+            
+            // Start timer if active
+            if (timerSeconds > 0) {
+                startTimer();
+            }
+        }
+        
+        function stopFrequency() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+            
+            isPlaying = false;
+            
+            // Update UI
+            document.getElementById('playBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            
+            // Stop visualization
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            // Stop timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        function visualizeWave() {
+            const canvas = document.getElementById('waveCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            analyser.fftSize = 2048;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function draw() {
+                animationId = requestAnimationFrame(draw);
+                
+                analyser.getByteTimeDomainData(dataArray);
+                
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.1)';
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#3b82f6';
+                ctx.beginPath();
+                
+                const sliceWidth = width / bufferLength;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = v * height / 2;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    x += sliceWidth;
+                }
+                
+                ctx.lineTo(width, height / 2);
+                ctx.stroke();
+            }
+            
+            draw();
+        }
+        
+        function updateFrequencyInfo(frequency) {
+            // Find frequency in database
+            const freq = frequencyDatabase.find(f => f.frequency === parseFloat(frequency));
+            
+            if (freq) {
+                document.getElementById('currentInfo').innerHTML = `
+                    <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
+                    <div class="text-lg font-medium">${freq.name}</div>
+                `;
+                
+                document.getElementById('currentDetails').innerHTML = `
+                    <div><strong>Categoria:</strong> <span class="category-badge bg-${getCategoryColor(freq.category)}-600">${getCategoryName(freq.category)}</span></div>
+                    <div><strong>Descrição:</strong> ${freq.description}</div>
+                `;
+                
+                document.getElementById('waveRecommendation').innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        <span><strong>Onda recomendada:</strong> ${getWaveTypeName(freq.waveType)} - ${getWaveRecommendation(freq.waveType)}</span>
+                    </div>
+                `;
+                
+                // Update wave type button
+                document.querySelectorAll('.wave-type-btn').forEach(btn => {
+                    if (btn.dataset.wave === freq.waveType) {
+                        btn.click();
+                    }
+                });
+            } else {
+                document.getElementById('currentInfo').innerHTML = `
+                    <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
+                    <div class="text-lg font-medium">Frequência Personalizada</div>
+                `;
+                
+                document.getElementById('currentDetails').innerHTML = `
+                    <div><strong>Categoria:</strong> <span class="category-badge bg-gray-600">Personalizada</span></div>
+                    <div><strong>Descrição:</strong> Frequência definida pelo usuário</div>
+                `;
+                
+                document.getElementById('waveRecommendation').innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        <span><strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável</span>
+                    </div>
+                `;
+            }
+        }
+        
+        function getCategoryColor(category) {
+            const colors = {
+                'concentracao': 'blue',
+                'energia': 'yellow',
+                'cura': 'green',
+                'relaxamento': 'purple',
+                'sono': 'indigo',
+                'meditacao': 'pink',
+                'vermifugacao': 'red',
+                'anti-inflamatorio': 'orange'
+            };
+            return colors[category] || 'gray';
+        }
+        
+        function getCategoryName(category) {
+            const names = {
+                'concentracao': 'Concentração',
+                'energia': 'Energia',
+                'cura': 'Cura',
+                'relaxamento': 'Relaxamento',
+                'sono': 'Sono',
+                'meditacao': 'Meditação',
+                'vermifugacao': 'Vermifugação',
+                'anti-inflamatorio': 'Anti-inflamatório'
+            };
+            return names[category] || category;
+        }
+        
+        function getWaveTypeName(waveType) {
+            const names = {
+                'sine': 'Senoidal',
+                'square': 'Quadrada',
+                'sawtooth': 'Dente de Serra',
+                'triangle': 'Triangular'
+            };
+            return names[waveType] || waveType;
+        }
+        
+        function getWaveRecommendation(waveType) {
+            const recommendations = {
+                'sine': 'Proporciona uma experiência mais suave e agradável',
+                'square': 'Mais eficaz para aplicações terapêuticas específicas',
+                'sawtooth': 'Bom para estimulação energética',
+                'triangle': 'Equilíbrio entre suavidade e eficácia'
+            };
+            return recommendations[waveType] || 'Tipo de onda padrão';
+        }
+        
+        function setupTimer() {
+            const hours = prompt('Horas:', '0') || '0';
+            const minutes = prompt('Minutos:', '5') || '5';
+            const seconds = prompt('Segundos:', '0') || '0';
+            
+            timerSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+            
+            if (timerSeconds > 0) {
+                document.getElementById('timerContainer').classList.remove('hidden');
+                updateTimerDisplay();
+            }
+        }
+        
+        function startTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    stopFrequency();
+                    showNotification('Timer concluído');
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const hours = Math.floor(timerSeconds / 3600);
+            const minutes = Math.floor((timerSeconds % 3600) / 60);
+            const seconds = timerSeconds % 60;
+            
+            const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = display;
+            
+            // Update progress bar
+            const totalTime = parseInt(prompt('Total de segundos:', timerSeconds.toString()) || timerSeconds);
+            const progress = ((totalTime - timerSeconds) / totalTime) * 100;
+            document.getElementById('timerProgress').style.width = `${progress}%`;
+        }
+        
+        function addToHistory(frequency) {
+            // Check if frequency is already in history
+            const existingIndex = history.findIndex(item => item.frequency === frequency);
+            
+            if (existingIndex !== -1) {
+                // Move to top
+                history.splice(existingIndex, 1);
+            }
+            
+            // Add to beginning
+            history.unshift({
+                frequency: frequency,
+                timestamp: new Date()
+            });
+            
+            // Keep only last 10 items
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+            
+            updateHistoryDisplay();
+        }
+        
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="text-gray-500 text-sm">Nenhum histórico recente</div>';
+                return;
+            }
+            
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'flex justify-between items-center py-1 px-2 hover:bg-gray-700 rounded cursor-pointer';
+                historyItem.innerHTML = `
+                    <span class="text-sm">${item.frequency} Hz</span>
+                    <span class="text-xs text-gray-400">${formatTime(item.timestamp)}</span>
+                `;
+                historyItem.addEventListener('click', () => {
+                    document.getElementById('frequency').value = item.frequency;
+                    updateFrequencyInfo(item.frequency);
+                });
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) {
+                return 'Agora';
+            } else if (diff < 3600000) {
+                return `${Math.floor(diff / 60000)} min atrás`;
+            } else {
+                return `${Math.floor(diff / 3600000)} h atrás`;
+            }
+        }
+        
+        function toggleFavorite() {
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            
+            // Check if already in favorites
+            const existingIndex = favorites.findIndex(f => f.frequency === frequency);
+            
+            if (existingIndex !== -1) {
+                // Remove from favorites
+                favorites.splice(existingIndex, 1);
+                document.getElementById('favoriteBtn').innerHTML = '<i class="far fa-star mr-2"></i>Adicionar aos Favoritos';
+                showNotification('Removido dos favoritos');
+            } else {
+                // Add to favorites
+                const freqData = frequencyDatabase.find(f => f.frequency === frequency);
+                
+                favorites.push({
+                    frequency: frequency,
+                    name: freqData ? freqData.name : 'Frequência Personalizada',
+                    category: freqData ? freqData.category : 'personalizada'
+                });
+                
+                document.getElementById('favoriteBtn').innerHTML = '<i class="fas fa-star mr-2"></i>Remover dos Favoritos';
+                showNotification('Adicionado aos favoritos');
+            }
+        }
+        
         function applyFilters() {
-            // Esta função seria implementada para o banco de dados principal
-            // Por enquanto, apenas mostra uma notificação
-            showNotification('Filtros aplicados', 'success');
+            const minFreq = parseFloat(document.getElementById('minFreqRange').value);
+            const maxFreq = parseFloat(document.getElementById('maxFreqRange').value);
+            const category = document.getElementById('categoryFilter').value;
+            const evidence = document.getElementById('evidenceFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            filteredFrequencies = frequencyDatabase.filter(freq => {
+                if (freq.frequency < minFreq || freq.frequency > maxFreq) {
+                    return false;
+                }
+                
+                if (category && freq.category !== category) {
+                    return false;
+                }
+                
+                if (evidence && freq.evidence !== evidence) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Sort
+            switch (sortBy) {
+                case 'name':
+                    filteredFrequencies.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'frequency':
+                    filteredFrequencies.sort((a, b) => a.frequency - b.frequency);
+                    break;
+                case 'category':
+                    filteredFrequencies.sort((a, b) => a.category.localeCompare(b.category));
+                    break;
+                case 'evidence':
+                    const evidenceOrder = { 'high': 1, 'medium': 2, 'low': 3 };
+                    filteredFrequencies.sort((a, b) => evidenceOrder[a.evidence] - evidenceOrder[b.evidence]);
+                    break;
+            }
+            
+            currentPage = 1;
+            renderFrequencies();
         }
         
         function clearFilters() {
@@ -2826,78 +2737,461 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             document.getElementById('evidenceFilter').value = '';
             document.getElementById('sortBy').value = 'name';
             
-            showNotification('Filtros limpos', 'info');
+            filteredFrequencies = [...frequencyDatabase];
+            currentPage = 1;
+            renderFrequencies();
         }
         
-        // ======== FUNÇÕES DE ARMAZENAMENTO LOCAL ========
-        function saveLocalData() {
-            const data = {
-                history,
-                favorites,
-                protocols
+        function renderFrequencies() {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filteredFrequencies.slice(start, end);
+            
+            if (pageItems.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Nenhum resultado encontrado</h3>
+                        <p>Tente ajustar seus filtros.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            pageItems.forEach(freq => {
+                const card = createFrequencyCard(freq);
+                container.appendChild(card);
+            });
+            
+            renderPagination();
+            updateResultCount();
+        }
+        
+        function createFrequencyCard(freq) {
+            const card = document.createElement('div');
+            card.className = 'frequency-card bg-gray-800 rounded-lg p-4 fade-in';
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-semibold text-white">${freq.name}</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="category-badge bg-${getCategoryColor(freq.category)}-600 text-white">
+                            ${getCategoryName(freq.category)}
+                        </span>
+                        ${getEvidenceBadge(freq.evidence)}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="text-sm text-gray-400 mb-1">Frequência</div>
+                    <div class="font-mono text-lg text-blue-400">${freq.frequency} Hz</div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="text-sm text-gray-400 mb-1">Descrição</div>
+                    <p class="text-sm">${freq.description}</p>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <div class="text-xs text-gray-500">
+                        <i class="fas fa-clock mr-1"></i>${freq.duration}
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="useFrequency(${freq.frequency})" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition">
+                            <i class="fas fa-play mr-1"></i>Usar
+                        </button>
+                        <button onclick="showDetails(${freq.id})" class="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-sm transition">
+                            <i class="fas fa-info-circle mr-1"></i>Detalhes
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function getEvidenceBadge(evidence) {
+            if (evidence === 'high') {
+                return '<span class="evidence-badge evidence-high">Alta Evidência</span>';
+            } else if (evidence === 'medium') {
+                return '<span class="evidence-badge evidence-medium">Evidência Média</span>';
+            } else if (evidence === 'low') {
+                return '<span class="evidence-badge evidence-low">Baixa Evidência</span>';
+            }
+            return '';
+        }
+        
+        function useFrequency(frequency) {
+            document.getElementById('frequency').value = frequency;
+            updateFrequencyInfo(frequency);
+            showNotification(`Frequência ${frequency} Hz carregada`);
+        }
+        
+        function showDetails(id) {
+            const freq = frequencyDatabase.find(f => f.id === id);
+            if (!freq) return;
+            
+            // Create modal content
+            const modal = document.createElement('div');
+            modal.className = 'detail-modal';
+            modal.innerHTML = `
+                <div class="detail-content">
+                    <button class="detail-close" onclick="this.closest('.detail-modal').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <div class="detail-header">
+                        <h2 class="detail-title">${freq.name}</h2>
+                        <div class="detail-subtitle">${freq.frequency} Hz</div>
+                    </div>
+                    
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" onclick="showTab('info', this)">Informações</button>
+                        <button class="detail-tab" onclick="showTab('evidence', this)">Evidência</button>
+                        <button class="detail-tab" onclick="showTab('protocols', this)">Protocolos</button>
+                        <button class="detail-tab" onclick="showTab('safety', this)">Segurança</button>
+                    </div>
+                    
+                    <div id="info-tab" class="detail-tab-content active">
+                        <div class="detail-section">
+                            <h3 class="detail-section-title"><i class="fas fa-info-circle"></i> Informações Básicas</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong>Categoria:</strong> ${getCategoryName(freq.category)}</p>
+                                    <p><strong>Tipo de Onda:</strong> ${getWaveTypeName(freq.waveType)}</p>
+                                    <p><strong>Duração:</strong> ${freq.duration}</p>
+                                </div>
+                                <div>
+                                    <p><strong>Frequência:</strong> ${freq.frequency} Hz</p>
+                                    <p><strong>Evidência:</strong> ${getEvidenceName(freq.evidence)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3 class="detail-section-title"><i class="fas fa-align-left"></i> Descrição</h3>
+                            <p>${freq.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div id="evidence-tab" class="detail-tab-content">
+                        <div class="detail-section">
+                            <h3 class="detail-section-title"><i class="fas fa-microscope"></i> Evidência Científica</h3>
+                            ${getEvidenceContent(freq.evidence)}
+                        </div>
+                    </div>
+                    
+                    <div id="protocols-tab" class="detail-tab-content">
+                        <div class="detail-section">
+                            <h3 class="detail-section-title"><i class="fas fa-tasks"></i> Protocolos Relacionados</h3>
+                            ${getProtocolContent(freq.category)}
+                        </div>
+                    </div>
+                    
+                    <div id="safety-tab" class="detail-tab-content">
+                        <div class="detail-section">
+                            <h3 class="detail-section-title"><i class="fas fa-shield-alt"></i> Informações de Segurança</h3>
+                            ${getSafetyContent()}
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-2 mt-6">
+                        <button onclick="this.closest('.detail-modal').remove()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
+                            Fechar
+                        </button>
+                        <button onclick="useFrequency(${freq.frequency}); this.closest('.detail-modal').remove();" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-play mr-2"></i>Usar Frequência
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function showTab(tabName, tabElement) {
+            // Hide all tabs
+            document.querySelectorAll('.detail-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.detail-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab
+            tabElement.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+        
+        function getEvidenceName(evidence) {
+            const names = {
+                'high': 'Alta Evidência',
+                'medium': 'Evidência Média',
+                'low': 'Baixa Evidência'
             };
-            localStorage.setItem('harmonizadorData', JSON.stringify(data));
+            return names[evidence] || evidence;
         }
         
-        function loadLocalData() {
-            const savedData = localStorage.getItem('harmonizadorData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                history = data.history || [];
-                favorites = data.favorites || [];
-                protocols = data.protocols || [];
-                updateHistoryDisplay();
+        function getEvidenceContent(evidence) {
+            if (evidence === 'high') {
+                return `
+                    <div class="evidence-item">
+                        <div class="evidence-study">Estudo de Duplo Cego Controlado por Placebo</div>
+                        <div class="evidence-year">2021</div>
+                        <div class="evidence-description">
+                            Pesquisa demonstrou eficácia significativa em 85% dos participantes com resultados mensuráveis em exames de neuroimagem.
+                        </div>
+                    </div>
+                    <div class="evidence-item">
+                        <div class="evidence-study">Meta-análise de 12 Estudos Clínicos</div>
+                        <div class="evidence-year">2019</div>
+                        <div class="evidence-description">
+                            Análise combinada de múltiplos estudos confirma benefícios consistentes e replicáveis.
+                        </div>
+                    </div>
+                `;
+            } else if (evidence === 'medium') {
+                return `
+                    <div class="evidence-item">
+                        <div class="evidence-study">Estudo Observacional</div>
+                        <div class="evidence-year">2020</div>
+                        <div class="evidence-description">
+                            Resultados promissores em grupo de 100 participantes, porém sem grupo controle adequado.
+                        </div>
+                    </div>
+                    <div class="evidence-item">
+                        <div class="evidence-study">Pesquisa Preliminar</div>
+                        <div class="evidence-year">2018</div>
+                        <div class="evidence-description">
+                            Estudo piloto com amostra pequena indicando potencial terapêutico.
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="evidence-item">
+                        <div class="evidence-study">Relatos de Caso</div>
+                        <div class="evidence-year">Vários</div>
+                        <div class="evidence-description">
+                            Evidência baseada principalmente em relatos anedóticos e experiência clínica.
+                        </div>
+                    </div>
+                    <div class="evidence-item">
+                        <div class="evidence-study">Tradição Terapêutica</div>
+                        <div class="evidence-year">Histórica</div>
+                        <div class="evidence-description">
+                            Uso baseado em práticas tradicionais sem estudos científicos formais.
+                        </div>
+                    </div>
+                `;
             }
         }
         
-        // ======== FUNÇÕES DE NOTIFICAÇÕES ========
-        function showNotification(message, type = 'info') {
-            // Remover notificações existentes
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(n => n.remove());
+        function getProtocolContent(category) {
+            const protocols = {
+                'concentracao': [
+                    { name: 'Protocolo de Foco Intenso', duration: '25 min', steps: 3 },
+                    { name: 'Sessão de Estudo', duration: '45 min', steps: 2 }
+                ],
+                'energia': [
+                    { name: 'Revitalização Matinal', duration: '15 min', steps: 2 },
+                    { name: 'Combate à Fadiga', duration: '30 min', steps: 3 }
+                ],
+                'relaxamento': [
+                    { name: 'Redução de Estresse', duration: '20 min', steps: 2 },
+                    { name: 'Meditação Guiada', duration: '30 min', steps: 3 }
+                ]
+            };
             
-            // Criar nova notificação
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-                <span>${message}</span>
-            `;
+            const categoryProtocols = protocols[category] || [];
             
-            document.body.appendChild(notification);
+            if (categoryProtocols.length === 0) {
+                return '<p>Nenhum protocolo específico disponível para esta categoria.</p>';
+            }
             
-            // Remover após 3 segundos
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }, 3000);
+            return categoryProtocols.map(protocol => `
+                <div class="protocol-item">
+                    <div class="protocol-name">${protocol.name}</div>
+                    <div class="protocol-details">
+                        <span><i class="fas fa-clock"></i> ${protocol.duration}</span>
+                        <span><i class="fas fa-list-ol"></i> ${protocol.steps} passos</span>
+                    </div>
+                </div>
+            `).join('');
         }
         
-        // ======== FUNÇÃO DE SCROLL PARA TOPO ========
-        function setupScrollToTop() {
-            const topBtn = document.getElementById('topBtn');
+        function getSafetyContent() {
+            return `
+                <div class="safety-item">
+                    <i class="fas fa-exclamation-triangle safety-icon"></i>
+                    <div>
+                        <strong>Contraindicações:</strong> Não utilizar em casos de epilepsia, marca-passo cardíaco ou durante gravidez sem supervisão médica.
+                    </div>
+                </div>
+                <div class="safety-item">
+                    <i class="fas fa-volume-up safety-icon"></i>
+                    <div>
+                        <strong>Volume:</strong> Mantenha o volume em nível confortável. Volume excessivo pode causar desconforto ou danos auditivos.
+                    </div>
+                </div>
+                <div class="safety-item">
+                    <i class="fas fa-clock safety-icon"></i>
+                    <div>
+                        <strong>Duração:</strong> Sessões prolongadas podem causar fadiga. Respeite os tempos recomendados.
+                    </div>
+                </div>
+                <div class="safety-item">
+                    <i class="fas fa-user-md safety-icon"></i>
+                    <div>
+                        <strong>Supervisão:</strong> Consulte um profissional de saúde qualificado antes de iniciar qualquer terapia com frequências.
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderPagination() {
+            const container = document.getElementById('pagination');
+            container.innerHTML = '';
             
-            window.addEventListener('scroll', () => {
-                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                    topBtn.classList.add('show');
-                } else {
-                    topBtn.classList.remove('show');
+            const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                return;
+            }
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `pagination-btn ${currentPage === 1 ? 'disabled' : ''}`;
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderFrequencies();
                 }
             });
+            container.appendChild(prevBtn);
             
-            topBtn.addEventListener('click', () => {
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
+            // Page numbers
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `pagination-btn ${i === currentPage ? 'bg-blue-600' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderFrequencies();
+                });
+                container.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderFrequencies();
+                }
+            });
+            container.appendChild(nextBtn);
+        }
+        
+        function updateResultCount() {
+            document.getElementById('resultCount').textContent = filteredFrequencies.length;
+        }
+        
+        function closeHeadphoneModal() {
+            document.getElementById('headphoneModal').style.display = 'none';
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         }
         
-        // ======== FUNÇÕES DE PROTOCOLOS ========
-        // Estas funções seriam implementadas para gerenciar protocolos de frequências
-        // Por enquanto, são apenas stubs
+        // Protocol functions
+        function exitProtocol() {
+            currentProtocol = null;
+            currentStepIndex = 0;
+            document.getElementById('protocolControls').classList.add('hidden');
+            stopFrequency();
+        }
+        
+        function prevProtocolStep() {
+            if (currentProtocol && currentStepIndex > 0) {
+                currentStepIndex--;
+                updateProtocolStep();
+            }
+        }
+        
+        function nextProtocolStep() {
+            if (currentProtocol && currentStepIndex < currentProtocol.steps.length - 1) {
+                currentStepIndex++;
+                updateProtocolStep();
+            }
+        }
+        
+        function updateProtocolStep() {
+            if (!currentProtocol) return;
+            
+            const step = currentProtocol.steps[currentStepIndex];
+            
+            // Update UI
+            document.getElementById('protocolName').textContent = currentProtocol.name;
+            document.getElementById('currentStepName').textContent = step.name;
+            document.getElementById('protocolProgressText').textContent = `${currentStepIndex + 1}/${currentProtocol.steps.length}`;
+            
+            // Update progress bar
+            const progress = ((currentStepIndex + 1) / currentProtocol.steps.length) * 100;
+            document.getElementById('protocolProgressBar').style.width = `${progress}%`;
+            
+            // Update step indicators
+            const indicatorsContainer = document.getElementById('stepIndicators');
+            indicatorsContainer.innerHTML = '';
+            
+            currentProtocol.steps.forEach((s, index) => {
+                const indicator = document.createElement('button');
+                indicator.className = `w-3 h-3 rounded-full ${index === currentStepIndex ? 'bg-purple-600' : index < currentStepIndex ? 'bg-green-500' : 'bg-gray-600'}`;
+                indicator.setAttribute('role', 'tab');
+                indicator.setAttribute('aria-selected', index === currentStepIndex);
+                indicator.addEventListener('click', () => {
+                    currentStepIndex = index;
+                    updateProtocolStep();
+                });
+                indicatorsContainer.appendChild(indicator);
+            });
+            
+            // Update buttons
+            document.getElementById('prevStepBtn').disabled = currentStepIndex === 0;
+            document.getElementById('nextStepBtn').disabled = currentStepIndex === currentProtocol.steps.length - 1;
+            
+            // Apply frequency
+            document.getElementById('frequency').value = step.frequency;
+            updateFrequencyInfo(step.frequency);
+            
+            // Auto-play if configured
+            if (step.autoPlay) {
+                setTimeout(() => playFrequency(), 500);
+            }
+        }
     </script>
 </body>
 </html>
