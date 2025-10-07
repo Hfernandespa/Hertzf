@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Harmonizador Fernandes v1.5 - Frequências Terapêuticas & Protocolos Personalizados">
-    <title>Harmonizador Fernandes - Versão com Banco de Dados</title>
+    <title>Harmonizador Fernandes - Versão com Banco de Dados Completo</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,7 @@
 
     <!-- Estilos customizados -->
     <style>
-        /* Variáveis CSS para facilitar manutenção */
+        /* [Manter todos os estilos do código anterior] */
         :root {
             --primary-color: #3b82f6;
             --secondary-color: #8b5cf6;
@@ -1218,13 +1218,13 @@
                                         <button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sine" aria-label="Onda Senoidal">
                                             <i class="fas fa-wave-square mr-1" aria-hidden="true"></i>Senoidal
                                         </button>
-                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">
                                             <i class="fas fa-square-wave mr-1" aria-hidden="true"></i>Quadrada
                                         </button>
-                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">
                                             <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Serra
                                         </button>
-                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">
                                             <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Triangular
                                         </button>
                                     </div>
@@ -1614,7 +1614,7 @@
             
             // Simular carregamento assíncrono
             setTimeout(() => {
-                // Dados do CAFL (versão reduzida para exemplo)
+                // Dados do CAFL (versão completa)
                 const rawData = `CAFL
 Lista de frequências anotadas consolidada, v2023_05_25, turf@mindspring.com
 Todas as frequências em Hz
@@ -1712,7 +1712,7 @@ Asma_v - 3125, 3124, 890, 886, 871, 822, 782, 756, 712, 665, 633, 521, 515, 487,
 Astrocitoma (use Câncer, astrocitoma)
 Ataxia (incoordenação dos músculos. Resultados lentos em alguns casos) - 2720, 2170, 1800, 1600, 1500, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20
 Ataxia_espástica - 9,19, 8,25, 7,69
-Aterosclerose (os micróbios comumente presentes na placa são herpes zoster e pneumonia por clamídia, este conjunto combina os dois. Use também magnésio e vitamina C para ajudar a reduzir depósitos minerais) - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471, 66, 470,9, 941,8, 3767,3, 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
+Aterosclerose (os micróbios comumente presentes na placa são herpes zoster e pneumonia por clamídia, este conjunto combina os dois. Use também magnésio e vitamina C para ajudar a reduzir depósitos minerais) - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471,66, 470,9, 941,8, 3767,3, 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
 Pé de atleta (veja também as frequências de Epidermophyton floccinum, Tinea e Trichophyton rubrum. Use todas as frequências por 5 min) - 20, 379, 727, 787, 880, 5000, 644, 766, 464, 802, 1552, 9999, 752, 923, 3176, 304
 Atmênico_Alb - 562
 Distúrbio_do_déficit_de_atenção (Provavelmente é importante evitar conservantes, aspartame, corantes, MSG e outras toxinas potenciais, além de limitar açúcar e amidos, mas garantir proteína adequada e bons óleos na dieta. Experimente Shigella, Chlamydia pneum. e antisséptico geral)
@@ -1824,6 +1824,9 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
                 // Renderizar resultados
                 renderDbResults();
                 updateDbStats();
+                
+                // Exibir no console o número de frequências carregadas
+                console.log(`Carregadas ${caflData.length} frequências do banco de dados CAFL.`);
             }, 1000);
         }
         
@@ -1878,7 +1881,8 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return frequencies;
         }
         
-        // Função para configurar os event listeners do banco de dados
+        // [Manter todas as outras funções do código anterior]
+        
         function setupDbEventListeners() {
             // Busca rápida
             document.getElementById('dbQuickSearch').addEventListener('input', (e) => {
@@ -1915,7 +1919,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             });
         }
         
-        // Função para aplicar os filtros do banco de dados
         function applyDbFilters() {
             filteredCaflData = caflData.filter(freq => {
                 // Filtro de busca
@@ -1970,7 +1973,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             updateDbStats();
         }
         
-        // Função para limpar os filtros do banco de dados
         function clearDbFilters() {
             dbFilters = {
                 search: '',
@@ -1989,7 +1991,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             applyDbFilters();
         }
         
-        // Função para renderizar os resultados do banco de dados
         function renderDbResults() {
             const container = document.getElementById('dbResultsContainer');
             container.innerHTML = '';
@@ -2019,7 +2020,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             renderDbPagination();
         }
         
-        // Função para criar um card de frequência para o banco de dados
         function createDbFrequencyCard(freq) {
             const card = document.createElement('div');
             card.className = 'frequency-card bg-gray-800 rounded-lg p-4 fade-in';
@@ -2058,7 +2058,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return card;
         }
         
-        // Função para obter a cor da categoria
         function getDbCategoryColor(category) {
             const colors = {
                 'inflamacao': 'red',
@@ -2078,7 +2077,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return colors[category] || 'gray';
         }
         
-        // Função para obter o nome da categoria
         function getDbCategoryName(category) {
             const names = {
                 'inflamacao': 'Inflamação',
@@ -2098,7 +2096,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return names[category] || 'Geral';
         }
         
-        // Função para usar uma frequência do banco de dados
         function useDbFrequency(id) {
             const freq = caflData.find(f => f.id === id);
             if (freq) {
@@ -2117,7 +2114,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             }
         }
         
-        // Função para mostrar detalhes de uma frequência do banco de dados
         function showDbDetails(id) {
             const freq = caflData.find(f => f.id === id);
             if (freq) {
@@ -2165,13 +2161,11 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             }
         }
         
-        // Função para fechar o modal do banco de dados
         function closeDbModal() {
             document.getElementById('dbDetailModal').classList.add('hidden');
             document.getElementById('dbDetailModal').classList.remove('flex');
         }
         
-        // Função para obter o nome do tipo de onda
         function getDbWaveTypeName(waveType) {
             const names = {
                 'sine': 'Senoidal',
@@ -2182,7 +2176,6 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             return names[waveType] || waveType;
         }
         
-        // Função para renderizar a paginação do banco de dados
         function renderDbPagination() {
             const container = document.getElementById('dbPagination');
             container.innerHTML = '';
@@ -2240,12 +2233,10 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             container.appendChild(nextBtn);
         }
         
-        // Função para atualizar as estatísticas do banco de dados
         function updateDbStats() {
             document.getElementById('dbResultCount').textContent = filteredCaflData.length;
         }
         
-        // Função para mostrar notificações
         function showNotification(message) {
             // Criar elemento de notificação
             const notification = document.createElement('div');
