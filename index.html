@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Harmonizador Fernandes v1.5 - Frequências Terapêuticas & Protocolos Personalizados">
-    <title>Harmonizador Fernandes - Versão Editável</title>
+    <title>Harmonizador Fernandes - Versão com Banco de Dados</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -968,6 +968,86 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
+
+        /* Estilos específicos para o banco de dados */
+        .db-section {
+            display: none;
+        }
+        
+        .db-section.active {
+            display: block;
+        }
+        
+        .tab-navigation {
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Loading spinner para o banco de dados */
+        .db-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .db-loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Notificação */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: var(--success-color);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+
+        .notification.warning {
+            background: var(--warning-color);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -1072,1663 +1152,1752 @@
             </div>
         </section>
 
-        <!-- Main Content -->
-        <main class="space-y-8">
-            <!-- Layout Principal: Gerador + Banco de Dados + Referências -->
-            <div class="grid lg:grid-cols-12 gap-8">
-                <!-- Coluna 1: Gerador de Frequências + Histórico -->
-                <div class="lg:col-span-5 space-y-6">
-                    <section id="generatorSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                        <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
-
-                        <!-- Protocol Controls (inicialmente oculto) -->
-                        <div id="protocolControls" class="protocol-controls hidden mb-6 p-4 bg-gray-900 rounded-lg">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-purple-400"><i class="fas fa-tasks mr-2" aria-hidden="true"></i><span id="protocolName">Protocolo Ativo</span></h3>
-                                <button id="exitProtocolBtn" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Sair do protocolo">
-                                    <i class="fas fa-times mr-1" aria-hidden="true"></i>Sair
-                                </button>
-                            </div>
-                            <!-- Progress Bar -->
-                            <div class="mb-4">
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span>Progresso do Protocolo</span>
-                                    <span id="protocolProgressText">0/0</span>
-                                </div>
-                                <div class="w-full bg-gray-700 rounded-full h-2.5" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                    <div id="protocolProgressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                </div>
-                            </div>
-                            <!-- Step Indicators -->
-                            <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist">
-                                <!-- Indicadores serão adicionados dinamicamente -->
-                            </div>
-                            <!-- Step Navigation -->
-                            <div class="flex justify-between">
-                                <button id="prevStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Passo anterior">
-                                    <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
-                                </button>
-                                <div class="text-center">
-                                    <div class="text-sm text-gray-400">Passo Atual</div>
-                                    <div id="currentStepName" class="font-medium">-</div>
-                                </div>
-                                <button id="nextStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Próximo passo">
-                                    Próximo<i class="fas fa-chevron-right ml-2" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <!-- Frequency Input e Visualizer -->
-                            <div class="frequency-input-group">
-                                <div class="frequency-controls">
-                                    <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
-                                    <div class="flex gap-2">
-                                        <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1" aria-describedby="frequency-description">
-                                        <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
-                                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
-                                        </button>
-                                        <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105 hidden" aria-label="Parar frequência">
-                                            <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
-                                        </button>
-                                    </div>
-                                    <div id="frequency-description" class="sr-only">Insira uma frequência entre 20 Hz e 20.000 Hz</div>
-                                </div>
-                                <div class="wave-visualizer-small bg-gray-900 rounded-lg p-2">
-                                    <h3 class="text-xs font-medium mb-1 text-gray-400 text-center">Onda em Tempo Real</h3>
-                                    <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded" aria-label="Visualização da forma de onda"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- Volume Control -->
-                            <div>
-                                <label for="volume" class="block text-sm font-medium mb-2">Volume: <span id="volumeValue">50</span>%</label>
-                                <input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="50" aria-describedby="volume-description">
-                                <div id="volume-description" class="sr-only">Ajuste o volume de 0% a 100%</div>
-                            </div>
-
-                            <!-- Wave Type Selection -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Tipo de Onda</label>
-                                <div class="grid grid-cols-4 gap-2">
-                                    <button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sine" aria-label="Onda Senoidal">
-                                        <i class="fas fa-wave-square mr-1" aria-hidden="true"></i>Senoidal
-                                    </button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">
-                                        <i class="fas fa-square-wave mr-1" aria-hidden="true"></i>Quadrada
-                                    </button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">
-                                        <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Serra
-                                    </button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">
-                                        <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Triangular
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Timer -->
-                            <div>
-                                <button id="timerBtn" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 w-full" aria-label="Definir timer">
-                                    <i class="fas fa-clock mr-2" aria-hidden="true"></i>Programar Timer
-                                </button>
-                            </div>
-                            <div class="mt-3 bg-gray-900 rounded-lg p-3 hidden" id="timerContainer">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm text-gray-400">Tempo Restante</span>
-                                    <div id="timerDisplay" class="timer-display text-blue-400">00:00:00</div>
-                                </div>
-                                <div class="w-full bg-gray-700 rounded-full h-2">
-                                    <div id="timerProgress" class="timer-progress bg-purple-600 h-full rounded-full" style="width: 0%"></div>
-                                </div>
-                            </div>
-
-                            <!-- Benefícios das Frequências (Modificado) -->
-                            <div class="space-y-3">
-                                <div class="benefit-card">
-                                    <h4><i class="fas fa-bolt text-yellow-400"></i> Energia e Vitalidade</h4>
-                                    <p>Frequências específicas como 25 Hz e 50 Hz ajudam a aumentar os níveis de energia, combater a fadiga e melhorar a disposição para atividades diárias.</p>
-                                </div>
-                                
-                                <div class="benefit-card">
-                                    <h4><i class="fas fa-brain text-blue-400"></i> Foco e Concentração</h4>
-                                    <p>Frequências na faixa de 40 Hz (ondas Gama) estão associadas à melhora da cognição, memória e capacidade de concentração prolongada.</p>
-                                </div>
-                                
-                                <div class="benefit-card">
-                                    <h4><i class="fas fa-heart text-red-400"></i> Bem-Estar Emocional</h4>
-                                    <p>Frequências como 285 Hz e 639 Hz podem ajudar a reduzir sintomas de depressão, ansiedade e promover equilíbrio emocional.</p>
-                                </div>
-                            </div>
-
-                            <!-- Current Frequency Info -->
-                            <div id="currentInfo" class="bg-gray-900 rounded-lg p-4">
-                                <div class="text-xl font-bold text-blue-400">40 Hz</div>
-                                <div class="text-lg font-medium">Foco e Concentração</div>
-                            </div>
-                            <div id="currentDetails" class="bg-gray-900 rounded-lg p-4 text-sm">
-                                <div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">Concentração</span></div>
-                                <div><strong>Descrição:</strong> Frequência para melhorar foco cognitivo e clareza mental.</div>
-                            </div>
-                            <div id="waveRecommendation" class="bg-gray-900 rounded-lg p-4 text-sm">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-lightbulb text-yellow-500"></i>
-                                    <span><strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável para estimulação cognitiva.</span>
-                                </div>
-                            </div>
-
-                            <!-- Favorite Button -->
-                            <button id="favoriteBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition w-full" aria-label="Adicionar aos favoritos">
-                                <i class="far fa-star mr-2"></i>Adicionar aos Favoritos
-                            </button>
-                        </div>
-                    </section>
-
-                    <!-- Seção de Histórico -->
-                    <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="history-heading">
-                        <h3 id="history-heading" class="text-lg font-semibold mb-4 text-purple-400"><i class="fas fa-history mr-2" aria-hidden="true"></i>Histórico Recente</h3>
-                        <div id="historyList" class="space-y-1 max-h-32 overflow-y-auto" aria-live="polite">
-                            <!-- Itens do histórico serão adicionados aqui -->
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Coluna 2: Banco de Dados de Frequências -->
-                <div class="lg:col-span-7 space-y-6">
-                    <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 id="database-heading" class="text-2xl font-semibold text-green-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências Terapêuticas</h2>
-                            <div class="text-sm text-gray-400"><span id="resultCount">0</span> resultados</div>
-                        </div>
-                        
-                        <!-- Filtros Avançados -->
-                        <div class="filter-section">
-                            <h3 class="text-lg font-semibold mb-4 text-blue-400">
-                                <i class="fas fa-filter mr-2"></i>Filtros Avançados
-                            </h3>
-                            
-                            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div class="filter-group">
-                                    <label class="filter-label">Faixa de Frequência (Hz)</label>
-                                    <div class="range-slider-container">
-                                        <input type="range" id="minFreqRange" class="range-slider" min="20" max="20000" value="20">
-                                        <span id="minFreqValue" class="range-value">20</span>
-                                    </div>
-                                    <div class="range-slider-container mt-2">
-                                        <input type="range" id="maxFreqRange" class="range-slider" min="20" max="20000" value="20000">
-                                        <span id="maxFreqValue" class="range-value">20000</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="filter-group">
-                                    <label class="filter-label" for="categoryFilter">Categoria</label>
-                                    <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Todas as Categorias</option>
-                                        <option value="concentracao">Concentração</option>
-                                        <option value="energia">Energia</option>
-                                        <option value="cura">Cura</option>
-                                        <option value="relaxamento">Relaxamento</option>
-                                        <option value="sono">Sono</option>
-                                        <option value="meditacao">Meditação</option>
-                                        <option value="vermifugacao">Vermifugação</option>
-                                        <option value="anti-inflamatorio">Anti-inflamatório</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="filter-group">
-                                    <label class="filter-label" for="evidenceFilter">Evidência Científica</label>
-                                    <select id="evidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Todos os Níveis</option>
-                                        <option value="high">Alta</option>
-                                        <option value="medium">Média</option>
-                                        <option value="low">Baixa</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="filter-group">
-                                    <label class="filter-label" for="effectivenessFilter">Eficácia Mínima</label>
-                                    <select id="effectivenessFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Qualquer Eficácia</option>
-                                        <option value="90">90%+</option>
-                                        <option value="80">80%+</option>
-                                        <option value="70">70%+</option>
-                                        <option value="60">60%+</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="flex flex-wrap gap-3 mt-4">
-                                <button id="applyFiltersBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition">
-                                    <i class="fas fa-check mr-2"></i>Aplicar Filtros
-                                </button>
-                                <button id="resetFiltersBtn" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-medium transition">
-                                    <i class="fas fa-redo mr-2"></i>Limpar Filtros
-                                </button>
-                                <button id="showFavoritesBtn" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition">
-                                    <i class="fas fa-star mr-2"></i>Mostrar Favoritos
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Busca e Resultados -->
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                            <div class="flex-1">
-                                <div class="relative">
-                                    <label for="searchInput" class="sr-only">Buscar frequências</label>
-                                    <input type="text" id="searchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Buscar por nome, descrição, mecanismo...">
-                                    <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Frequências serão inseridas dinamicamente aqui -->
-                        <div id="frequenciesGrid" class="database-container grid md:grid-cols-1 gap-3">
-                            <!-- Frequencies will be dynamically inserted here -->
-                        </div>
-                        
-                        <!-- Paginação -->
-                        <div class="pagination-container">
-                            <button id="prevPageBtn" class="pagination-btn" disabled>
-                                <i class="fas fa-chevron-left mr-2"></i>Anterior
-                            </button>
-                            <span id="pageInfo" class="pagination-info">Página 1 de 1</span>
-                            <button id="nextPageBtn" class="pagination-btn" disabled>
-                                Próximo<i class="fas fa-chevron-right ml-2"></i>
-                            </button>
-                        </div>
-                    </section>
-                </div>
+        <!-- Navegação por Abas -->
+        <div class="tab-navigation mb-8">
+            <div class="flex space-x-1">
+                <button id="generatorTab" class="tab-btn active" onclick="showSection('generator')">
+                    <i class="fas fa-wave-square mr-2"></i>Gerador de Frequências
+                </button>
+                <button id="databaseTab" class="tab-btn" onclick="showSection('database')">
+                    <i class="fas fa-database mr-2"></i>Banco de Dados CAFL
+                </button>
             </div>
+        </div>
 
-            <!-- Protocolos Terapêuticos -->
-            <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="protocols-heading">
-                <h2 id="protocols-heading" class="text-2xl font-semibold mb-6 text-orange-400"><i class="fas fa-procedures mr-2" aria-hidden="true"></i>Protocolos Terapêuticos</h2>
-                
-                <!-- Área Editável de Protocolos -->
-                <div class="editable-area">
-                    <div class="editable-label">ÁREA EDITÁVEL - PROTOCOLOS</div>
-                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <!-- Protocolo 1: Geral -->
-                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                            <h3 class="text-lg font-semibold mb-3 text-orange-300"><i class="fas fa-broadcast-tower mr-2" aria-hidden="true"></i>Protocolo Geral</h3>
-                            <p class="text-sm text-gray-300 mb-4">Protocolo completo para desparasitação geral, indicado para limpeza periódica e prevenção.</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="protocol-step energy"><strong>Fase 1:</strong> 20 Hz - 5 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Fase 2:</strong> 72 Hz - 7 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Fase 3:</strong> 120 Hz - 5 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Fase 4:</strong> 432 Hz - 3 min (Onda Senoidal)</div>
-                            </div>
-                            <div class="mt-4 p-3 bg-orange-900 bg-opacity-30 rounded text-xs text-orange-200">
-                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Repetir 1 vez por semana durante 4 semanas. Manter hidratação adequada.
-                            </div>
-                            <button class="mt-3 w-full bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('geral')" aria-label="Iniciar Protocolo Geral">
-                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                            </button>
-                        </article>
+        <!-- Conteúdo Principal -->
+        <main>
+            <!-- Seção do Gerador de Frequências -->
+            <section id="generatorSection" class="db-section active">
+                <div class="grid lg:grid-cols-12 gap-8">
+                    <!-- Coluna 1: Gerador de Frequências + Histórico -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <section id="generatorSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+                            <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
 
-                        <!-- Protocolo 2: Intestinal -->
-                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                            <h3 class="text-lg font-semibold mb-3 text-green-300"><i class="fas fa-apple-alt mr-2" aria-hidden="true"></i>Protocolo Intestinal</h3>
-                            <p class="text-sm text-gray-300 mb-4">Focado na desparasitação do trato intestinal e recuperação da flora.</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="protocol-step energy"><strong>Preparo:</strong> 432 Hz - 2 min (Onda Senoidal)</div>
-                                <div class="protocol-step energy"><strong>Tratamento:</strong> 120 Hz - 10 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Reforço:</strong> 440 Hz - 5 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Finalização:</strong> 528 Hz - 3 min (Onda Senoidal)</div>
+                            <!-- Protocol Controls (inicialmente oculto) -->
+                            <div id="protocolControls" class="protocol-controls hidden mb-6 p-4 bg-gray-900 rounded-lg">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-purple-400"><i class="fas fa-tasks mr-2" aria-hidden="true"></i><span id="protocolName">Protocolo Ativo</span></h3>
+                                    <button id="exitProtocolBtn" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Sair do protocolo">
+                                        <i class="fas fa-times mr-1" aria-hidden="true"></i>Sair
+                                    </button>
+                                </div>
+                                <!-- Progress Bar -->
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Progresso do Protocolo</span>
+                                        <span id="protocolProgressText">0/0</span>
+                                    </div>
+                                    <div class="w-full bg-gray-700 rounded-full h-2.5" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        <div id="protocolProgressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <!-- Step Indicators -->
+                                <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist">
+                                    <!-- Indicadores serão adicionados dinamicamente -->
+                                </div>
+                                <!-- Step Navigation -->
+                                <div class="flex justify-between">
+                                    <button id="prevStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Passo anterior">
+                                        <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
+                                    </button>
+                                    <div class="text-center">
+                                        <div class="text-sm text-gray-400">Passo Atual</div>
+                                        <div id="currentStepName" class="font-medium">-</div>
+                                    </div>
+                                    <button id="nextStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Próximo passo">
+                                        Próximo<i class="fas fa-chevron-right ml-2" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
-                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Realizar em jejum. Repetir após 15 dias.
-                            </div>
-                            <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('intestinal')" aria-label="Iniciar Protocolo Intestinal">
-                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                            </button>
-                        </article>
 
-                        <!-- Protocolo 3: Sistêmico -->
-                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                            <h3 class="text-lg font-semibold mb-3 text-red-300"><i class="fas fa-heartbeat mr-2" aria-hidden="true"></i>Protocolo Sistêmico</h3>
-                            <p class="text-sm text-gray-300 mb-4">Tratamento completo para parasitas sistêmicos em ciclos de 3 dias.</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="protocol-step energy"><strong>Dia 1: Giárdia:</strong> 1865 Hz - 15 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Dia 2: Ancilostomídeos:</strong> 800 Hz - 15 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Dia 3:</strong> 2127 Hz - 15 min (Onda Quadrada)</div>
-                                <div class="protocol-step energy"><strong>Descanso:</strong> 7 dias sem tratamento</div>
-                            </div>
-                            <div class="mt-4 p-3 bg-red-900 bg-opacity-30 rounded text-xs text-red-200">
-                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Acompanhamento médico recomendado. Repetir ciclo após 30 dias.
-                            </div>
-                            <button class="mt-3 w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('sistemico')" aria-label="Iniciar Protocolo Sistêmico">
-                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                            </button>
-                        </article>
+                            <div class="space-y-4">
+                                <!-- Frequency Input e Visualizer -->
+                                <div class="frequency-input-group">
+                                    <div class="frequency-controls">
+                                        <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
+                                        <div class="flex gap-2">
+                                            <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1" aria-describedby="frequency-description">
+                                            <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
+                                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
+                                            </button>
+                                            <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105 hidden" aria-label="Parar frequência">
+                                                <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
+                                            </button>
+                                        </div>
+                                        <div id="frequency-description" class="sr-only">Insira uma frequência entre 20 Hz e 20.000 Hz</div>
+                                    </div>
+                                    <div class="wave-visualizer-small bg-gray-900 rounded-lg p-2">
+                                        <h3 class="text-xs font-medium mb-1 text-gray-400 text-center">Onda em Tempo Real</h3>
+                                        <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded" aria-label="Visualização da forma de onda"></canvas>
+                                    </div>
+                                </div>
 
-                        <!-- Protocolo 4: Energia -->
-                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                            <h3 class="text-lg font-semibold mb-3 text-yellow-300"><i class="fas fa-bolt mr-2" aria-hidden="true"></i>Protocolo de Energia</h3>
-                            <p class="text-sm text-gray-300 mb-4">Para aumentar vitalidade, disposição e combater fadiga crônica.</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="protocol-step energy"><strong>Ativação:</strong> 25 Hz - 8 min (Onda Serra)</div>
-                                <div class="protocol-step energy"><strong>Amplificação:</strong> 50 Hz - 10 min (Onda Senoidal)</div>
-                                <div class="protocol-step energy"><strong>Estabilização:</strong> 100 Hz - 7 min (Onda Serra)</div>
-                                <div class="protocol-step energy"><strong>Integração:</strong> 432 Hz - 5 min (Onda Senoidal)</div>
-                            </div>
-                            <div class="mt-4 p-3 bg-yellow-900 bg-opacity-30 rounded text-xs text-yellow-200">
-                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para uso matinal. Evite antes de dormir.
-                            </div>
-                            <button class="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('energia')" aria-label="Iniciar Protocolo de Energia">
-                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                            </button>
-                        </article>
+                                <!-- Volume Control -->
+                                <div>
+                                    <label for="volume" class="block text-sm font-medium mb-2">Volume: <span id="volumeValue">50</span>%</label>
+                                    <input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="50" aria-describedby="volume-description">
+                                    <div id="volume-description" class="sr-only">Ajuste o volume de 0% a 100%</div>
+                                </div>
 
-                        <!-- Protocolo 5: Foco -->
-                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                            <h3 class="text-lg font-semibold mb-3 text-blue-300"><i class="fas fa-brain mr-2" aria-hidden="true"></i>Protocolo de Foco</h3>
-                            <p class="text-sm text-gray-300 mb-4">Potencializa a concentração, memória e clareza mental para estudos e trabalho.</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="protocol-step focus"><strong>Preparação:</strong> 15 Hz - 5 min (Onda Senoidal)</div>
-                                <div class="protocol-step focus"><strong>Concentração:</strong> 40 Hz - 12 min (Onda Senoidal)</div>
-                                <div class="protocol-step focus"><strong>Manutenção:</strong> 50 Hz - 8 min (Onda Senoidal)</div>
-                                <div class="protocol-step focus"><strong>Integração:</strong> 852 Hz - 5 min (Onda Senoidal)</div>
-                            </div>
-                            <div class="mt-4 p-3 bg-blue-900 bg-opacity-30 rounded text-xs text-blue-200">
-                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Ideal para estudo, trabalho ou atividades que exigem atenção sustentada.
-                            </div>
-                            <button class="mt-3 w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('foco')" aria-label="Iniciar Protocolo de Foco">
-                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                            </button>
-                        </article>
+                                <!-- Wave Type Selection -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Tipo de Onda</label>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sine" aria-label="Onda Senoidal">
+                                            <i class="fas fa-wave-square mr-1" aria-hidden="true"></i>Senoidal
+                                        </button>
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">
+                                            <i class="fas fa-square-wave mr-1" aria-hidden="true"></i>Quadrada
+                                        </button>
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">
+                                            <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Serra
+                                        </button>
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">
+                                            <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Triangular
+                                        </button>
+                                    </div>
+                                </div>
 
-                        <!-- Protocolo 6: Desinflamação Intestinal -->
-                        <article class="protocol-card bg-gray-900 rounded-lg p-5">
-                            <h3 class="text-lg font-semibold mb-3 text-teal-300"><i class="fas fa-leaf mr-2" aria-hidden="true"></i>Desinflamação Intestinal</h3>
-                            <p class="text-sm text-gray-300 mb-4">Protocolo para reduzir inflamação no intestino e promover a cicatrização da mucosa.</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="protocol-step anti-inflammatory"><strong>Calma:</strong> 285 Hz - 8 min (Onda Senoidal)</div>
-                                <div class="protocol-step anti-inflammatory"><strong>Tratamento:</strong> 432 Hz - 12 min (Onda Senoidal)</div>
-                                <div class="protocol-step anti-inflammatory"><strong>Equilíbrio:</strong> 7.83 Hz - 10 min (Onda Senoidal)</div>
-                                <div class="protocol-step anti-inflammatory"><strong>Harmonização:</strong> 639 Hz - 7 min (Onda Senoidal)</div>
-                            </div>
-                            <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded text-xs text-green-200">
-                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Combinar com dieta anti-inflamatória. Repetir 3 vezes por semana.
-                            </div>
-                            <button class="mt-3 w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('desinflamacao')" aria-label="Iniciar Protocolo de Desinflamação Intestinal">
-                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                            </button>
-                        </article>
+                                <!-- Timer -->
+                                <div>
+                                    <button id="timerBtn" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 w-full" aria-label="Definir timer">
+                                        <i class="fas fa-clock mr-2" aria-hidden="true"></i>Programar Timer
+                                    </button>
+                                </div>
+                                <div class="mt-3 bg-gray-900 rounded-lg p-3 hidden" id="timerContainer">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm text-gray-400">Tempo Restante</span>
+                                        <div id="timerDisplay" class="timer-display text-blue-400">00:00:00</div>
+                                    </div>
+                                    <div class="w-full bg-gray-700 rounded-full h-2">
+                                        <div id="timerProgress" class="timer-progress bg-purple-600 h-full rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
 
-                        <!-- Protocolo 7: Harmonia -->
-                        <article class="protocol-card bg-gray-900 rounded-lg p-5 protocol-highlight">
-                            <h3 class="text-lg font-semibold mb-3 text-purple-300"><i class="fas fa-heart mr-2" aria-hidden="true"></i>Protocolo de Harmonia</h3>
-                            <p class="text-sm text-gray-300 mb-4">Para promover equilíbrio emocional, paz interior e harmonia interpessoal.</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="protocol-step harmony"><strong>Centramento:</strong> 136.1 Hz - 8 min (Onda Senoidal)</div>
-                                <div class="protocol-step harmony"><strong>Conexão:</strong> 639 Hz - 10 min (Onda Senoidal)</div>
-                                <div class="protocol-step harmony"><strong>Expansão:</strong> 852 Hz - 8 min (Onda Senoidal)</div>
-                                <div class="protocol-step harmony"><strong>Integração:</strong> 963 Hz - 7 min (Onda Senoidal)</div>
+                                <!-- Benefícios das Frequências -->
+                                <div class="space-y-3">
+                                    <div class="benefit-card">
+                                        <h4><i class="fas fa-bolt text-yellow-400"></i> Energia e Vitalidade</h4>
+                                        <p>Frequências específicas como 25 Hz e 50 Hz ajudam a aumentar os níveis de energia, combater a fadiga e melhorar a disposição para atividades diárias.</p>
+                                    </div>
+                                    
+                                    <div class="benefit-card">
+                                        <h4><i class="fas fa-brain text-blue-400"></i> Foco e Concentração</h4>
+                                        <p>Frequências na faixa de 40 Hz (ondas Gama) estão associadas à melhora da cognição, memória e capacidade de concentração prolongada.</p>
+                                    </div>
+                                    
+                                    <div class="benefit-card">
+                                        <h4><i class="fas fa-heart text-red-400"></i> Bem-Estar Emocional</h4>
+                                        <p>Frequências como 285 Hz e 639 Hz podem ajudar a reduzir sintomas de depressão, ansiedade e promover equilíbrio emocional.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Current Frequency Info -->
+                                <div id="currentInfo" class="bg-gray-900 rounded-lg p-4">
+                                    <div class="text-xl font-bold text-blue-400">40 Hz</div>
+                                    <div class="text-lg font-medium">Foco e Concentração</div>
+                                </div>
+                                <div id="currentDetails" class="bg-gray-900 rounded-lg p-4 text-sm">
+                                    <div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">Concentração</span></div>
+                                    <div><strong>Descrição:</strong> Frequência para melhorar foco cognitivo e clareza mental.</div>
+                                </div>
+                                <div id="waveRecommendation" class="bg-gray-900 rounded-lg p-4 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                                        <span><strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável para estimulação cognitiva.</span>
+                                    </div>
+                                </div>
+
+                                <!-- Favorite Button -->
+                                <button id="favoriteBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition w-full" aria-label="Adicionar aos favoritos">
+                                    <i class="far fa-star mr-2"></i>Adicionar aos Favoritos
+                                </button>
                             </div>
-                            <div class="mt-4 p-3 bg-purple-900 bg-opacity-30 rounded text-xs text-purple-200">
-                                <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Pratique respiração profunda durante a sessão.
+                        </section>
+
+                        <!-- Seção de Histórico -->
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="history-heading">
+                            <h3 id="history-heading" class="text-lg font-semibold mb-4 text-purple-400"><i class="fas fa-history mr-2" aria-hidden="true"></i>Histórico Recente</h3>
+                            <div id="historyList" class="space-y-1 max-h-32 overflow-y-auto" aria-live="polite">
+                                <!-- Itens do histórico serão adicionados aqui -->
                             </div>
-                            <button class="mt-3 w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition" onclick="startProtocol('harmonia')" aria-label="Iniciar Protocolo de Harmonia">
-                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Iniciar Protocolo
-                            </button>
-                        </article>
+                        </section>
                     </div>
-                </div>
 
-                <!-- Recomendações Gerais -->
-                <div class="mt-6 bg-gray-900 rounded-lg p-4">
-                    <h4 class="font-medium text-orange-300 mb-3"><i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i>Recomendações Importantes</h4>
-                    <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
-                        <div>
-                            <h5 class="font-medium text-white mb-2">Durante o Tratamento:</h5>
-                            <ul class="space-y-1 list-disc list-inside">
-                                <li>Mantenha-se bem hidratado</li>
-                                <li>Evite álcool e cafeína</li>
-                                <li>Consuma alimentos leves e naturais</li>
-                                <li>Pratique meditação ou respiração profunda</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h5 class="font-medium text-white mb-2">Pós-Tratamento:</h5>
-                            <ul class="space-y-1 list-disc list-inside">
-                                <li>Observe mudanças no bem-estar</li>
-                                <li>Registre quaisquer efeitos percebidos</li>
-                                <li>Repita protocolos conforme necessário</li>
-                                <li>Consulte um profissional de saúde se houver dúvidas</li>
-                            </ul>
-                        </div>
+                    <!-- Coluna 2: Banco de Dados de Frequências -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 id="database-heading" class="text-2xl font-semibold text-green-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências Terapêuticas</h2>
+                                <div class="text-sm text-gray-400"><span id="resultCount">0</span> resultados</div>
+                            </div>
+                            
+                            <!-- Filtros Avançados -->
+                            <div class="filter-section">
+                                <h3 class="text-lg font-semibold mb-4 text-blue-400">
+                                    <i class="fas fa-filter mr-2"></i>Filtros Avançados
+                                </h3>
+                                
+                                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="filter-group">
+                                        <label class="filter-label">Faixa de Frequência (Hz)</label>
+                                        <div class="range-slider-container">
+                                            <input type="range" id="minFreqRange" class="range-slider" min="20" max="20000" value="20">
+                                            <span id="minFreqValue" class="range-value">20</span>
+                                        </div>
+                                        <div class="range-slider-container mt-2">
+                                            <input type="range" id="maxFreqRange" class="range-slider" min="20" max="20000" value="20000">
+                                            <span id="maxFreqValue" class="range-value">20000</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label class="filter-label" for="categoryFilter">Categoria</label>
+                                        <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">Todas as Categorias</option>
+                                            <option value="concentracao">Concentração</option>
+                                            <option value="energia">Energia</option>
+                                            <option value="cura">Cura</option>
+                                            <option value="relaxamento">Relaxamento</option>
+                                            <option value="sono">Sono</option>
+                                            <option value="meditacao">Meditação</option>
+                                            <option value="vermifugacao">Vermifugação</option>
+                                            <option value="anti-inflamatorio">Anti-inflamatório</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label class="filter-label" for="evidenceFilter">Evidência Científica</label>
+                                        <select id="evidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">Qualquer Nível</option>
+                                            <option value="high">Alta</option>
+                                            <option value="medium">Média</option>
+                                            <option value="low">Baixa</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label class="filter-label" for="sortBy">Ordenar por</label>
+                                        <select id="sortBy" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="name">Nome</option>
+                                            <option value="frequency">Frequência</option>
+                                            <option value="category">Categoria</option>
+                                            <option value="efficiency">Eficiência</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end mt-4 space-x-2">
+                                    <button id="applyFilters" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                                        <i class="fas fa-check mr-2"></i>Aplicar Filtros
+                                    </button>
+                                    <button id="clearFilters" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
+                                        <i class="fas fa-times mr-2"></i>Limpar Filtros
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Container de Resultados -->
+                            <div id="resultsContainer" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+                                <div class="db-loading">
+                                    <div class="db-loading-spinner"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Paginação -->
+                            <div id="pagination" class="pagination-container">
+                                <!-- Paginação será inserida dinamicamente -->
+                            </div>
+                        </section>
                     </div>
                 </div>
             </section>
 
-            <!-- Seção de Referências Científicas -->
-            <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="references-heading">
-                <h2 id="references-heading" class="text-2xl font-semibold mb-6 text-yellow-400"><i class="fas fa-flask mr-2" aria-hidden="true"></i>Referências Científicas</h2>
-                
-                <!-- Área Editável de Referências -->
-                <div class="editable-area">
-                    <div class="editable-label">ÁREA EDITÁVEL - REFERÊNCIAS</div>
-                    <div class="references-container space-y-4">
-                        <!-- Referências Gerais -->
-                        <div class="bg-gray-900 rounded-lg p-4">
-                            <h3 class="font-medium text-yellow-300 mb-3"><i class="fas fa-book mr-2" aria-hidden="true"></i>Referências Gerais</h3>
-                            <div class="space-y-3 text-sm">
-                                <div class="reference-item">
-                                    <div class="font-medium text-white">Royal Rife (1930s)</div>
-                                    <div class="text-gray-400 text-xs">
-                                        Pesquisas pioneiras em terapia por frequências para tratamento de doenças.
-                                        <a href="rife.html" target="_blank" class="text-blue-400 hover:text-blue-300 underline text-xs">Mais informações.</a>
-                                    </div>
-                                </div>
-                                <div class="reference-item">
-                                    <div class="font-medium text-white">Hulda Clark (1993)</div>
-                                    <div class="text-gray-400 text-xs">"The Cure for All Diseases" - Frequências específicas para parasitas</div>
-                                </div>
-                                <div class="reference-item">
-                                    <div class="font-medium text-white">Nikola Tesla (1900s)</div>
-                                    <div class="text-gray-400 text-xs">Pesquisas sobre campos eletromagnéticos e suas aplicações terapêuticas</div>
+            <!-- Seção do Banco de Dados CAFL -->
+            <section id="databaseSection" class="db-section">
+                <div class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold text-green-400">
+                            <i class="fas fa-database mr-2"></i>Banco de Dados CAFL
+                        </h2>
+                        <div class="text-sm text-gray-400">
+                            <span id="dbResultCount">0</span> resultados
+                        </div>
+                    </div>
+                    
+                    <!-- Filtros Avançados -->
+                    <div class="filter-section mb-6">
+                        <h3 class="text-lg font-semibold mb-4 text-blue-400">
+                            <i class="fas fa-filter mr-2"></i>Filtros Avançados
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="filter-group">
+                                <label class="filter-label">Busca Rápida</label>
+                                <div class="relative">
+                                    <input type="text" id="dbQuickSearch" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Buscar...">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Referências Frequências Solfeggio -->
-                        <div class="bg-gray-900 rounded-lg p-4">
-                            <h3 class="font-medium text-purple-300 mb-3"><i class="fas fa-music mr-2" aria-hidden="true"></i>Frequências Solfeggio</h3>
-                            <div class="space-y-3 text-sm">
-                                <div class="reference-item">
-                                    <div class="font-medium text-white">Journal of Music Therapy (2020)</div>
-                                    <div class="text-gray-400 text-xs">396 Hz: Efeitos calmantes no sistema nervoso parassimpático</div>
-                                </div>
-                                <div class="reference-item">
-                                    <div class="font-medium text-white">Frontiers in Psychology (2019)</div>
-                                    <div class="text-gray-400 text-xs">Estudo sobre ondas Gamma confirmou superioridade das ondas senoidais puras.</div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label" for="dbCategoryFilter">Categoria</label>
+                                <select id="dbCategoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Todas as Categorias</option>
+                                    <option value="inflamacao">Inflamação</option>
+                                    <option value="dor">Dor</option>
+                                    <option value="infecao">Infecção</option>
+                                    <option value="parasita">Parasita</option>
+                                    <option value="virus">Vírus</option>
+                                    <option value="bacteria">Bactéria</option>
+                                    <option value="fungo">Fungo</option>
+                                    <option value="cancer">Câncer</option>
+                                    <option value="sistema-nervoso">Sistema Nervoso</option>
+                                    <option value="sistema-digestivo">Sistema Digestivo</option>
+                                    <option value="respiratorio">Respiratório</option>
+                                    <option value="pele">Pele</option>
+                                    <option value="mental">Mental/Emocional</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label">Faixa de Frequência (Hz)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" id="dbMinFreq" placeholder="Mín" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <input type="number" id="dbMaxFreq" placeholder="Máx" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Ondas Quadradas e Rife -->
-                        <div class="bg-gray-900 rounded-lg p-4">
-                            <h3 class="text-lg font-medium text-red-400 mb-4">Ondas Quadradas & Terapia Rife</h3>
-                            <div class="space-y-3 text-sm">
-                                <p>
-                                    As ondas quadradas são ricas em harmônicos e foram associadas por Royal Rife à destruição de patógenos.
-                                    Ele alegava que frequências específicas poderiam "atingir a frequência de ressonância" de vírus, bactérias e
-                                    parasitas, levando-os à destruição.
-                                </p>
-                                <p>
-                                    <strong>Ressalto:</strong> Essas alegações não são comprovadas cientificamente. As chamadas frequências
-                                    "MOR" (Mortal Oscillatory Rate) de Rife carecem de validação por estudos clínicos.
-                                    <a href="rife.html#mor-heading" class="text-blue-400 hover:text-blue-300 underline">Mais detalhes sobre as frequências MOR.</a>
-                                </p>
-                                <div class="bg-gray-800 p-3 rounded text-xs">
-                                    <strong>Exemplos mencionados:</strong>
-                                    <ul class="list-disc pl-4 mt-1 space-y-1">
-                                        <li>440 Hz (Ascaris) - Onda Quadrada: "Pesquisa Rife confirmou..."</li>
-                                        <li>120 Hz (Oxiúros) - Onda Quadrada: "Estudo clínico mostrou..."</li>
-                                        <li>Outras frequências de vermifugação também utilizam onda quadrada.</li>
-                                    </ul>
-                                    <p class="mt-2 text-yellow-300">
-                                        <i class="fas fa-exclamation-triangle mr-1"></i>
-                                        Estas referências são baseadas em interpretações não validadas das supostas descobertas de Rife.
-                                    </p>
-                                </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label" for="dbWaveTypeFilter">Tipo de Onda</label>
+                                <select id="dbWaveTypeFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Todos</option>
+                                    <option value="square">Quadrada</option>
+                                    <option value="sine">Senoidal</option>
+                                    <option value="sawtooth">Dente de Serra</option>
+                                    <option value="triangle">Triangular</option>
+                                </select>
                             </div>
                         </div>
+                        
+                        <div class="flex justify-end mt-4 space-x-2">
+                            <button id="dbApplyFilters" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-check mr-2"></i>Aplicar Filtros
+                            </button>
+                            <button id="dbClearFilters" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-times mr-2"></i>Limpar Filtros
+                            </button>
+                            <button id="dbExportData" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-download mr-2"></i>Exportar Dados
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Container de Resultados -->
+                    <div id="dbResultsContainer" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+                        <div class="db-loading">
+                            <div class="db-loading-spinner"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Paginação -->
+                    <div id="dbPagination" class="pagination-container">
+                        <!-- Paginação será inserida dinamicamente -->
                     </div>
                 </div>
             </section>
         </main>
-
-        <!-- Rodapé -->
-        <footer class="bg-gray-800 border-t border-gray-700 py-6 mt-8" role="contentinfo">
-            <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
-                <p>© 2024 Harmonizador Fernandes. Todos os direitos reservados.</p>
-                <p class="mt-1">As informações aqui contidas são para fins educacionais e não substituem consultas médicas.</p>
-                <div class="mt-2 flex justify-center space-x-4">
-                    <a href="#" class="text-blue-400 hover:text-blue-300 transition" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-blue-400 hover:text-blue-300 transition" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-blue-400 hover:text-blue-300 transition" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-        </footer>
-
-        <!-- Botão Voltar ao Topo -->
-        <button id="topBtn" title="Voltar ao Topo" aria-label="Voltar ao topo da página">
-            <i class="fas fa-arrow-up" aria-hidden="true"></i>
-        </button>
     </div>
 
-    <!-- Modal de Detalhes da Frequência -->
-    <div id="detailModal" class="detail-modal" style="display: none;">
-        <div class="detail-content">
-            <button id="closeDetailModal" class="detail-close">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <div class="detail-header">
-                <h2 id="detailTitle" class="detail-title">Detalhes da Frequência</h2>
-                <div id="detailSubtitle" class="detail-subtitle">40 Hz</div>
+    <!-- Modal de Detalhes do Banco de Dados -->
+    <div id="dbDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="modal-content rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="dbModalTitle" class="text-2xl font-bold text-white"></h3>
+                <button onclick="closeDbModal()" class="text-gray-400 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            
-            <div class="detail-tabs">
-                <button class="detail-tab active" data-tab="overview">Visão Geral</button>
-                <button class="detail-tab" data-tab="science">Ciência</button>
-                <button class="detail-tab" data-tab="protocols">Protocolos</button>
-                <button class="detail-tab" data-tab="safety">Segurança</button>
-                <button class="detail-tab" data-tab="statistics">Estatísticas</button>
-            </div>
-            
-            <div id="overviewTab" class="detail-tab-content active">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-info-circle mr-2"></i>Informações Gerais
-                    </h3>
-                    <div id="detailOverview"></div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-cogs mr-2"></i>Mecanismo de Ação
-                    </h3>
-                    <div id="detailMechanism"></div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-link mr-2"></i>Sinergias
-                    </h3>
-                    <div id="detailSynergies"></div>
-                </div>
-            </div>
-            
-            <div id="scienceTab" class="detail-tab-content">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-flask mr-2"></i>Evidências Científicas
-                    </h3>
-                    <div id="detailEvidence"></div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-book mr-2"></i>Status da Pesquisa
-                    </h3>
-                    <div id="detailResearchStatus"></div>
-                </div>
-            </div>
-            
-            <div id="protocolsTab" class="detail-tab-content">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-procedures mr-2"></i>Protocolos Recomendados
-                    </h3>
-                    <div id="detailProtocols"></div>
-                </div>
-            </div>
-            
-            <div id="safetyTab" class="detail-tab-content">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-shield-alt mr-2"></i>Informações de Segurança
-                    </h3>
-                    <div id="detailSafety"></div>
-                </div>
-            </div>
-            
-            <div id="statisticsTab" class="detail-tab-content">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-chart-bar mr-2"></i>Estatísticas de Uso
-                    </h3>
-                    <div id="detailStatistics"></div>
-                </div>
+            <div id="dbModalContent" class="space-y-4">
+                <!-- Conteúdo do modal será inserido dinamicamente -->
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script>
-        // Dados enriquecidos de frequências
-        const frequenciesData = [
-            {
-                id: "focus_40",
-                name: "Foco e Concentração",
-                value: 40,
-                category: "concentracao",
-                subcategory: "Ondas Gama",
-                description: "Frequência para melhorar foco cognitivo e clareza mental.",
-                mechanism: "Estimulação de ondas Gama (40Hz) associadas a estados de alta concentração e cognição aprimorada. Aumenta a sincronia neural entre diferentes regiões do cérebro.",
-                scientificEvidence: [
-                    {
-                        study: "Journal of Neuroscience",
-                        year: 2019,
-                        reliability: "high",
-                        description: "Estudo demonstrando que 40Hz aumenta a sincronia neural em tarefas de atenção."
-                    },
-                    {
-                        study: "Nature Human Behaviour",
-                        year: 2018,
-                        reliability: "medium",
-                        description: "Pesquisa mostrando melhora na memória de trabalho com estimulação gama."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo de Foco Básico",
-                        duration: "12 minutos",
-                        instructions: "Usar com ondas senoidais em ambiente silencioso. Ideal para estudo ou trabalho."
-                    },
-                    {
-                        name: "Protocolo de Concentração Avançada",
-                        duration: "20 minutos",
-                        instructions: "Combinar com 15Hz (preparação) e 852Hz (integração). Usar fones de ouvido."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Epilepsia fotossensível", "Pacientes com marca-passo"],
-                    sideEffects: ["Leve dor de cabeça em indivíduos sensíveis", "Tontura temporária"]
-                },
-                statistics: {
-                    uses: 5420,
-                    successRate: 82,
-                    userRating: 4.2
-                },
-                synergies: ["25Hz", "50Hz", "852Hz"],
-                traditionalUse: "Utilizada em práticas meditativas para clareza mental",
-                researchStatus: "Bem estabelecido"
-            },
-            {
-                id: "energy_25",
-                name: "Energia e Vitalidade",
-                value: 25,
-                category: "energia",
-                subcategory: "Ativação Celular",
-                description: "Aumenta os níveis de energia e combate a fadiga crônica.",
-                mechanism: "Estimulação da produção de ATP nas mitocôndrias através da ressonância celular. Ativa o sistema nervoso simpático de forma equilibrada.",
-                scientificEvidence: [
-                    {
-                        study: "Journal of Alternative and Complementary Medicine",
-                        year: 2020,
-                        reliability: "medium",
-                        description: "Estudo clínico mostrando redução de 40% nos níveis de fadiga."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo Matinal de Energia",
-                        duration: "15 minutos",
-                        instructions: "Usar pela manhã com ondas em dente de serra. Evitar antes de dormir."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Insônia grave", "Ansiedade aguda"],
-                    sideEffects: ["Insônia se usado à noite", "Leve agitação"]
-                },
-                statistics: {
-                    uses: 3870,
-                    successRate: 78,
-                    userRating: 4.0
-                },
-                synergies: ["50Hz", "150Hz"],
-                traditionalUse: "Utilizada em tradições de cura para revitalização corporal",
-                researchStatus: "Em investigação"
-            },
-            {
-                id: "relaxation_285",
-                name: "Relaxamento Profundo",
-                value: 285,
-                category: "relaxamento",
-                subcategory: "Redução do Estresse",
-                description: "Induz estado de relaxamento profundo e reduz os níveis de cortisol.",
-                mechanism: "Modulação do sistema nervoso parassimpático e redução da atividade do córtex pré-frontal associada ao estresse.",
-                scientificEvidence: [
-                    {
-                        study: "Stress Medicine",
-                        year: 2021,
-                        reliability: "high",
-                        description: "Redução de 35% nos níveis de cortisol após 3 semanas de uso."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo Anti-Estresse",
-                        duration: "20 minutos",
-                        instructions: "Usar em ambiente tranquilo com ondas senoidais. Ideal após o trabalho."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Depressão grave"],
-                    sideEffects: ["Sonolência excessiva"]
-                },
-                statistics: {
-                    uses: 6120,
-                    successRate: 85,
-                    userRating: 4.4
-                },
-                synergies: ["432Hz", "7.83Hz"],
-                traditionalUse: "Utilizada em práticas de meditação e relaxamento",
-                researchStatus: "Bem estabelecido"
-            },
-            {
-                id: "sleep_2.5",
-                name: "Sono Profundo",
-                value: 2.5,
-                category: "sono",
-                subcategory: "Ondas Delta",
-                description: "Auxilia no sono profundo e reparador, aumentando a qualidade do descanso.",
-                mechanism: "Indução natural de ondas Delta (0.5-4Hz) associadas ao sono profundo e à liberação de hormônios de crescimento.",
-                scientificEvidence: [
-                    {
-                        study: "Sleep Medicine Reviews",
-                        year: 2020,
-                        reliability: "high",
-                        description: "Aumento de 30% na qualidade do sono em pacientes com insônia crônica."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo Noturno",
-                        duration: "30 minutos",
-                        instructions: "Usar 30 minutos antes de dormir com volume baixo e ondas senoidais."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Narcolepsia"],
-                    sideEffects: ["Sonolência diurna se usado incorretamente"]
-                },
-                statistics: {
-                    uses: 7340,
-                    successRate: 88,
-                    userRating: 4.6
-                },
-                synergies: ["1.5Hz", "7.83Hz"],
-                traditionalUse: "Utilizada em terapias de sono e relaxamento profundo",
-                researchStatus: "Bem estabelecido"
-            },
-            {
-                id: "healing_528",
-                name: "Cura e Reparo Celular",
-                value: 528,
-                category: "cura",
-                subcategory: "Frequência Solfeggio",
-                description: "Frequência associada à cura e reparação celular e redução de inflamações.",
-                mechanism: "Ativação de genes reparadores e aumento da produção de antioxidantes endógenos. Modulação do sistema imunológico.",
-                scientificEvidence: [
-                    {
-                        study: "Journal of Evidence-Based Complementary & Alternative Medicine",
-                        year: 2018,
-                        reliability: "medium",
-                        description: "Estudo mostrando aceleração de 25% na cicatrização de feridas."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo de Cura",
-                        duration: "15 minutos",
-                        instructions: "Usar diariamente para apoiar processos de cura natural. Combinar com hidratação adequada."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Transplantes recentes"],
-                    sideEffects: ["Aumento temporário de sintomas (efeito de cura)"]
-                },
-                statistics: {
-                    uses: 4560,
-                    successRate: 76,
-                    userRating: 4.1
-                },
-                synergies: ["432Hz", "639Hz"],
-                traditionalUse: "Utilizada em tradições de cura antigas para restauração da saúde",
-                researchStatus: "Em investigação"
-            },
-            {
-                id: "ascaris_440",
-                name: "Ascaris Lumbricoides",
-                value: 440,
-                category: "vermifugacao",
-                subcategory: "Nematódeos",
-                description: "Frequência específica para combate de lombrigas (Ascaris lumbricoides).",
-                mechanism: "Ressonância mecânica que rompe a membrana celular do parasita através de vibrações específicas.",
-                scientificEvidence: [
-                    {
-                        study: "Revista de Parasitologia Clínica",
-                        year: 2015,
-                        reliability: "low",
-                        description: "Estudo in vitro mostrando redução de 60% na viabilidade de parasitas."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo Antiparasitário",
-                        duration: "15 minutos",
-                        instructions: "Usar com ondas quadradas. Repetir por 7 dias consecutivos."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Gravidez", "Lactação"],
-                    sideEffects: ["Desconforto abdominal", "Aumento da eliminação intestinal"]
-                },
-                statistics: {
-                    uses: 3210,
-                    successRate: 70,
-                    userRating: 3.8
-                },
-                synergies: ["432Hz", "728Hz"],
-                traditionalUse: "Utilizada em medicina tradicional para expulsar vermes intestinais",
-                researchStatus: "Pouco estudado"
-            },
-            {
-                id: "anti-inflammatory_432",
-                name: "Redução da Inflamação",
-                value: 432,
-                category: "anti-inflamatorio",
-                subcategory: "Frequência Solfeggio",
-                description: "Ajuda a reduzir processos inflamatórios crônicos e dores associadas.",
-                mechanism: "Modulação da resposta inflamatória através da redução de citocinas pró-inflamatórias e aumento de citocinas anti-inflamatórias.",
-                scientificEvidence: [
-                    {
-                        study: "Journal of Inflammation Research",
-                        year: 2019,
-                        reliability: "medium",
-                        description: "Redução de 40% em marcadores inflamatórios em pacientes com artrite."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo Anti-inflamatório",
-                        duration: "20 minutos",
-                        instructions: "Usar diariamente para condições inflamatórias crônicas. Combinar com dieta anti-inflamatória."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Uso de imunossupressores"],
-                    sideEffects: ["Aumento temporário da dor (raro)"]
-                },
-                statistics: {
-                    uses: 5280,
-                    successRate: 80,
-                    userRating: 4.2
-                },
-                synergies: ["285Hz", "528Hz"],
-                traditionalUse: "Utilizada em práticas de cura para redução de inflamações",
-                researchStatus: "Em investigação"
-            },
-            {
-                id: "meditation_136",
-                name: "Meditação e Conexão Espiritual",
-                value: 136.1,
-                category: "meditacao",
-                subcategory: "Frequência Solar",
-                description: "Frequência associada à meditação profunda e conexão espiritual.",
-                mechanism: "Ressonância com a frequência orbital da Terra ao redor do Sol. Promove estados de consciência expandida.",
-                scientificEvidence: [
-                    {
-                        study: "Journal of Consciousness Studies",
-                        year: 2017,
-                        reliability: "low",
-                        description: "Relatos subjetivos de experiências meditativas mais profundas."
-                    }
-                ],
-                protocols: [
-                    {
-                        name: "Protocolo Meditativo",
-                        duration: "30 minutos",
-                        instructions: "Usar durante práticas meditativas com ondas senoidais. Ambiente silencioso."
-                    }
-                ],
-                safety: {
-                    contraindications: ["Transtornos psicóticos"],
-                    sideEffects: ["Dissociação leve em indivíduos sensíveis"]
-                },
-                statistics: {
-                    uses: 2670,
-                    successRate: 75,
-                    userRating: 4.0
-                },
-                synergies: ["432Hz", "639Hz"],
-                traditionalUse: "Utilizada em práticas espirituais e meditativas antigas",
-                researchStatus: "Pouco estudado"
-            }
-        ];
+    <!-- Botão voltar ao topo -->
+    <button id="topBtn" title="Voltar ao topo">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-        // Variáveis globais
-        let filteredFrequencies = [...frequenciesData];
-        let currentPage = 1;
-        const itemsPerPage = 6;
-        
-        // Variáveis para controle de áudio
+    <script>
+        // ======== VARIÁVEIS GLOBAIS ========
         let audioContext;
         let oscillator;
         let gainNode;
+        let analyser;
         let isPlaying = false;
-        let waveType = 'sine';
-        let currentFrequency = 40;
+        let currentWaveType = 'sine';
+        let animationId;
         let timerInterval;
         let timerSeconds = 0;
-        let isTimerActive = false;
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar se o modal de headphones já foi fechado anteriormente
-            const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
-            const headphoneModal = document.getElementById('headphoneModal');
-            
-            if (!headphoneModalClosed) {
-                headphoneModal.style.display = 'flex';
-            } else {
-                headphoneModal.style.display = 'none';
+        let history = [];
+        let favorites = [];
+        let protocols = [];
+        let activeProtocol = null;
+        let currentStep = 0;
+        
+        // Variáveis para o banco de dados
+        let caflData = [];
+        let filteredCaflData = [];
+        let dbCurrentPage = 1;
+        let dbItemsPerPage = 25;
+        let dbFilters = {
+            search: '',
+            category: '',
+            minFreq: '',
+            maxFreq: '',
+            waveType: ''
+        };
+        let dbSortBy = 'name';
+        
+        // ======== INICIALIZAÇÃO ========
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar se deve mostrar o modal de headphones
+            const dontShowAgain = localStorage.getItem('dontShowHeadphonesModal');
+            if (!dontShowAgain) {
+                document.getElementById('headphoneModal').style.display = 'flex';
             }
             
-            // Fechar modal de headphones
-            document.getElementById('closeHeadphoneModal').addEventListener('click', function() {
-                const dontShowAgain = document.getElementById('dontShowAgain').checked;
-                
-                if (dontShowAgain) {
-                    localStorage.setItem('headphoneModalClosed', 'true');
-                }
-                
-                headphoneModal.style.display = 'none';
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Inicializar o áudio
+            initAudio();
+            
+            // Carregar dados do banco de dados local
+            loadLocalData();
+            
+            // Inicializar com a seção do gerador visível
+            showSection('generator');
+            
+            // Configurar o botão voltar ao topo
+            setupScrollToTop();
+            
+            // Inicializar o visualizador de onda
+            initWaveVisualizer();
+        });
+        
+        // ======== FUNÇÕES DE NAVEGAÇÃO ========
+        function showSection(section) {
+            // Esconder todas as seções
+            document.querySelectorAll('.db-section').forEach(sec => {
+                sec.classList.remove('active');
             });
             
-            // Inicializar o contexto de áudio
-            function initAudioContext() {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
+            // Remover classe ativa de todas as abas
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar a seção selecionada
+            document.getElementById(section + 'Section').classList.add('active');
+            document.getElementById(section + 'Tab').classList.add('active');
+            
+            // Carregar dados do banco de dados se necessário
+            if (section === 'database' && caflData.length === 0) {
+                loadCaflData();
+            }
+        }
+        
+        // ======== FUNÇÕES DO ÁUDIO ========
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+            } catch (e) {
+                console.error('Erro ao inicializar o áudio:', e);
+                showNotification('Seu navegador não suporta a Web Audio API', 'error');
+            }
+        }
+        
+        function playFrequency() {
+            if (isPlaying) return;
+            
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            if (isNaN(frequency) || frequency < 20 || frequency > 20000) {
+                showNotification('Por favor, insira uma frequência válida entre 20 Hz e 20.000 Hz', 'error');
+                return;
             }
             
-            // Função para tocar a frequência
-            function playTone() {
-                if (isPlaying) return;
-                
-                initAudioContext();
-                
-                // Obter a frequência do input
-                currentFrequency = parseFloat(document.getElementById('frequency').value);
-                
-                // Criar um oscilador
+            try {
                 oscillator = audioContext.createOscillator();
                 gainNode = audioContext.createGain();
                 
-                // Configurar o tipo de onda
-                oscillator.type = waveType;
+                oscillator.type = currentWaveType;
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
                 
-                // Configurar a frequência
-                oscillator.frequency.setValueAtTime(currentFrequency, audioContext.currentTime);
-                
-                // Configurar o volume (0 a 1)
                 const volume = document.getElementById('volume').value / 100;
                 gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
                 
-                // Conectar o oscilador ao nó de ganho e ao destino
                 oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
+                gainNode.connect(analyser);
+                analyser.connect(audioContext.destination);
                 
-                // Iniciar o oscilador
                 oscillator.start();
-                
                 isPlaying = true;
                 
-                // Atualizar a interface
+                // Atualizar UI
                 document.getElementById('playBtn').classList.add('hidden');
                 document.getElementById('stopBtn').classList.remove('hidden');
                 
                 // Adicionar ao histórico
-                addToHistory({
-                    frequency: currentFrequency,
-                    name: document.querySelector('#currentInfo .text-lg.font-medium').textContent || 'Frequência Personalizada'
-                });
+                addToHistory(frequency);
                 
-                // Desenhar a onda no canvas
-                drawWave();
+                // Iniciar visualização
+                visualizeWave();
+                
+                // Iniciar timer se estiver ativo
+                if (timerSeconds > 0) {
+                    startTimer();
+                }
+                
+                showNotification(`Tocando ${frequency} Hz`, 'success');
+            } catch (e) {
+                console.error('Erro ao tocar a frequência:', e);
+                showNotification('Erro ao tocar a frequência', 'error');
             }
+        }
+        
+        function stopFrequency() {
+            if (!isPlaying) return;
             
-            // Função para parar a frequência
-            function stopTone() {
-                if (!isPlaying) return;
-                
-                // Parar o oscilador
-                if (oscillator) {
-                    oscillator.stop();
-                    oscillator.disconnect();
-                    oscillator = null;
-                }
-                
-                // Desconectar o nó de ganho
-                if (gainNode) {
-                    gainNode.disconnect();
-                    gainNode = null;
-                }
-                
+            try {
+                oscillator.stop();
                 isPlaying = false;
                 
-                // Atualizar a interface
+                // Atualizar UI
                 document.getElementById('playBtn').classList.remove('hidden');
                 document.getElementById('stopBtn').classList.add('hidden');
                 
-                // Parar o timer se estiver ativo
-                if (isTimerActive) {
-                    stopTimer();
-                }
-            }
-            
-            // Função para desenhar a onda no canvas
-            function drawWave() {
-                const canvas = document.getElementById('waveCanvas');
-                const ctx = canvas.getContext('2d');
-                const width = canvas.width;
-                const height = canvas.height;
-                
-                // Limpar o canvas
-                ctx.clearRect(0, 0, width, height);
-                
-                // Configurar o estilo da linha
-                ctx.strokeStyle = '#3b82f6';
-                ctx.lineWidth = 2;
-                
-                // Iniciar o caminho
-                ctx.beginPath();
-                
-                // Desenhar a forma de onda baseada no tipo selecionado
-                const amplitude = height / 3;
-                const frequency = currentFrequency / 100; // Ajustar para visualização
-                const centerY = height / 2;
-                
-                for (let x = 0; x < width; x++) {
-                    let y;
-                    
-                    switch (waveType) {
-                        case 'sine':
-                            y = centerY + amplitude * Math.sin(x * frequency * 0.1);
-                            break;
-                        case 'square':
-                            y = centerY + amplitude * (Math.sin(x * frequency * 0.1) > 0 ? 1 : -1);
-                            break;
-                        case 'sawtooth':
-                            y = centerY + amplitude * (2 * (x * frequency * 0.1 / (2 * Math.PI) - Math.floor(0.5 + x * frequency * 0.1 / (2 * Math.PI))));
-                            break;
-                        case 'triangle':
-                            const t = (x * frequency * 0.1) % (2 * Math.PI);
-                            y = centerY + amplitude * (2 * Math.abs(2 * (t / (2 * Math.PI) - Math.floor(t / (2 * Math.PI) + 0.5))) - 1);
-                            break;
-                        default:
-                            y = centerY;
-                    }
-                    
-                    if (x === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
+                // Parar visualização
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
                 }
                 
-                // Finalizar o caminho
-                ctx.stroke();
-                
-                // Continuar animando se estiver tocando
-                if (isPlaying) {
-                    requestAnimationFrame(drawWave);
-                }
-            }
-            
-            // Função para atualizar o volume
-            function updateVolume() {
-                const volume = document.getElementById('volume').value;
-                document.getElementById('volumeValue').textContent = volume;
-                
-                if (gainNode) {
-                    gainNode.gain.setValueAtTime(volume / 100, audioContext.currentTime);
-                }
-            }
-            
-            // Função para iniciar o timer
-            function startTimer() {
-                const minutes = prompt("Digite o tempo em minutos:", "5");
-                if (!minutes || isNaN(minutes)) return;
-                
-                timerSeconds = parseInt(minutes) * 60;
-                isTimerActive = true;
-                
-                // Mostrar o container do timer
-                document.getElementById('timerContainer').classList.remove('hidden');
-                
-                // Atualizar o display do timer
-                updateTimerDisplay();
-                
-                // Configurar o intervalo do timer
-                timerInterval = setInterval(() => {
-                    timerSeconds--;
-                    updateTimerDisplay();
-                    
-                    // Atualizar a barra de progresso
-                    const totalSeconds = parseInt(minutes) * 60;
-                    const progress = ((totalSeconds - timerSeconds) / totalSeconds) * 100;
-                    document.getElementById('timerProgress').style.width = `${progress}%`;
-                    
-                    // Verificar se o timer terminou
-                    if (timerSeconds <= 0) {
-                        stopTimer();
-                        stopTone();
-                        alert("Timer concluído!");
-                    }
-                }, 1000);
-            }
-            
-            // Função para parar o timer
-            function stopTimer() {
+                // Parar timer
                 if (timerInterval) {
                     clearInterval(timerInterval);
-                    timerInterval = null;
                 }
-                isTimerActive = false;
-                document.getElementById('timerContainer').classList.add('hidden');
-            }
-            
-            // Função para atualizar o display do timer
-            function updateTimerDisplay() {
-                const hours = Math.floor(timerSeconds / 3600);
-                const minutes = Math.floor((timerSeconds % 3600) / 60);
-                const seconds = timerSeconds % 60;
                 
-                const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                document.getElementById('timerDisplay').textContent = display;
+                showNotification('Frequência parada', 'info');
+            } catch (e) {
+                console.error('Erro ao parar a frequência:', e);
+            }
+        }
+        
+        // ======== VISUALIZADOR DE ONDA ========
+        function initWaveVisualizer() {
+            const canvas = document.getElementById('waveCanvas');
+            const canvasCtx = canvas.getContext('2d');
+            
+            // Desenhar onda inicial
+            drawWaveform(canvasCtx, canvas.width, canvas.height, 40);
+        }
+        
+        function visualizeWave() {
+            const canvas = document.getElementById('waveCanvas');
+            const canvasCtx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function draw() {
+                animationId = requestAnimationFrame(draw);
+                
+                analyser.getByteTimeDomainData(dataArray);
+                
+                canvasCtx.fillStyle = 'rgb(15, 23, 42)';
+                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                canvasCtx.lineWidth = 2;
+                canvasCtx.strokeStyle = 'rgb(59, 130, 246)';
+                canvasCtx.beginPath();
+                
+                const sliceWidth = canvas.width * 1.0 / bufferLength;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = v * canvas.height / 2;
+                    
+                    if (i === 0) {
+                        canvasCtx.moveTo(x, y);
+                    } else {
+                        canvasCtx.lineTo(x, y);
+                    }
+                    
+                    x += sliceWidth;
+                }
+                
+                canvasCtx.lineTo(canvas.width, canvas.height / 2);
+                canvasCtx.stroke();
             }
             
-            // Configurar event listeners
-            document.getElementById('playBtn').addEventListener('click', playTone);
-            document.getElementById('stopBtn').addEventListener('click', stopTone);
-            document.getElementById('volume').addEventListener('input', updateVolume);
-            document.getElementById('timerBtn').addEventListener('click', startTimer);
+            draw();
+        }
+        
+        function drawWaveform(ctx, width, height, frequency) {
+            ctx.fillStyle = 'rgb(15, 23, 42)';
+            ctx.fillRect(0, 0, width, height);
             
-            // Botões de tipo de onda
-            document.querySelectorAll('.wave-type-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Atualizar o tipo de onda
-                    waveType = this.dataset.wave;
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgb(59, 130, 246)';
+            ctx.beginPath();
+            
+            const amplitude = height / 3;
+            const centerY = height / 2;
+            const cycles = 3;
+            
+            for (let x = 0; x < width; x++) {
+                const radians = (x / width) * Math.PI * 2 * cycles;
+                let y;
+                
+                switch (currentWaveType) {
+                    case 'sine':
+                        y = centerY + Math.sin(radians) * amplitude;
+                        break;
+                    case 'square':
+                        y = centerY + (Math.sin(radians) > 0 ? amplitude : -amplitude);
+                        break;
+                    case 'sawtooth':
+                        y = centerY + ((radians % (Math.PI * 2)) / (Math.PI * 2) - 0.5) * amplitude * 2;
+                        break;
+                    case 'triangle':
+                        const period = Math.PI * 2;
+                        const phase = radians % period;
+                        if (phase < period / 2) {
+                            y = centerY + (phase / (period / 2) - 0.5) * amplitude * 2;
+                        } else {
+                            y = centerY + (1 - (phase - period / 2) / (period / 2) - 0.5) * amplitude * 2;
+                        }
+                        break;
+                    default:
+                        y = centerY + Math.sin(radians) * amplitude;
+                }
+                
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
+        // ======== FUNÇÕES DO TIMER ========
+        function setupTimer() {
+            const hours = parseInt(document.getElementById('timerHours').value) || 0;
+            const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+            const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+            
+            timerSeconds = hours * 3600 + minutes * 60 + seconds;
+            
+            if (timerSeconds <= 0) {
+                showNotification('Por favor, defina um tempo válido', 'error');
+                return;
+            }
+            
+            document.getElementById('timerContainer').classList.remove('hidden');
+            updateTimerDisplay();
+            
+            if (isPlaying) {
+                startTimer();
+            }
+            
+            showNotification('Timer configurado', 'success');
+        }
+        
+        function startTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    stopFrequency();
+                    showNotification('Timer concluído', 'success');
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const hours = Math.floor(timerSeconds / 3600);
+            const minutes = Math.floor((timerSeconds % 3600) / 60);
+            const seconds = timerSeconds % 60;
+            
+            const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = display;
+            
+            // Atualizar barra de progresso
+            const totalTime = parseInt(document.getElementById('timerHours').value) * 3600 + 
+                             parseInt(document.getElementById('timerMinutes').value) * 60 + 
+                             parseInt(document.getElementById('timerSeconds').value);
+            const progress = ((totalTime - timerSeconds) / totalTime) * 100;
+            document.getElementById('timerProgress').style.width = `${progress}%`;
+        }
+        
+        // ======== FUNÇÕES DE HISTÓRICO E FAVORITOS ========
+        function addToHistory(frequency) {
+            const timestamp = new Date().toLocaleTimeString();
+            history.unshift({ frequency, timestamp });
+            
+            // Manter apenas os 10 mais recentes
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+            
+            updateHistoryDisplay();
+            saveLocalData();
+        }
+        
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="text-gray-500 text-sm text-center py-2">Nenhum histórico</div>';
+                return;
+            }
+            
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'flex justify-between items-center py-1 px-2 hover:bg-gray-700 rounded cursor-pointer';
+                historyItem.innerHTML = `
+                    <span class="text-sm">${item.frequency} Hz</span>
+                    <span class="text-xs text-gray-400">${item.timestamp}</span>
+                `;
+                historyItem.addEventListener('click', () => {
+                    document.getElementById('frequency').value = item.frequency;
+                    updateFrequencyInfo(item.frequency);
+                });
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        function toggleFavorite() {
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            const index = favorites.findIndex(f => f.frequency === frequency);
+            
+            if (index === -1) {
+                // Adicionar aos favoritos
+                favorites.push({
+                    frequency,
+                    name: document.getElementById('currentInfo').querySelector('.text-lg').textContent,
+                    category: document.querySelector('#currentDetails .category-badge').textContent
+                });
+                document.getElementById('favoriteBtn').innerHTML = '<i class="fas fa-star mr-2"></i>Remover dos Favoritos';
+                showNotification('Adicionado aos favoritos', 'success');
+            } else {
+                // Remover dos favoritos
+                favorites.splice(index, 1);
+                document.getElementById('favoriteBtn').innerHTML = '<i class="far fa-star mr-2"></i>Adicionar aos Favoritos';
+                showNotification('Removido dos favoritos', 'info');
+            }
+            
+            saveLocalData();
+        }
+        
+        // ======== FUNÇÕES DE INFORMAÇÕES DE FREQUÊNCIA ========
+        function updateFrequencyInfo(frequency) {
+            // Atualizar informações básicas
+            document.getElementById('currentInfo').innerHTML = `
+                <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
+                <div class="text-lg font-medium">${getFrequencyName(frequency)}</div>
+            `;
+            
+            // Atualizar detalhes
+            const category = getFrequencyCategory(frequency);
+            document.getElementById('currentDetails').innerHTML = `
+                <div><strong>Categoria:</strong> <span class="category-badge bg-${getCategoryColor(category)}-600">${getCategoryName(category)}</span></div>
+                <div><strong>Descrição:</strong> ${getFrequencyDescription(frequency)}</div>
+            `;
+            
+            // Atualizar recomendação de onda
+            const waveType = getRecommendedWaveType(frequency);
+            document.getElementById('waveRecommendation').innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-yellow-500"></i>
+                    <span><strong>Onda recomendada:</strong> ${getWaveTypeName(waveType)} - ${getWaveTypeDescription(waveType)}</span>
+                </div>
+            `;
+            
+            // Verificar se é favorito
+            const isFavorite = favorites.some(f => f.frequency === frequency);
+            document.getElementById('favoriteBtn').innerHTML = isFavorite 
+                ? '<i class="fas fa-star mr-2"></i>Remover dos Favoritos'
+                : '<i class="far fa-star mr-2"></i>Adicionar aos Favoritos';
+        }
+        
+        function getFrequencyName(frequency) {
+            const frequencyInfo = {
+                20: 'Energia Vital',
+                25: 'Energia e Vitalidade',
+                40: 'Foco e Concentração',
+                50: 'Energia e Vitalidade',
+                100: 'Alívio da Dor',
+                285: 'Bem-Estar Emocional',
+                396: 'Liberação de Medo',
+                417: 'Transformação',
+                528: 'Amor e Cura',
+                639: 'Relacionamentos',
+                741: 'Despertar da Intuição',
+                852: 'Retorno à Ordem Espiritual',
+                963: 'Conexão Divina'
+            };
+            
+            return frequencyInfo[frequency] || 'Frequência Personalizada';
+        }
+        
+        function getFrequencyCategory(frequency) {
+            if (frequency >= 20 && frequency < 50) return 'energia';
+            if (frequency >= 50 && frequency < 100) return 'cura';
+            if (frequency >= 285 && frequency < 400) return 'mental';
+            if (frequency >= 396 && frequency < 1000) return 'espiritual';
+            return 'personalizada';
+        }
+        
+        function getFrequencyDescription(frequency) {
+            const descriptions = {
+                20: 'Frequência para aumentar os níveis de energia e combater a fadiga.',
+                25: 'Estimula o corpo e a mente, aumentando a vitalidade.',
+                40: 'Ondas Gama associadas à melhora da cognição e concentração.',
+                50: 'Promove energia e vitalidade para atividades diárias.',
+                100: 'Ajuda a aliviar dores e desconfortos físicos.',
+                285: 'Pode ajudar a reduzir sintomas de depressão e ansiedade.',
+                396: 'Liberação de medos e sentimentos negativos.',
+                417: 'Facilita transformações e mudanças na vida.',
+                528: 'Conhecida como frequência do amor e da cura.',
+                639: 'Harmoniza relacionamentos e conexões.',
+                741: 'Desperta a intuição e a percepção.',
+                852: 'Ajuda a retornar ao equilíbrio espiritual.',
+                963: 'Conecta com estados de consciência elevados.'
+            };
+            
+            return descriptions[frequency] || 'Frequência personalizada para uso terapêutico.';
+        }
+        
+        function getRecommendedWaveType(frequency) {
+            if (frequency >= 20 && frequency < 50) return 'sine';
+            if (frequency >= 50 && frequency < 100) return 'square';
+            if (frequency >= 285 && frequency < 400) return 'sine';
+            if (frequency >= 396 && frequency < 1000) return 'triangle';
+            return 'sine';
+        }
+        
+        function getWaveTypeName(waveType) {
+            const names = {
+                'sine': 'Senoidal',
+                'square': 'Quadrada',
+                'sawtooth': 'Dente de Serra',
+                'triangle': 'Triangular'
+            };
+            return names[waveType] || waveType;
+        }
+        
+        function getWaveTypeDescription(waveType) {
+            const descriptions = {
+                'sine': 'Proporciona uma experiência suave e agradável.',
+                'square': 'Mais intensa, ideal para tratamentos físicos.',
+                'sawtooth': 'Energizante, boa para estimulação mental.',
+                'triangle': 'Equilibrada, combina suavidade e eficácia.'
+            };
+            return descriptions[waveType] || 'Tipo de onda padrão.';
+        }
+        
+        function getCategoryColor(category) {
+            const colors = {
+                'energia': 'yellow',
+                'cura': 'green',
+                'mental': 'purple',
+                'espiritual': 'blue',
+                'personalizada': 'gray'
+            };
+            return colors[category] || 'gray';
+        }
+        
+        function getCategoryName(category) {
+            const names = {
+                'energia': 'Energia',
+                'cura': 'Cura',
+                'mental': 'Mental',
+                'espiritual': 'Espiritual',
+                'personalizada': 'Personalizada'
+            };
+            return names[category] || 'Personalizada';
+        }
+        
+        // ======== FUNÇÕES DO BANCO DE DADOS CAFL ========
+        function loadCaflData() {
+            // Mostrar loading
+            document.getElementById('dbResultsContainer').innerHTML = `
+                <div class="db-loading">
+                    <div class="db-loading-spinner"></div>
+                </div>
+            `;
+            
+            // Simular carregamento assíncrono
+            setTimeout(() => {
+                // Dados do CAFL (versão reduzida para exemplo)
+                const rawData = `CAFL
+Lista de frequências anotadas consolidada, v2023_05_25, turf@mindspring.com
+Todas as frequências em Hz
+Inflamação abdominal - 2720, 2489, 2170, 2000, 1865, 1800, 1600, 1550, 880, 832, 802, 787, 776, 727, 660, 465, 450, 444, 440, 428, 380, 250, 146, 125, 95, 72, 20, 1,2
+Dor abdominal - 10000, 3000, 95, 3
+Abcessos (também use Staphylococcus aureus e veja Listeriose) - 2720, 2170, 1865, 1550, 880, 802, 787, 727, 500, 444, 190
+Abcessos_1 - 2720, 2170, 1865, 1550, 880, 802, 787, 760, 727, 690, 660, 500, 465, 450, 444, 428, 190
+Abcessos_secundários - 1550, 802, 760, 660, 465, 450, 444, 428
+Acidose (hiperacidez. Também use um suplemento de cálcio e magnésio a longo prazo) - 10000, 880, 802, 787, 776, 727, 146, 20
+Acne (execute 564 por 6 min) - 2720, 2170, 1800, 1600, 1550, 1552, 1500, 802, 880, 778, 787, 760, 741, 727, 660, 564, 465, 450, 444, 428
+Acônito (usado para estimular a produção de linfócitos) - 3347, 5611, 2791
+Actinobacillus (uma bactéria potencialmente patogênica encontrada em mamíferos, 773*, 776*, 778*, 822*) - 488, 565, 672, 674, 678, 773, 766, 768, 776, 777, 778, 822, 885, 887, 7877, 9687, 42664, 42666, 46668, 46787
+Actinomyces_israelii (uma bactéria normalmente encontrada no intestino e na garganta que pode causar buracos profundos e cheios de pus no tecido. Veja também Streptothrix, 222*, 262*, 488*, 567*, 7880*) - 23, 222, 262, 2154, 465, 488, 567, 7880, 10000, 787, 747, 727, 20, 660, 690, 160, 73, 1.1
+Actinomicose (usar Streptothrix)
+Campo_de_perturbação_de_acupuntura (foco na cicatriz) - 5.9
+Dor aguda - 3000, 95, 10000, 1550, 802, 880, 787, 727, 690, 666
+Adenóides - 1550, 802, 880, 787, 776, 727, 444, 20, 428, 660, 2720, 2170, 14, 333, 523, 768, 786, 428, 1865, 590, 690, 780, 807, 810, 1570, 2000
+Adenoma_cervical (tumor epitelial do colo do útero que pode ser benigno ou maligno. Veja também Câncer.) - 433
+Adenovírus (um vírus que pode causar resfriados/gripes e infecções nos pulmões, estômago e intestinos) - 333, 523, 666, 786, 768, 959, 962
+Adenovirus_36 (AD-36 pode estar relacionado ao ganho de peso em alguns casos) - 8875, 6140, 5859, 5797, 5219
+Adenovirus_comp - 10000, 7767, 7762, 7702, 7009, 7001, 6989, 5000, 4868, 2720, 2050, 1500, 1395, 1062, 1060, 1034, 1009, 969, 968, 962, 959, 960, 952, 951, 942, 880, 1550, 802, 787, 768, 728, 690, 660, 555, 523, 522, 1865, 444, 333, 300, 180, 160, 125, 95, 72, 60, 48, 26, 20
+Adenovírus_HC - 28729,05, 16628,88, 18471,00, 18670,15, 19566,32, 1407,93, 827,90, 919,62, 929,53, 974,15
+Aderências - 2720, 2170, 1550, 802, 880, 787, 776, 760, 727, 660, 190
+Anexite (inchaço dos ovários ou trompas de Falópio) - 440, 441, 522, 572, 3343, 3833, 5312
+Estimulante_adrenal - 10, 20, 2250
+Adynamia_geriatric (fadiga da idade) - 410, 220, 100, 60, 27,5
+Aflatoxina (uma toxina prejudicial ao fígado produzida por certos fungos alimentares) - 344, 510, 943, 474, 476, 568
+Aflatoxina_HC - 438,74, 466,01, 9359,97, 8812,31
+Tripanossomíase africana - 656, 988, 780
+Agyfla_HC - 3534,88, 175,99
+AIDS_1 (não para uso nos EUA, veja HIV) - 2489, 465, 727, 787, 880, 1550, 1500, 1,2, 31000, 31750, 34750
+AIDS_2 - 1,44, 1550, 1500, 249, 418, 727, 787, 880, 2489, 3100, 3175, 3475
+AIDS_Kaposis_sarcoma (use Cancer_Kaposis_sarcoma)
+AIDS_secundário (use 1113 por 12 min, 2128 por 16 min, 6121 por 21 min, 33 por 1 min) - 1113, 2128, 6121, 33
+Acatisia - 230, 7,83, 3
+Alcoolismo - 10000
+Alergia (ver também Coqueluche) - 10000, 7344, 5000, 1550, 1234, 740, 880, 835, 787, 727, 500, 330, 160, 30, 3
+Alergia_1 - 10000, 1865, 880, 787, 727, 690, 660, 555, 522, 473, 444, 330, 290, 146, 125, 95, 72, 33, 20, 3
+Allergy_pollen_TR (pulso 64 75, convergência 2 0,03125, permanência 500) - 116113, 119061,03, 119441,8
+Alopecia (perda de cabelo) - 10000, 30000, 5000, 2720, 2170, 1552, 880, 800, 787, 727, 465, 330, 146, 95, 28, 20, 3
+Estreptococo alfa HC - 18919,09, 18670,15, 941,93, 929,53
+ALS_1 (esclerose lateral amiotrópica, possivelmente causada por micoplasma fermentans. Use também MS e veja Echo virus, Coxsackie, Herpes 6, Bartonella e frequências de Lyme. Use 2900 por 30 min) - 2900, 864, 790, 690, 610, 470, 484, 986, 644, 254
+ALS_2 (Potenciais vírus causadores) - 5000, 3636, 2632, 1850, 1500, 1488, 1422, 1189, 1044, 922, 868, 845, 822, 788, 776, 766, 742, 733, 721, 676, 654, 625, 620, 607, 608, 609, 610, 611, 612, 613, 595, 515, 487, 461, 435, 423, 380, 322, 283, 232, 144, 136, 20
+ALS_3 (use 2900 por 60 min) - 2900
+ALS_4 (também usado para MS) - 10000, 5000, 2900, 2750, 2700, 2145, 938, 862, 841, 777, 766, 741, 739, 688, 682, 660, 572, 532, 520, 477, 442, 433, 344, 343, 342, 338, 324, 322, 253, 242, 112
+ALS_5 (use 2900 por 20 min) - 2900, 986, 864, 790, 728, 690, 660, 644, 980, 692, 610, 484, 254
+Alternaria_tenuis (um fungo associado a doenças pulmonares) - 853, 304
+Alzheimers_1 (veja também conjuntos de ELA) - 430, 620, 624, 840, 866, 5148, 2213, 19180,5, 742,4, 303, 23,2, 3773,3, 943,3, 471,66, 470,9, 941,8, 3767,3
+Alzheimer_2 - 19180,5, 2213, 5148, 866, 840, 624, 620, 430
+Alzheimer_TR - 430, 620, 624, 866, 5148, 2213, 1918, 742,4, 303, 23,2, 2900, 864, 790, 690, 610, 470, 484, 986, 644, 254, 30, 33, 6
+Amenorréia (ausência de menstruação) - 10000, 880, 1550, 802, 787, 760, 727, 465, 20
+Ameba (um microrganismo unicelular, às vezes infeccioso) - 310, 333, 532, 732, 769, 827, 1522
+Amoeba_hepar_abcess (abcesso hepático causado por infecção amebiana) - 344, 605, 510, 943
+Disenteria amebiana (use Entamoeba histolytica)
+Esclerose lateral amiotrópica (usar ELA)
+Anal_itching (também use Parasitas enterobíase e veja Conjunto geral de parasitas) - 10000, 880, 787, 760, 727, 465, 125, 120, 95, 72, 444, 1865, 20, 773, 826, 827, 835, 4152
+Anafilaxia - 10000
+Anaplasma_marginale_HC - 19267,60, 959,28, 21010,14, 1046,03
+Aneurisma - 880, 787, 760, 727, 465, 125, 95, 72, 444, 1865, 20, 727
+Angina_angustia (inflamação do gânglio linfático da garganta) - 787, 776, 727, 690, 465, 428, 660
+Angina_pectoris - 3, 230, 2720, 2170, 1800, 1600, 1500, 880, 832, 787, 776, 727, 465, 444, 1865, 125, 95, 72, 20, 660, 7,83
+Espondilite anquilosante (artrite da coluna. Use 326 períodos mais longos após o acúmulo) - 3000, 95, 1550, 802, 880, 787, 776, 727, 650, 625, 600, 28, 10, 35, 28, 7,69, 1,2, 110, 100, 60, 428, 680, 326
+Anosmia (perda do olfato) - 20, 10000
+Antraz (veja também Bacillus_anthracis_HC) - 4000, 16655, 1370, 1365, 930, 900, 768, 633, 500, 420, 414, 400, 273, 224, 129
+Antraz_1 - 644, 643, 642, 639, 638, 637, 634, 633, 632, 629, 628, 627, 624, 623, 622
+Antisséptico (use antisséptico geral)
+Ansiedade_1 (Transtorno de ansiedade geral. Use 1,5 por 3 min, 6,8, 7,8 por 5 min, 95 por 3 min, 10000 por 5 min) - 1,5, 6,8, 7,8, 95, 10000
+Apoplexia_derrame_paralisia - 40, 1800, 880, 787, 727, 650, 625, 600, 125, 95, 72, 20, 1865, 522, 428
+Apendicite (Procure ajuda médica! Se ocorrer microperfuração, a infecção deve ser eliminada antes de beber água ou comer. Mesmo algumas gotas de água podem ser fatais) - 1550, 802, 880, 787, 727, 444, 380, 190, 10, 650, 444, 522, 125, 95, 72, 20, 522, 146, 440, 450
+Apendicite_1 - 1770, 1570, 880, 807, 804, 1550, 802, 787, 728, 690, 660, 622, 650, 625, 600, 450, 1865, 444, 440, 380, 190, 146, 125, 522, 95, 72, 20, 10
+Falta_de_apetite_de - 465, 444, 1865, 125, 95, 72, 20, 10000, 880, 787, 727
+Arenas_tennus - 667
+Arnica (uma erva de cura tópica) - 1042, 1032
+Arryhthmia_heart_TR (também use magnésio, CoQ10 e óleo de peixe) - 696, 7,83
+Arsenic_alb (sal celular homeopático) - 562
+Arteriosclerose (endurecimento das artérias; a regeneração leva tempo. Experimente também nanobactérias, coxsackie e frequências de CMV) - 10000, 2720, 2170, 1800, 1600, 1500, 880, 787, 776, 727, 20
+Artrite_A - 1500, 727, 784, 880
+Artrite_artralgia_devido_à_gota - 9.39
+Artrite (artrose e distúrbios da paratireoide que afetam o metabolismo do cálcio) - 9,6
+Artrite (origem focal gastrogênica tonsiltogênica e paresia) - 9,39
+Artrite_geral (use Strep pneumonia e Mycoplasma geral se necessário) - 10000, 5000, 2720, 1664, 1550, 1500, 962, 880, 802, 800, 787, 776, 766, 727, 688, 683, 650, 625, 600, 120, 20
+Artrite_1 (use 1,5 por 10 min, 120 por 20 min) - 10000, 5000, 3176, 3000, 2720, 1664, 1550, 1500, 880, 802, 787, 770, 728, 690, 660, 512, 250, 230, 120, 100, 80, 60, 40, 30, 28, 26, 25, 20, 10, 9,4, 9,39, 7,7, 7,69, 3, 1,5, 1,2
+Artrite_reumatoide (A causa pode ser bactérias como estreptococos pneumoniae, clamídia pneumonia, micoplasma fermentans ou bactérias dentárias que também devem ser tratadas. Tente também antisséptico geral e parasitas lombrigas em geral se não houver resposta. Use 766 períodos mais longos após a acumulação.) - 250, 1,2, 650, 625, 600, 787, 727, 262, 776, 766
+Artrite_secundária - 2720, 1000, 1500, 770
+Gripe_asiática_A - 516, 656, 434
+Aspergillus_flavus (mofo encontrado em milho, amendoim e grãos que produz aflatoxina) - 1823, 247, 1972
+Aspergillus_geral - 1972, 1823, 758, 743, 697, 524, 374, 339, 247
+Aspergillus_glaucus (mofo azul que ocorre em alguns processos infecciosos humanos) - 524, 758
+Aspergillus_niger (mofo comum que pode produzir infecção grave e persistente) - 374, 697
+Aspergillus_terreus (mofo ocasionalmente associado à infecção dos brônquios e pulmões) - 743, 339
+Asma (veja também Suporte ao fígado e Parasitas ascaris e use Mycoplasma geral se necessário) - 7344, 3702, 3672, 2720, 2170, 1800, 1600, 1500, 1283, 1234, 1233, 880, 787, 727, 522, 444, 146, 125, 95, 72, 20, 0,5
+Asma_1 - 1283, 1233, 4.7
+Asma_2 (todas as frequências por 5 min) - 1234, 3672, 7346, 727, 787, 880, 10000, 47, 120
+Asma_v - 3125, 3124, 890, 886, 871, 822, 782, 756, 712, 665, 633, 521, 515, 487, 434, 411, 322, 263, 172, 128
+Astrocitoma (use Câncer, astrocitoma)
+Ataxia (incoordenação dos músculos. Resultados lentos em alguns casos) - 2720, 2170, 1800, 1600, 1500, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20
+Ataxia_espástica - 9,19, 8,25, 7,69
+Aterosclerose (os micróbios comumente presentes na placa são herpes zoster e pneumonia por clamídia, este conjunto combina os dois. Use também magnésio e vitamina C para ajudar a reduzir depósitos minerais) - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471,66, 470,9, 941,8, 3767,3, 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
+Pé de atleta (veja também as frequências de Epidermophyton floccinum, Tinea e Trichophyton rubrum. Use todas as frequências por 5 min) - 20, 379, 727, 787, 880, 5000, 644, 766, 464, 802, 1552, 9999, 752, 923, 3176, 304
+Atmênico_Alb - 562
+Distúrbio_do_déficit_de_atenção (Provavelmente é importante evitar conservantes, aspartame, corantes, MSG e outras toxinas potenciais, além de limitar açúcar e amidos, mas garantir proteína adequada e bons óleos na dieta. Experimente Shigella, Chlamydia pneum. e antisséptico geral)
+Autismo (é necessário fazer desintoxicação de mercúrio e alumínio se for um problema. Tente Measles_w_vaccine.)
+Autointoxicação - 522, 146, 1550, 10000, 800, 880, 787, 727, 20
+Babesia - 76, 570, 1583, 1584, 432, 753, 5776
+Bacillinum (nosódio homeopático) - 132, 423, 432, 785, 853, 854, 921, 1027, 1042, 1932
+Bacillus_anthracis_HC - 19665,89, 18122,49, 18321,64, 19317,38, 961,76, 912,18, 902,27, 979,11
+Baccilus_cereus - 18645,26, 928,29
+Bacillus_Coli_Rod_Form - 8020, 800, 683, 417, 318
+Bacillus_Coli_Vírus - 17220, 11103, 8581, 2872, 1722, 1552, 770
+Infecções por Bacillus (B. coli, B. coli bacilo) - 787, 880, 802, 727, 1552, 800
+Bacillus_lichenoformis - 2655, 21554
+Bacillus_subtilis (pode causar conjuntivite) - 432, 722, 822, 1246
+Bacillus_subtilis_niger_HC - 19168.02, 18919.09, 18670,15, 954.32, 941.93, 929,53
+Bacilo_thuringiensis - 520, 2551, 902, 1405
+Dor nas costas_1 (se não houver alívio com estes, use frequências de estimulação renal, magnésio e B6, e beba bastante água. Use 212 e 305 por 6 min e 33 por 5 min) - 10000, 1550, 880, 802, 787, 760, 727, 305, 212, 41,2, 33
+Dor nas costas_2 - 787, 784, 776, 728, 727, 465, 432, 9,6, 9,4, 9,3, 7,7, 7,6, 3, 0,5
+Dor nas costas e espasmos_1 - 120, 212, 240, 424, 465, 528, 760, 727, 787, 880, 1550, 2112, 5000, 10000
+Dor nas costas_crônica_inferior_1 (use com as costas voltadas para o tubo. Use 728 por 30min) - 728
+Bactéria_lactis_nosode - 512, 526, 798, 951, 5412
+Cápsulas bacterianas_HC - 20786.10, 17923.34, 1034.88, 892,35
+Bacterial_infections_general (se a infecção bacteriana for crônica e o tipo for diagnosticado com precisão e nem as frequências nem os antibióticos forem eficazes a longo prazo, use também os conjuntos Parasitas gerais e lombrigas. Veja também Antissépticos gerais e tipos específicos.) - 20, 465, 866, 664, 690, 727, 787, 832, 800, 880, 1550, 784
+Bacterium_coli (um tipo de E. coli normalmente encontrado nos intestinos, água, leite e solo, que é a causa mais frequente de infecções do trato urinário e uma causa comum de infecção de feridas) - 642, 358, 539
+Bactéria_coli_comuna_combinação - 282, 333, 413, 957, 1320, 1722
+Bacteroides_fragilis (usar com conjunto Parasitas ascaris) - 633, 634, 635, 636, 637
+Bacteroides_fragilis_HC - 16180,80, 16230,58, 808,07, 805,59
+Mau hálito (use Halitose)
+Bakers_Yeast_allergy (preparação homeopática) - 775, 843, 1000
+Balantidium_coli_HC (cistos. B. coli é o maior protozoário ciliado encontrado em humanos e pode causar colite grave com ulcerações) - 22902.05, 1140,23
+Síndrome de Bantis (Doença na qual os vasos sanguíneos entre os intestinos e o fígado ficam bloqueados, levando à congestão das veias, aumento do baço, sangramento do estômago e intestinos, cirrose hepática e destruição das células sanguíneas.) - 1778
+Carvão de cevada (preparação homeopática para um alérgeno) - 377, 224, 1447
+Barretts_esophagus_1 (alterações nas células esofágicas geralmente causadas por refluxo ácido. use 2127,5 por 6 min) - 10000, 880, 802, 787, 776, 676, 727, 20, 146, 2127,5
+Bartonella_henslae (vírus que causa a febre da arranhadura do gato) - 364, 379, 645, 654, 786, 840, 842, 844, 846, 848, 850, 857, 967, 6878, 634, 696, 716, 1518
+Basidiomicetos - 751
+BC_G_Vacina - 277, 768, 832, 725
+Enurese (ver também Parasita geral, oxiúros e frequências de ascaris) - 1550, 880, 802, 787, 727, 465, 120, 112, 7,83
+Escaras - 880, 1550, 802, 787, 784, 728, 727, 465, 20, 1,2, 73
+Bells_Palsy_1 (veja também Herpes_general) - 2,4, 3, 3,9, 7,83, 20, 27,57, 33, 35, 40, 47,5, 57,5, 72, 90,88, 110, 125, 194, 222, 304, 393,5, 464, 565,5, 600, 625, 650, 727, 776, 787, 833, 880, 932,5, 1250
+Bermuda_smut (preparação homeopática para um alérgeno) - 422, 767, 847, 971, 644, 780
+Besnoitia_HC (protozoário retirado da seção pulmonar) - 17823,77, 887,39
+Beta_estreptococo_HC - 19168.02, 954,32
+Ducto biliar_1 (espasmos e dor) - 2, 2.2, 2.5, 2.7, 3.2, 3.5
+Cirrose biliar (uma condição inflamatória na qual o fluxo de bile através do fígado é obstruído) - 381, 514, 677, 2271, 1250, 170, 715, 774, 776
+Dor de cabeça biliar - 8,5, 3,5
+Biliousness - 1550, 802, 10000, 880, 832, 787, 727, 465
+Bilirrubina (um pigmento biliar que pode resultar em icterícia em altas concentrações. Veja também Suporte ao fígado) - 717, 726, 731, 863, 9305, 649, 734
+Aranha_viúva_negra - 376, 728
+Queixas_da_bexiga_e_da_próstata - 2050, 880, 1550, 802, 787, 727, 465, 20, 9,39
+Bexiga_TBC - 642, 771, 360, 726, 724
+Blastocystis_hominis (595*, 13469*) - 365, 595, 844, 848, 1201, 1243, 5777, 11425, 11841, 11967, 13145, 13469, 21776
+Blefarisma - 3120
+Blefarisma_HC - 20238.44, 1007.61
+Doenças do sangue - 880, 787, 727
+Pressão_sanguínea_alta (use Hipertensão)
+Pressão_sanguínea_baixa (use Hipotensão)
+Blue_cohosh (uma erva curativa) - 364
+Furúnculos (use Furunkulose)
+Doença_óssea_e_doença_periodontal (veja Osteo freq. Use 728 por 15min. combine com nutrição adequada, especialmente proteínas e ácidos graxos essenciais, e minerais, especialmente cálcio e magnésio) - 47,5, 1800, 1600, 650, 625, 600, 880, 787, 776, 728
+Regeneração óssea (combinar com nutrição adequada, especialmente proteínas, e minerais, especialmente cálcio e magnésio) - 2720, 10000
+Bone_spurs (também use suplemento mineral mais bromelina em altas doses e água) - 1,2, 120, 250
+Trauma ósseo (cortes, fraturas) - 380, 1550, 802, 10000, 880, 787, 727, 2720
+Bordetella_pertussis_HC - 16479,52, 820,47
+Borrelia (use doença de Lyme)
+Borrelia_burgdorferi_HC (causa doença de Lyme, veja também Lyme_disease) - 18919.09, 941,93
+Botrítis - 1545
+Botrytis_cinereas - 1132, 212
+Botulinum (um bacilo que causa uma forma frequentemente fatal de intoxicação alimentar) - 518, 533, 639, 172, 1372, 691, 683, 253, 435, 668, 775, 2688, 660, 690, 727, 802, 1550, 831, 1552, 10000
+Neuralgia_braquial - 0,5
+Brain_beta_stim_TR (7,83 executado em serviço 5, 22 e 19,5 executado em serviço 30 e pulso 7,83 50) - 7,83, 22, 19,5
+Tumor cerebral (use tipo específico: câncer, droglioma, astrocitoma e/ou glioma)
+Branhamella_Moraxella_catarrhalis - 2013, 579, 581, 687, 770, 772, 775, 778, 2013
+Branhamella_Neisseria_catarrhalis_HC - 19715.68, 981,59
+Cistos de miomas mamários (use também cápsulas de casca de noz preta e tocoferóis mistos, se possível) - 1550, 1384, 880, 802, 787, 776, 727, 690, 666, 267
+Breast_tumor_benign_TR (também inclui varredura de 19351,563 a 10406,25 por .03125 de permanência 1) - 174, 482, 785, 1132, 5311, 3965, 405, 633, 191, 178, 731, 6646, 178, 739,8, 2959,4, 1234, 3702, 3672, 7344, 7760, 10357, 10380
+Respiração_profunda - 1234, 3702, 3672, 7344, 7760
+Brights_syndrome (use Nefrite)
+Asma brônquica (use Asma)
+Pneumonia brônquica (use Pneumonia, brônquica)
+Bronquiectasia (dilatação crônica dos brônquios) - 342, 510, 778
+Bronquite - 7344, 3672, 1234, 880, 743, 727, 683, 464, 452, 333, 72, 20, 9,39, 9,35
+Bronquite_secundária - 776, 766, 688
+Broncopneumonia_borinum (use Pneumonia, brônquica)
+Picada de aranha marrom reclusa (também use bastante equinácea e vitamina C) - 724, 884, 1830, 3260, 30008
+Brucella_abortus (febre ondulante ou bacilo de Bang, encontrado em bovinos) - 1423
+Brucella_melitensis (forma de Brucella encontrada em cabras e ovelhas) - 748, 643, 695
+Contusões - 9.1, 110, 10000
+Praga_bubônica (use Versenia pestis)
+Infecções secundárias da peste bubônica - 880, 787, 727, 20
+Joanete_dor - 20
+Queimaduras - 190, 10000, 880, 787, 727, 465, 200
+Bursite (pode ser causada por vários organismos e vírus; experimente também com frequências de artrite.) - 880, 787, 727
+BX_Virus (use Cancer_BX_virus)
+BY_Virus (use Cancer_BY_virus)
+Celiácia - 674
+Calcificações - 326
+Calmante - 6000
+Campylobacter (bactéria que causa diarreia infecciosa súbita em recém-nascidos, 732*, 1633*, 333*) - 732, 733, 1633, 1834, 2222, 786, 768, 523, 333, 378, 705,86, 2823,5
+Campylobacter_fetus_HC (esfregaço) - 18321,64, 912,18
+Campylobacter_pyloridid_HC - 17674,41, 879,96`;
+                
+                // Processar os dados
+                caflData = processCaflData(rawData);
+                filteredCaflData = [...caflData];
+                
+                // Configurar event listeners
+                setupDbEventListeners();
+                
+                // Renderizar resultados
+                renderDbResults();
+                updateDbStats();
+            }, 1000);
+        }
+        
+        function processCaflData(data) {
+            const lines = data.split('\n');
+            const frequencies = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line || line.startsWith('CAFL') || line.startsWith('Lista de frequências') || line.startsWith('Todas as frequências')) {
+                    continue;
+                }
+                
+                if (line.includes(' - ')) {
+                    const parts = line.split(' - ');
+                    if (parts.length >= 2) {
+                        const name = parts[0].trim();
+                        const freqValues = parts[1].trim();
+                        
+                        // Determinar categoria baseada no nome
+                        let category = 'geral';
+                        const nameLower = name.toLowerCase();
+                        
+                        if (nameLower.includes('inflamação') || nameLower.includes('inflamacao')) category = 'inflamacao';
+                        else if (nameLower.includes('dor') || nameLower.includes('algia')) category = 'dor';
+                        else if (nameLower.includes('infec') || nameLower.includes('bacteria') || nameLower.includes('bacillus')) category = 'bacteria';
+                        else if (nameLower.includes('virus') || nameLower.includes('vírus')) category = 'virus';
+                        else if (nameLower.includes('fungo') || nameLower.includes('aspergillus') || nameLower.includes('candida')) category = 'fungo';
+                        else if (nameLower.includes('cancer') || nameLower.includes('tumor') || nameLower.includes('carcinoma')) category = 'cancer';
+                        else if (nameLower.includes('parasita') || nameLower.includes('ameba') || nameLower.includes('giardia')) category = 'parasita';
+                        else if (nameLower.includes('asma') || nameLower.includes('bronquite') || nameLower.includes('respiratorio')) category = 'respiratorio';
+                        else if (nameLower.includes('pele') || nameLower.includes('dermat') || nameLower.includes('acne')) category = 'pele';
+                        else if (nameLower.includes('ansiedade') || nameLower.includes('depress') || nameLower.includes('mental')) category = 'mental';
+                        else if (nameLower.includes('sistema nervoso') || nameLower.includes('neuro') || nameLower.includes('als') || nameLower.includes('alzheimer')) category = 'sistema-nervoso';
+                        else if (nameLower.includes('digestivo') || nameLower.includes('intestinal') || nameLower.includes('colite') || nameLower.includes('fígado')) category = 'sistema-digestivo';
+                        
+                        frequencies.push({
+                            id: frequencies.length + 1,
+                            name: name,
+                            frequency: freqValues,
+                            category: category,
+                            description: `Frequências para tratamento de ${name}`,
+                            source: 'CAFL v2023_05_25',
+                            waveType: 'square',
+                            duration: '5-10 min'
+                        });
+                    }
+                }
+            }
+            
+            return frequencies;
+        }
+        
+        function setupDbEventListeners() {
+            // Busca rápida
+            document.getElementById('dbQuickSearch').addEventListener('input', (e) => {
+                dbFilters.search = e.target.value.toLowerCase();
+                applyDbFilters();
+            });
+
+            // Filtros
+            document.getElementById('dbCategoryFilter').addEventListener('change', (e) => {
+                dbFilters.category = e.target.value;
+                applyDbFilters();
+            });
+
+            document.getElementById('dbMinFreq').addEventListener('input', (e) => {
+                dbFilters.minFreq = e.target.value;
+            });
+
+            document.getElementById('dbMaxFreq').addEventListener('input', (e) => {
+                dbFilters.maxFreq = e.target.value;
+            });
+
+            document.getElementById('dbWaveTypeFilter').addEventListener('change', (e) => {
+                dbFilters.waveType = e.target.value;
+                applyDbFilters();
+            });
+
+            // Botões
+            document.getElementById('dbApplyFilters').addEventListener('click', () => {
+                applyDbFilters();
+            });
+
+            document.getElementById('dbClearFilters').addEventListener('click', () => {
+                clearDbFilters();
+            });
+            
+            document.getElementById('dbExportData').addEventListener('click', () => {
+                exportDbData();
+            });
+        }
+        
+        function applyDbFilters() {
+            filteredCaflData = caflData.filter(freq => {
+                // Filtro de busca
+                if (dbFilters.search && 
+                    !freq.name.toLowerCase().includes(dbFilters.search) &&
+                    !freq.description.toLowerCase().includes(dbFilters.search)) {
+                    return false;
+                }
+
+                // Filtro de categoria
+                if (dbFilters.category && freq.category !== dbFilters.category) {
+                    return false;
+                }
+
+                // Filtro de faixa de frequência
+                if (dbFilters.minFreq || dbFilters.maxFreq) {
+                    const freqs = freq.frequency.split(',').map(f => parseFloat(f.trim()));
+                    const min = dbFilters.minFreq ? parseFloat(dbFilters.minFreq) : 0;
+                    const max = dbFilters.maxFreq ? parseFloat(dbFilters.maxFreq) : Infinity;
+
+                    if (!freqs.some(f => f >= min && f <= max)) {
+                        return false;
+                    }
+                }
+
+                // Filtro de tipo de onda
+                if (dbFilters.waveType && freq.waveType !== dbFilters.waveType) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            // Ordenar
+            filteredCaflData.sort((a, b) => {
+                switch (dbSortBy) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'frequency':
+                        const aFreq = parseFloat(a.frequency.split(',')[0]);
+                        const bFreq = parseFloat(b.frequency.split(',')[0]);
+                        return aFreq - bFreq;
+                    case 'category':
+                        return a.category.localeCompare(b.category);
+                    default:
+                        return 0;
+                }
+            });
+
+            dbCurrentPage = 1;
+            renderDbResults();
+            updateDbStats();
+        }
+        
+        function clearDbFilters() {
+            dbFilters = {
+                search: '',
+                category: '',
+                minFreq: '',
+                maxFreq: '',
+                waveType: ''
+            };
+            
+            document.getElementById('dbQuickSearch').value = '';
+            document.getElementById('dbCategoryFilter').value = '';
+            document.getElementById('dbMinFreq').value = '';
+            document.getElementById('dbMaxFreq').value = '';
+            document.getElementById('dbWaveTypeFilter').value = '';
+            
+            applyDbFilters();
+        }
+        
+        function renderDbResults() {
+            const container = document.getElementById('dbResultsContainer');
+            container.innerHTML = '';
+
+            const start = (dbCurrentPage - 1) * dbItemsPerPage;
+            const end = start + dbItemsPerPage;
+            const pageItems = filteredCaflData.slice(start, end);
+
+            if (pageItems.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Nenhum resultado encontrado</h3>
+                        <p>Tente ajustar seus filtros ou termos de busca.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            pageItems.forEach(freq => {
+                const card = createDbFrequencyCard(freq);
+                container.appendChild(card);
+            });
+
+            renderDbPagination();
+        }
+        
+        function createDbFrequencyCard(freq) {
+            const card = document.createElement('div');
+            card.className = 'frequency-card bg-gray-800 rounded-lg p-4 fade-in';
+            
+            const firstFreq = freq.frequency.split(',')[0].trim();
+            const freqCount = freq.frequency.split(',').length;
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-semibold text-white">${freq.name}</h3>
+                    <span class="category-badge bg-${getDbCategoryColor(freq.category)}-600 text-white">
+                        ${getDbCategoryName(freq.category)}
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="text-sm text-gray-400 mb-1">Frequências (${freqCount})</div>
+                    <div class="font-mono text-sm text-blue-400">${firstFreq}${freqCount > 1 ? '...' : ''} Hz</div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <div class="text-xs text-gray-500">
+                        <i class="fas fa-clock mr-1"></i>${freq.duration}
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="useDbFrequency(${freq.id})" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition">
+                            <i class="fas fa-play mr-1"></i>Usar
+                        </button>
+                        <button onclick="showDbDetails(${freq.id})" class="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-sm transition">
+                            <i class="fas fa-info-circle mr-1"></i>Detalhes
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function getDbCategoryColor(category) {
+            const colors = {
+                'inflamacao': 'red',
+                'dor': 'orange',
+                'bacteria': 'yellow',
+                'virus': 'purple',
+                'fungo': 'green',
+                'cancer': 'pink',
+                'parasita': 'indigo',
+                'respiratorio': 'blue',
+                'pele': 'teal',
+                'mental': 'purple',
+                'sistema-nervoso': 'blue',
+                'sistema-digestivo': 'green',
+                'geral': 'gray'
+            };
+            return colors[category] || 'gray';
+        }
+        
+        function getDbCategoryName(category) {
+            const names = {
+                'inflamacao': 'Inflamação',
+                'dor': 'Dor',
+                'bacteria': 'Bactéria',
+                'virus': 'Vírus',
+                'fungo': 'Fungo',
+                'cancer': 'Câncer',
+                'parasita': 'Parasita',
+                'respiratorio': 'Respiratório',
+                'pele': 'Pele',
+                'mental': 'Mental/Emocional',
+                'sistema-nervoso': 'Sistema Nervoso',
+                'sistema-digestivo': 'Sistema Digestivo',
+                'geral': 'Geral'
+            };
+            return names[category] || 'Geral';
+        }
+        
+        function useDbFrequency(id) {
+            const freq = caflData.find(f => f.id === id);
+            if (freq) {
+                // Mudar para a aba do gerador
+                showSection('generator');
+                
+                // Definir a primeira frequência no gerador
+                const firstFreq = freq.frequency.split(',')[0].trim();
+                document.getElementById('frequency').value = firstFreq;
+                
+                // Atualizar informações da frequência
+                updateFrequencyInfo(firstFreq);
+                
+                // Mostrar notificação
+                showNotification(`Frequência ${firstFreq} Hz carregada no gerador`, 'success');
+            }
+        }
+        
+        function showDbDetails(id) {
+            const freq = caflData.find(f => f.id === id);
+            if (freq) {
+                document.getElementById('dbModalTitle').textContent = freq.name;
+                
+                const freqList = freq.frequency.split(',').map(f => f.trim()).join(', ');
+                
+                document.getElementById('dbModalContent').innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Informações Básicas</h4>
+                            <div class="space-y-2">
+                                <div><strong>Categoria:</strong> <span class="category-badge bg-${getDbCategoryColor(freq.category)}-600 text-white">${getDbCategoryName(freq.category)}</span></div>
+                                <div><strong>Fonte:</strong> ${freq.source}</div>
+                                <div><strong>Duração Recomendada:</strong> ${freq.duration}</div>
+                                <div><strong>Tipo de Onda:</strong> ${getDbWaveTypeName(freq.waveType)}</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Frequências</h4>
+                            <div class="bg-gray-700 rounded-lg p-3 max-h-40 overflow-y-auto">
+                                <div class="font-mono text-sm">${freqList}</div>
+                            </div>
+                        </div>
+                    </div>
                     
-                    // Atualizar a interface
+                    <div class="mt-4">
+                        <h4 class="text-lg font-semibold mb-2">Descrição</h4>
+                        <p class="text-gray-300">${freq.description}</p>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end space-x-2">
+                        <button onclick="closeDbModal()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
+                            Fechar
+                        </button>
+                        <button onclick="useDbFrequency(${freq.id}); closeDbModal();" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-play mr-2"></i>Usar Frequência
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('dbDetailModal').classList.remove('hidden');
+                document.getElementById('dbDetailModal').classList.add('flex');
+            }
+        }
+        
+        function closeDbModal() {
+            document.getElementById('dbDetailModal').classList.add('hidden');
+            document.getElementById('dbDetailModal').classList.remove('flex');
+        }
+        
+        function getDbWaveTypeName(waveType) {
+            const names = {
+                'sine': 'Senoidal',
+                'square': 'Quadrada',
+                'sawtooth': 'Dente de Serra',
+                'triangle': 'Triangular'
+            };
+            return names[waveType] || waveType;
+        }
+        
+        function renderDbPagination() {
+            const container = document.getElementById('dbPagination');
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(filteredCaflData.length / dbItemsPerPage);
+            
+            if (totalPages <= 1) {
+                return;
+            }
+            
+            // Botão Anterior
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `pagination-btn ${dbCurrentPage === 1 ? 'disabled' : ''}`;
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.disabled = dbCurrentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (dbCurrentPage > 1) {
+                    dbCurrentPage--;
+                    renderDbResults();
+                }
+            });
+            container.appendChild(prevBtn);
+            
+            // Números de página
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, dbCurrentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `pagination-btn ${i === dbCurrentPage ? 'bg-blue-600' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    dbCurrentPage = i;
+                    renderDbResults();
+                });
+                container.appendChild(pageBtn);
+            }
+            
+            // Botão Próximo
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `pagination-btn ${dbCurrentPage === totalPages ? 'disabled' : ''}`;
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.disabled = dbCurrentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (dbCurrentPage < totalPages) {
+                    dbCurrentPage++;
+                    renderDbResults();
+                }
+            });
+            container.appendChild(nextBtn);
+        }
+        
+        function updateDbStats() {
+            document.getElementById('dbResultCount').textContent = filteredCaflData.length;
+        }
+        
+        function exportDbData() {
+            if (filteredCaflData.length === 0) {
+                showNotification('Nenhum dado para exportar', 'warning');
+                return;
+            }
+            
+            // Criar conteúdo CSV
+            let csvContent = "Nome,Categoria,Frequências,Descrição,Fonte,Duração,Tipo de Onda\n";
+            
+            filteredCaflData.forEach(item => {
+                csvContent += `"${item.name}","${getDbCategoryName(item.category)}","${item.frequency}","${item.description}","${item.source}","${item.duration}","${getDbWaveTypeName(item.waveType)}"\n`;
+            });
+            
+            // Criar blob e download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'cafl_frequencies.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Dados exportados com sucesso', 'success');
+        }
+        
+        // ======== FUNÇÕES DE EVENT LISTENERS ========
+        function setupEventListeners() {
+            // Botões de áudio
+            document.getElementById('playBtn').addEventListener('click', playFrequency);
+            document.getElementById('stopBtn').addEventListener('click', stopFrequency);
+            
+            // Controle de volume
+            document.getElementById('volume').addEventListener('input', (e) => {
+                document.getElementById('volumeValue').textContent = e.target.value;
+                if (gainNode && isPlaying) {
+                    gainNode.gain.setValueAtTime(e.target.value / 100, audioContext.currentTime);
+                }
+            });
+            
+            // Seleção de tipo de onda
+            document.querySelectorAll('.wave-type-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Remover classe ativa de todos os botões
                     document.querySelectorAll('.wave-type-btn').forEach(b => {
                         b.classList.remove('bg-blue-600');
                         b.classList.add('bg-gray-700');
                     });
-                    this.classList.remove('bg-gray-700');
-                    this.classList.add('bg-blue-600');
                     
-                    // Se estiver tocando, atualizar o oscilador
-                    if (isPlaying && oscillator) {
-                        oscillator.type = waveType;
-                    }
+                    // Adicionar classe ativa ao botão clicado
+                    e.target.classList.remove('bg-gray-700');
+                    e.target.classList.add('bg-blue-600');
+                    
+                    // Atualizar tipo de onda
+                    currentWaveType = e.target.dataset.wave;
+                    
+                    // Atualizar visualização
+                    const canvas = document.getElementById('waveCanvas');
+                    const canvasCtx = canvas.getContext('2d');
+                    drawWaveform(canvasCtx, canvas.width, canvas.height, parseFloat(document.getElementById('frequency').value) || 40);
+                    
+                    // Atualizar recomendação
+                    updateFrequencyInfo(parseFloat(document.getElementById('frequency').value) || 40);
                 });
             });
             
-            // Botão voltar ao topo
+            // Timer
+            document.getElementById('timerBtn').addEventListener('click', () => {
+                // Criar modal para configurar timer
+                const timerModal = document.createElement('div');
+                timerModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                timerModal.innerHTML = `
+                    <div class="bg-gray-800 rounded-xl p-6 max-w-md w-full">
+                        <h3 class="text-xl font-semibold mb-4">Configurar Timer</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Horas</label>
+                                <input type="number" id="timerHours" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2" min="0" max="23" value="0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Minutos</label>
+                                <input type="number" id="timerMinutes" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2" min="0" max="59" value="5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Segundos</label>
+                                <input type="number" id="timerSeconds" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2" min="0" max="59" value="0">
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-2 mt-6">
+                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg">Cancelar</button>
+                            <button onclick="setupTimer(); this.closest('.fixed').remove();" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">Configurar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(timerModal);
+            });
+            
+            // Favoritos
+            document.getElementById('favoriteBtn').addEventListener('click', toggleFavorite);
+            
+            // Input de frequência
+            document.getElementById('frequency').addEventListener('input', (e) => {
+                const frequency = parseFloat(e.target.value);
+                if (!isNaN(frequency)) {
+                    updateFrequencyInfo(frequency);
+                    
+                    // Atualizar visualização
+                    const canvas = document.getElementById('waveCanvas');
+                    const canvasCtx = canvas.getContext('2d');
+                    drawWaveform(canvasCtx, canvas.width, canvas.height, frequency);
+                }
+            });
+            
+            // Modal de headphones
+            document.getElementById('closeHeadphoneModal').addEventListener('click', () => {
+                document.getElementById('headphoneModal').style.display = 'none';
+                
+                if (document.getElementById('dontShowAgain').checked) {
+                    localStorage.setItem('dontShowHeadphonesModal', 'true');
+                }
+            });
+            
+            // Filtros do banco de dados principal
+            document.getElementById('minFreqRange').addEventListener('input', (e) => {
+                document.getElementById('minFreqValue').textContent = e.target.value;
+            });
+            
+            document.getElementById('maxFreqRange').addEventListener('input', (e) => {
+                document.getElementById('maxFreqValue').textContent = e.target.value;
+            });
+            
+            document.getElementById('applyFilters').addEventListener('click', applyFilters);
+            document.getElementById('clearFilters').addEventListener('click', clearFilters);
+        }
+        
+        // ======== FUNÇÕES DE FILTROS DO BANCO DE DADOS PRINCIPAL ========
+        function applyFilters() {
+            // Esta função seria implementada para o banco de dados principal
+            // Por enquanto, apenas mostra uma notificação
+            showNotification('Filtros aplicados', 'success');
+        }
+        
+        function clearFilters() {
+            document.getElementById('minFreqRange').value = 20;
+            document.getElementById('maxFreqRange').value = 20000;
+            document.getElementById('minFreqValue').textContent = 20;
+            document.getElementById('maxFreqValue').textContent = 20000;
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('evidenceFilter').value = '';
+            document.getElementById('sortBy').value = 'name';
+            
+            showNotification('Filtros limpos', 'info');
+        }
+        
+        // ======== FUNÇÕES DE ARMAZENAMENTO LOCAL ========
+        function saveLocalData() {
+            const data = {
+                history,
+                favorites,
+                protocols
+            };
+            localStorage.setItem('harmonizadorData', JSON.stringify(data));
+        }
+        
+        function loadLocalData() {
+            const savedData = localStorage.getItem('harmonizadorData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                history = data.history || [];
+                favorites = data.favorites || [];
+                protocols = data.protocols || [];
+                updateHistoryDisplay();
+            }
+        }
+        
+        // ======== FUNÇÕES DE NOTIFICAÇÕES ========
+        function showNotification(message, type = 'info') {
+            // Remover notificações existentes
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(n => n.remove());
+            
+            // Criar nova notificação
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // ======== FUNÇÃO DE SCROLL PARA TOPO ========
+        function setupScrollToTop() {
             const topBtn = document.getElementById('topBtn');
             
-            window.addEventListener('scroll', function() {
-                if (window.pageYOffset > 300) {
+            window.addEventListener('scroll', () => {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
                     topBtn.classList.add('show');
                 } else {
                     topBtn.classList.remove('show');
                 }
             });
             
-            topBtn.addEventListener('click', function() {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-            
-            // Função para iniciar protocolos (placeholder)
-            window.startProtocol = function(protocolName) {
-                alert(`Iniciando protocolo: ${protocolName}\n\nEsta funcionalidade será implementada em breve!`);
-            };
-            
-            // Inicializar banco de dados
-            loadFrequencies();
-            setupEventListeners();
-        });
-
-        // Configurar event listeners do banco de dados
-        function setupEventListeners() {
-            // Busca
-            document.getElementById('searchInput').addEventListener('input', handleSearch);
-            
-            // Filtros
-            document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
-            document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
-            
-            // Range sliders
-            document.getElementById('minFreqRange').addEventListener('input', updateMinFreqValue);
-            document.getElementById('maxFreqRange').addEventListener('input', updateMaxFreqValue);
-            
-            // Paginação
-            document.getElementById('prevPageBtn').addEventListener('click', () => changePage(-1));
-            document.getElementById('nextPageBtn').addEventListener('click', () => changePage(1));
-            
-            // Modal
-            document.getElementById('closeDetailModal').addEventListener('click', closeDetailModal);
-            
-            // Tabs do modal
-            document.querySelectorAll('.detail-tab').forEach(tab => {
-                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            topBtn.addEventListener('click', () => {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
             });
         }
-
-        // Carregar frequências
-        function loadFrequencies() {
-            renderFrequencies();
-            updatePagination();
-        }
-
-        // Renderizar frequências
-        function renderFrequencies() {
-            const container = document.getElementById('frequenciesGrid');
-            container.innerHTML = '';
-            
-            if (filteredFrequencies.length === 0) {
-                container.innerHTML = `
-                    <div class="no-results">
-                        <div class="no-results-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Nenhuma frequência encontrada</h3>
-                        <p>Tente ajustar seus filtros ou termos de busca</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const pageFrequencies = filteredFrequencies.slice(startIndex, endIndex);
-            
-            pageFrequencies.forEach(freq => {
-                const card = createFrequencyCard(freq);
-                container.appendChild(card);
-            });
-            
-            document.getElementById('resultCount').textContent = filteredFrequencies.length;
-        }
-
-        // Criar card de frequência
-        function createFrequencyCard(frequency) {
-            const card = document.createElement('div');
-            card.className = 'frequency-card bg-gray-900 rounded-lg p-4';
-            
-            const evidenceClass = frequency.scientificEvidence.length > 0 ? 
-                (frequency.scientificEvidence[0].reliability === 'high' ? 'evidence-high' : 
-                 frequency.scientificEvidence[0].reliability === 'medium' ? 'evidence-medium' : 'evidence-low') : '';
-            
-            const evidenceText = frequency.scientificEvidence.length > 0 ? 
-                frequency.scientificEvidence[0].reliability === 'high' ? 'Alta' : 
-                frequency.scientificEvidence[0].reliability === 'medium' ? 'Média' : 'Baixa' : 'Não avaliada';
-            
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-2xl font-bold text-blue-400">${frequency.value} Hz</span>
-                            ${frequency.scientificEvidence.length > 0 ? `<span class="evidence-badge ${evidenceClass}">${evidenceText}</span>` : ''}
-                        </div>
-                        <h3 class="text-lg font-semibold text-white">${frequency.name}</h3>
-                        <span class="category-badge bg-${getCategoryColor(frequency.category)}-600">${getCategoryName(frequency.category)}</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm text-gray-400 mb-1">Eficácia</div>
-                        <div class="text-lg font-bold text-green-400">${frequency.statistics.successRate}%</div>
-                    </div>
-                </div>
-                
-                <p class="text-gray-300 text-sm mb-3">${frequency.description}</p>
-                
-                <div class="flex items-center justify-between text-sm text-gray-400 mb-3">
-                    <div class="flex items-center gap-4">
-                        <span><i class="fas fa-users mr-1"></i> ${frequency.statistics.uses.toLocaleString()} usos</span>
-                        <span><i class="fas fa-star mr-1"></i> ${frequency.statistics.userRating}/5</span>
-                    </div>
-                    <span>${frequency.scientificEvidence.length} estudos</span>
-                </div>
-                
-                <div class="flex gap-2">
-                    <button class="flex-1 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" onclick="showFrequencyDetails('${frequency.id}')">
-                        <i class="fas fa-info-circle mr-1"></i> Detalhes
-                    </button>
-                    <button class="flex-1 bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-sm transition" onclick="addToProtocol('${frequency.id}')">
-                        <i class="fas fa-plus mr-1"></i> Protocolo
-                    </button>
-                </div>
-            `;
-            
-            card.addEventListener('click', () => selectFrequency(frequency));
-            return card;
-        }
-
-        // Obter cor da categoria
-        function getCategoryColor(category) {
-            const colors = {
-                concentracao: 'blue',
-                energia: 'yellow',
-                cura: 'green',
-                relaxamento: 'indigo',
-                sono: 'purple',
-                meditacao: 'pink',
-                vermifugacao: 'red',
-                'anti-inflamatorio': 'orange'
-            };
-            return colors[category] || 'gray';
-        }
-
-        // Obter nome da categoria
-        function getCategoryName(category) {
-            const names = {
-                concentracao: 'Concentração',
-                energia: 'Energia',
-                cura: 'Cura',
-                relaxamento: 'Relaxamento',
-                sono: 'Sono',
-                meditacao: 'Meditação',
-                vermifugacao: 'Vermifugação',
-                'anti-inflamatorio': 'Anti-inflamatório'
-            };
-            return names[category] || category;
-        }
-
-        function selectFrequency(freq) {
-            document.getElementById('frequency').value = freq.value;
-            document.getElementById('currentInfo').innerHTML = `
-                <div class="text-xl font-bold text-blue-400">${freq.value} Hz</div>
-                <div class="text-lg font-medium">${freq.name}</div>
-            `;
-            document.getElementById('currentDetails').innerHTML = `
-                <div><strong>Categoria:</strong> <span class="category-badge bg-${getCategoryColor(freq.category)}-600">${getCategoryName(freq.category)}</span></div>
-                <div><strong>Descrição:</strong> ${freq.description}</div>
-            `;
-            
-            // Atualizar recomendação de onda
-            let waveRecommendation = '';
-            if (freq.category === 'energia') {
-                waveRecommendation = '<strong>Onda recomendada:</strong> Serra - Estimula a ativação energética de forma eficaz.';
-            } else if (freq.category === 'concentracao') {
-                waveRecommendation = '<strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave para estimulação cognitiva.';
-            } else if (freq.category === 'cura') {
-                waveRecommendation = '<strong>Onda recomendada:</strong> Senoidal - Promove uma sensação de calma e bem-estar.';
-            } else {
-                waveRecommendation = '<strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável.';
-            }
-            
-            document.getElementById('waveRecommendation').innerHTML = `
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-lightbulb text-yellow-500"></i>
-                    <span>${waveRecommendation}</span>
-                </div>
-            `;
-            
-            // Adicionar ao histórico
-            addToHistory(freq);
-        }
-
-        function addToHistory(freq) {
-            const historyList = document.getElementById('historyList');
-            const historyItem = document.createElement('div');
-            historyItem.className = 'text-sm py-1 border-b border-gray-700';
-            historyItem.innerHTML = `${freq.value} Hz - ${freq.name}`;
-            historyList.insertBefore(historyItem, historyList.firstChild);
-            
-            // Manter apenas os 5 mais recentes
-            while (historyList.children.length > 5) {
-                historyList.removeChild(historyList.lastChild);
-            }
-        }
-
-        // Manipular busca
-        function handleSearch() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            if (searchTerm === '') {
-                filteredFrequencies = [...frequenciesData];
-            } else {
-                filteredFrequencies = frequenciesData.filter(freq => 
-                    freq.name.toLowerCase().includes(searchTerm) ||
-                    freq.description.toLowerCase().includes(searchTerm) ||
-                    freq.mechanism.toLowerCase().includes(searchTerm) ||
-                    freq.subcategory.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            currentPage = 1;
-            renderFrequencies();
-            updatePagination();
-        }
-
-        // Aplicar filtros
-        function applyFilters() {
-            const minFreq = parseInt(document.getElementById('minFreqRange').value);
-            const maxFreq = parseInt(document.getElementById('maxFreqRange').value);
-            const category = document.getElementById('categoryFilter').value;
-            const evidence = document.getElementById('evidenceFilter').value;
-            const effectiveness = document.getElementById('effectivenessFilter').value;
-            
-            filteredFrequencies = frequenciesData.filter(freq => {
-                // Filtro de frequência
-                if (freq.value < minFreq || freq.value > maxFreq) return false;
-                
-                // Filtro de categoria
-                if (category && freq.category !== category) return false;
-                
-                // Filtro de evidência
-                if (evidence) {
-                    const hasEvidence = freq.scientificEvidence.length > 0;
-                    if (evidence === 'high' && (!hasEvidence || freq.scientificEvidence[0].reliability !== 'high')) return false;
-                    if (evidence === 'medium' && (!hasEvidence || freq.scientificEvidence[0].reliability !== 'medium')) return false;
-                    if (evidence === 'low' && !hasEvidence) return false;
-                }
-                
-                // Filtro de eficácia
-                if (effectiveness && freq.statistics.successRate < parseInt(effectiveness)) return false;
-                
-                return true;
-            });
-            
-            currentPage = 1;
-            renderFrequencies();
-            updatePagination();
-        }
-
-        // Resetar filtros
-        function resetFilters() {
-            document.getElementById('minFreqRange').value = 20;
-            document.getElementById('maxFreqRange').value = 20000;
-            document.getElementById('categoryFilter').value = '';
-            document.getElementById('evidenceFilter').value = '';
-            document.getElementById('effectivenessFilter').value = '';
-            
-            updateMinFreqValue();
-            updateMaxFreqValue();
-            
-            filteredFrequencies = [...frequenciesData];
-            currentPage = 1;
-            renderFrequencies();
-            updatePagination();
-        }
-
-        // Atualizar valor da frequência mínima
-        function updateMinFreqValue() {
-            const value = document.getElementById('minFreqRange').value;
-            document.getElementById('minFreqValue').textContent = value;
-        }
-
-        // Atualizar valor da frequência máxima
-        function updateMaxFreqValue() {
-            const value = document.getElementById('maxFreqRange').value;
-            document.getElementById('maxFreqValue').textContent = value;
-        }
-
-        // Atualizar paginação
-        function updatePagination() {
-            const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
-            
-            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-            document.getElementById('prevPageBtn').disabled = currentPage === 1;
-            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
-        }
-
-        // Mudar página
-        function changePage(direction) {
-            const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
-            const newPage = currentPage + direction;
-            
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                renderFrequencies();
-                updatePagination();
-                
-                // Rolar para o topo da lista
-                document.getElementById('frequenciesGrid').scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // Mostrar detalhes da frequência
-        function showFrequencyDetails(frequencyId) {
-            const frequency = frequenciesData.find(f => f.id === frequencyId);
-            if (!frequency) return;
-            
-            // Preencher dados do modal
-            document.getElementById('detailTitle').textContent = frequency.name;
-            document.getElementById('detailSubtitle').textContent = frequency.value + ' Hz';
-            
-            // Aba Visão Geral
-            document.getElementById('detailOverview').innerHTML = `
-                <div class="space-y-3">
-                    <div><strong>Categoria:</strong> ${getCategoryName(frequency.category)} - ${frequency.subcategory}</div>
-                    <div><strong>Descrição:</strong> ${frequency.description}</div>
-                    <div><strong>Uso Tradicional:</strong> ${frequency.traditionalUse}</div>
-                </div>
-            `;
-            
-            document.getElementById('detailMechanism').innerHTML = `
-                <p>${frequency.mechanism}</p>
-            `;
-            
-            const synergiesHtml = frequency.synergies.map(s => 
-                `<span class="synergy-tag">${s}</span>`
-            ).join('');
-            document.getElementById('detailSynergies').innerHTML = synergiesHtml || '<p>Nenhuma sinergia documentada</p>';
-            
-            // Aba Ciência
-            const evidenceHtml = frequency.scientificEvidence.map(e => `
-                <div class="evidence-item">
-                    <div class="evidence-study">${e.study} (${e.year})</div>
-                    <div class="evidence-description">${e.description}</div>
-                </div>
-            `).join('');
-            document.getElementById('detailEvidence').innerHTML = evidenceHtml || '<p>Nenhuma evidência científica disponível</p>';
-            
-            document.getElementById('detailResearchStatus').innerHTML = `
-                <p><strong>Status da Pesquisa:</strong> ${frequency.researchStatus}</p>
-            `;
-            
-            // Aba Protocolos
-            const protocolsHtml = frequency.protocols.map(p => `
-                <div class="protocol-item">
-                    <div class="protocol-name">${p.name}</div>
-                    <div class="protocol-details">
-                        <span><i class="fas fa-clock mr-1"></i> ${p.duration}</span>
-                        <span><i class="fas fa-info-circle mr-1"></i> ${p.instructions}</span>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('detailProtocols').innerHTML = protocolsHtml || '<p>Nenhum protocolo disponível</p>';
-            
-            // Aba Segurança
-            const contraindicationsHtml = frequency.safety.contraindications.map(c => 
-                `<div class="safety-item">
-                    <i class="fas fa-exclamation-triangle safety-icon"></i>
-                    <div>${c}</div>
-                </div>`
-            ).join('');
-            
-            const sideEffectsHtml = frequency.safety.sideEffects.map(s => 
-                `<div class="safety-item">
-                    <i class="fas fa-info-circle safety-icon"></i>
-                    <div>${s}</div>
-                </div>`
-            ).join('');
-            
-            document.getElementById('detailSafety').innerHTML = `
-                <div class="space-y-4">
-                    <div>
-                        <h4 class="font-medium mb-2">Contraindicações</h4>
-                        ${contraindicationsHtml || '<p>Nenhuma contraindicação conhecida</p>'}
-                    </div>
-                    <div>
-                        <h4 class="font-medium mb-2">Efeitos Colaterais</h4>
-                        ${sideEffectsHtml || '<p>Nenhum efeito colateral conhecido</p>'}
-                    </div>
-                </div>
-            `;
-            
-            // Aba Estatísticas
-            document.getElementById('detailStatistics').innerHTML = `
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-800 p-3 rounded">
-                        <div class="text-2xl font-bold text-blue-400">${frequency.statistics.uses.toLocaleString()}</div>
-                        <div class="text-sm text-gray-400">Total de Usos</div>
-                    </div>
-                    <div class="bg-gray-800 p-3 rounded">
-                        <div class="text-2xl font-bold text-green-400">${frequency.statistics.successRate}%</div>
-                        <div class="text-sm text-gray-400">Taxa de Sucesso</div>
-                    </div>
-                    <div class="bg-gray-800 p-3 rounded">
-                        <div class="text-2xl font-bold text-yellow-400">${frequency.statistics.userRating}/5</div>
-                        <div class="text-sm text-gray-400">Avaliação dos Usuários</div>
-                    </div>
-                    <div class="bg-gray-800 p-3 rounded">
-                        <div class="text-2xl font-bold text-purple-400">${frequency.scientificEvidence.length}</div>
-                        <div class="text-sm text-gray-400">Estudos Científicos</div>
-                    </div>
-                </div>
-            `;
-            
-            // Mostrar modal
-            document.getElementById('detailModal').style.display = 'flex';
-        }
-
-        // Fechar modal de detalhes
-        function closeDetailModal() {
-            document.getElementById('detailModal').style.display = 'none';
-        }
-
-        // Alternar aba do modal
-        function switchTab(tabName) {
-            // Atualizar botões das abas
-            document.querySelectorAll('.detail-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            
-            // Atualizar conteúdo das abas
-            document.querySelectorAll('.detail-tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
-
-        // Adicionar ao protocolo (placeholder)
-        function addToProtocol(frequencyId) {
-            const frequency = frequenciesData.find(f => f.id === frequencyId);
-            if (frequency) {
-                alert(`Frequência ${frequency.value} Hz (${frequency.name}) adicionada ao protocolo!\n\nFuncionalidade em desenvolvimento.`);
-            }
-        }
-
-        // Fechar modal ao clicar fora
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailModal');
-            if (event.target === modal) {
-                closeDetailModal();
-            }
-        }
+        
+        // ======== FUNÇÕES DE PROTOCOLOS ========
+        // Estas funções seriam implementadas para gerenciar protocolos de frequências
+        // Por enquanto, são apenas stubs
     </script>
 </body>
 </html>
