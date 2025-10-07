@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Harmonizador Fernandes v1.5 - Frequências Terapêuticas & Protocolos Personalizados">
+    <title>Harmonizador Fernandes - Banco de Dados CAFL Completo</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Chart.js para visualizações -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Estilos customizados -->
+    <style>
+        /* Variáveis CSS para facilitar manutenção */
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #8b5cf6;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #fbbf24;
+            --danger-color: #ef4444;
+            --dark-bg: #1e293b;
+            --darker-bg: #0f172a;
+            --card-bg: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+        }
+
+        /* Animações */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Estilos do canvas */
+        #waveCanvas {
+            background: linear-gradient(to bottom, var(--dark-bg), var(--darker-bg));
+        }
+
+        /* Cards de frequência */
+        .frequency-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .frequency-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .frequency-card.selected {
+            background-color: rgba(59, 130, 246, 0.2);
+            border: 2px solid var(--primary-color);
+        }
+
+        /* Badge de categoria */
+        .category-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+        }
+
+        /* Badge de evidência científica */
+        .evidence-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .evidence-high {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .evidence-medium {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .evidence-low {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Destaque de busca */
+        .search-highlight {
+            background-color: rgba(59, 130, 246, 0.3);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        /* Passos de protocolo */
+        .protocol-step {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .protocol-step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+        }
+
+        .protocol-step.energy::before { background: var(--accent-color); }
+        .protocol-step.focus::before { background: var(--primary-color); }
+        .protocol-step.anti-inflammatory::before { background: var(--success-color); }
+        .protocol-step.harmony::before { background: var(--secondary-color); }
+
+        /* Título estilizado */
+        .harmonizador-title {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Container do banco de dados */
+        .database-container {
+            height: 600px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--card-bg);
+        }
+
+        .database-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .database-container::-webkit-scrollbar-track {
+            background: var(--card-bg);
+        }
+
+        .database-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        /* Container do Top 10 */
+        .top10-container {
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--card-bg);
+        }
+
+        .top10-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .top10-container::-webkit-scrollbar-track {
+            background: var(--card-bg);
+        }
+
+        .top10-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        /* Estilos do timer */
+        .timer-display {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .timer-progress {
+            transition: width 1s linear;
+        }
+
+        /* Botão voltar ao topo */
+        #topBtn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #topBtn.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #topBtn:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Destaque de protocolo */
+        .protocol-highlight {
+            animation: pulse 2s infinite;
+        }
+
+        /* Eficiência alta */
+        .efficiency-high {
+            color: var(--warning-color);
+        }
+
+        /* Itens de referência */
+        .reference-item {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .reference-item::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        /* Eficiência da onda */
+        .wave-efficiency {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Input do timer */
+        .timer-input {
+            width: 3rem;
+            text-align: center;
+        }
+
+        /* Melhorias de acessibilidade */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Melhorias de foco para acessibilidade */
+        button:focus,
+        input:focus,
+        select:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Melhorias para modo de alto contraste */
+        @media (prefers-contrast: high) {
+            .frequency-card:hover,
+            .frequency-card.selected {
+                border-width: 3px;
+            }
+        }
+
+        /* Melhorias para redução de movimento */
+        @media (prefers-reduced-motion: reduce) {
+            .frequency-card,
+            #topBtn,
+            .timer-progress,
+            .protocol-highlight {
+                transition: none;
+                animation: none;
+            }
+        }
+
+        /* Container de referências com rolagem */
+        .references-container {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--card-bg);
+        }
+
+        .references-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .references-container::-webkit-scrollbar-track {
+            background: var(--card-bg);
+        }
+
+        .references-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        /* Layout do Visualizador de Onda ao lado da Frequência */
+        .frequency-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .frequency-controls {
+            flex: 1;
+        }
+
+        .wave-visualizer-small {
+            width: 120px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+
+        /* Responsividade para telas pequenas */
+        @media (max-width: 768px) {
+            .frequency-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .wave-visualizer-small {
+                width: 100%;
+                height: 100px;
+                margin-top: 1rem;
+            }
+        }
+        
+        /* Destaque para áreas editáveis */
+        .editable-area {
+            border: 2px dashed var(--warning-color);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .editable-label {
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: var(--dark-bg);
+            padding: 0 8px;
+            font-size: 12px;
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+        
+        /* Modal de informações sobre headphones */
+        .headphone-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .headphone-content {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--primary-color);
+            position: relative;
+        }
+        
+        .headphone-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .headphone-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .headphone-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .headphone-benefits {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .headphone-benefits h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .headphone-benefits ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .headphone-benefits li {
+            padding: 0.25rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .headphone-benefits li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .headphone-close {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: background 0.3s ease;
+        }
+        
+        .headphone-close:hover {
+            background: var(--secondary-color);
+        }
+        
+        .dont-show-again {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .dont-show-again input {
+            margin-right: 0.5rem;
+        }
+        
+        /* Cards de benefícios */
+        .benefit-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .benefit-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        /* Seção Hero no topo */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)), 
+                        url('https://images.unsplash.com/photo-1648080473344-a399955ac123?q=80&w=1974&auto=format&fit=crop') center/cover;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
+            z-index: 0;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 180px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .hero-feature:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .hero-feature:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        .hero-feature:nth-child(4) {
+            animation-delay: 1.5s;
+        }
+        
+        .hero-feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-feature-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        
+        .hero-feature-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .hero-cta {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .hero-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+        
+        /* Responsividade para a seção hero */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .hero-features {
+                gap: 1.5rem;
+            }
+            
+            .hero-feature {
+                width: 150px;
+            }
+            
+            .hero-feature-icon {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Cabeçalho com imagem de fundo */
+        .header-with-bg {
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), 
+                        url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=2070&auto=format&fit=crop') center/cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-with-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            z-index: 0;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Efeito de brilho no título */
+        .title-glow {
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Filtros avançados */
+        .filter-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .range-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .range-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(59, 130, 246, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .range-value {
+            min-width: 80px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        /* Paginação */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Modal de detalhes */
+        .detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .detail-content {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--primary-color);
+            position: relative;
+        }
+
+        .detail-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .detail-close:hover {
+            background: #dc2626;
+        }
+
+        .detail-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .detail-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .detail-subtitle {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .detail-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .detail-tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .detail-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .detail-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .detail-tab-content {
+            display: none;
+        }
+
+        .detail-tab-content.active {
+            display: block;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .evidence-item {
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .evidence-study {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .evidence-year {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .evidence-description {
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .protocol-item {
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .protocol-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .protocol-details {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .safety-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .safety-icon {
+            color: var(--warning-color);
+            margin-top: 0.1rem;
+        }
+
+        .synergy-tag {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Estilos específicos para o banco de dados */
+        .db-section {
+            display: none;
+        }
+        
+        .db-section.active {
+            display: block;
+        }
+        
+        .tab-navigation {
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Loading spinner para o banco de dados */
+        .db-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .db-loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Estatísticas do banco de dados */
+        .db-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+        }
+        
+        .db-stat {
+            text-align: center;
+        }
+        
+        .db-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .db-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Modal de informações sobre headphones -->
+    <div id="headphoneModal" class="headphone-modal">
+        <div class="headphone-content">
+            <div class="headphone-icon">
+                <i class="fas fa-headphones"></i>
+            </div>
+            <h2 class="headphone-title">Importante: Use Headphones!</h2>
+            <p class="headphone-text">
+                Para uma experiência completa e eficaz com as frequências terapêuticas, recomendamos fortemente o uso de headphones de boa qualidade.
+            </p>
+            
+            <div class="headphone-benefits">
+                <h4>Benefícios do uso de headphones:</h4>
+                <ul>
+                    <li>Estimulação binaural precisa</li>
+                    <li>Isolamento de ruídos externos</li>
+                    <li>Experiência imersiva completa</li>
+                    <li>Melhor foco e concentração</li>
+                    <li>Resultados otimizados</li>
+                </ul>
+            </div>
+            
+            <p class="headphone-text">
+                As frequências terapêuticas funcionam melhor quando entregues diretamente aos ouvidos, permitindo que o cérebro processe os estímulos de forma mais eficiente.
+            </p>
+            
+            <button id="closeHeadphoneModal" class="headphone-close">Entendi</button>
+            
+            <div class="dont-show-again">
+                <input type="checkbox" id="dontShowAgain">
+                <label for="dontShowAgain">Não mostrar novamente</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Cabeçalho com imagem de fundo -->
+        <header class="header-with-bg p-8 shadow-2xl rounded-b-2xl" role="banner">
+            <div class="header-content container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold harmonizador-title title-glow">Harmonizador Fernandes</h1>
+                    <p class="text-blue-200 mt-2 text-lg">Frequências Terapêuticas & Protocolos Personalizados</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- hitwebcounter Code START -->
+                    <a href="https://www.hitwebcounter.com" target="_blank">
+                        <img src="https://hitwebcounter.com/counter/counter.php?page=21436820&style=0006&nbdigits=6&type=ip&initCount=0" title="Conversions and Hits" alt="Conversions and Hits" border="0" />
+                    </a>
+                    <!-- hitwebcounter Code END -->
+                </div>
+            </div>
+        </header>
+
+        <!-- Seção Hero -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2 class="hero-title">Equilibre Sua Energia Vital</h2>
+                <p class="hero-subtitle">
+                    Descubra o poder das frequências terapêuticas para transformar seu bem-estar físico, mental e emocional com protocolos personalizados e cientificamente desenvolvidos.
+                </p>
+                
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Foco & Clareza</h3>
+                        <p class="hero-feature-text">Aumente sua concentração e capacidade cognitiva</p>
+                    </div>
+                    
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Energia Vital</h3>
+                        <p class="hero-feature-text">Combata a fadiga e recupere sua vitalidade</p>
+                    </div>
+                    
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Equilíbrio Emocional</h3>
+                        <p class="hero-feature-text">Encontre paz interior e bem-estar</p>
+                    </div>
+                    
+                    <div class="hero-feature">
+                        <div class="hero-feature-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <h3 class="hero-feature-title">Sono Reparador</h3>
+                        <p class="hero-feature-text">Melhore a qualidade do seu descanso</p>
+                    </div>
+                </div>
+                
+                <button class="hero-cta" onclick="document.getElementById('generatorSection').scrollIntoView({behavior: 'smooth'})">
+                    Começar Agora <i class="fas fa-arrow-down ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Navegação por Abas -->
+        <div class="tab-navigation mb-8">
+            <div class="flex space-x-1">
+                <button id="generatorTab" class="tab-btn active" onclick="showSection('generator')">
+                    <i class="fas fa-wave-square mr-2"></i>Gerador de Frequências
+                </button>
+                <button id="databaseTab" class="tab-btn" onclick="showSection('database')">
+                    <i class="fas fa-database mr-2"></i>Banco de Dados CAFL
+                </button>
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <main>
+            <!-- Seção do Gerador de Frequências -->
+            <section id="generatorSection" class="db-section active">
+                <div class="grid lg:grid-cols-12 gap-8">
+                    <!-- Coluna 1: Gerador de Frequências + Histórico -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+                            <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
+
+                            <!-- Protocol Controls (inicialmente oculto) -->
+                            <div id="protocolControls" class="protocol-controls hidden mb-6 p-4 bg-gray-900 rounded-lg">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-purple-400"><i class="fas fa-tasks mr-2" aria-hidden="true"></i><span id="protocolName">Protocolo Ativo</span></h3>
+                                    <button id="exitProtocolBtn" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Sair do protocolo">
+                                        <i class="fas fa-times mr-1" aria-hidden="true"></i>Sair
+                                    </button>
+                                </div>
+                                <!-- Progress Bar -->
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Progresso do Protocolo</span>
+                                        <span id="protocolProgressText">0/0</span>
+                                    </div>
+                                    <div class="w-full bg-gray-700 rounded-full h-2.5" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        <div id="protocolProgressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <!-- Step Indicators -->
+                                <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist">
+                                    <!-- Indicadores serão adicionados dinamicamente -->
+                                </div>
+                                <!-- Step Navigation -->
+                                <div class="flex justify-between">
+                                    <button id="prevStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Passo anterior">
+                                        <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
+                                    </button>
+                                    <div class="text-center">
+                                        <div class="text-sm text-gray-400">Passo Atual</div>
+                                        <div id="currentStepName" class="font-medium">-</div>
+                                    </div>
+                                    <button id="nextStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Próximo passo">
+                                        Próximo<i class="fas fa-chevron-right ml-2" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <!-- Frequency Input e Visualizer -->
+                                <div class="frequency-input-group">
+                                    <div class="frequency-controls">
+                                        <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
+                                        <div class="flex gap-2">
+                                            <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1" aria-describedby="frequency-description">
+                                            <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
+                                                <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
+                                            </button>
+                                            <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105 hidden" aria-label="Parar frequência">
+                                                <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
+                                            </button>
+                                        </div>
+                                        <div id="frequency-description" class="sr-only">Insira uma frequência entre 20 Hz e 20.000 Hz</div>
+                                    </div>
+                                    <div class="wave-visualizer-small bg-gray-900 rounded-lg p-2">
+                                        <h3 class="text-xs font-medium mb-1 text-gray-400 text-center">Onda em Tempo Real</h3>
+                                        <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded" aria-label="Visualização da forma de onda"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Volume Control -->
+                                <div>
+                                    <label for="volume" class="block text-sm font-medium mb-2">Volume: <span id="volumeValue">50</span>%</label>
+                                    <input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="50" aria-describedby="volume-description">
+                                    <div id="volume-description" class="sr-only">Ajuste o volume de 0% a 100%</div>
+                                </div>
+
+                                <!-- Wave Type Selection -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Tipo de Onda</label>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sine" aria-label="Onda Senoidal">
+                                            <i class="fas fa-wave-square mr-1" aria-hidden="true"></i>Senoidal
+                                        </button>
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm transition" data-wave="square" aria-label="Onda Quadrada">
+                                            <i class="fas fa-square-wave mr-1" aria-hidden="true"></i>Quadrada
+                                        </button>
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm transition" data-wave="sawtooth" aria-label="Onda Dente de Serra">
+                                            <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Serra
+                                        </button>
+                                        <button class="wave-type-btn bg-gray-700 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm transition" data-wave="triangle" aria-label="Onda Triangular">
+                                            <i class="fas fa-wave-triangle mr-1" aria-hidden="true"></i>Triangular
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Timer -->
+                                <div>
+                                    <button id="timerBtn" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 w-full" aria-label="Definir timer">
+                                        <i class="fas fa-clock mr-2" aria-hidden="true"></i>Programar Timer
+                                    </button>
+                                </div>
+                                <div class="mt-3 bg-gray-900 rounded-lg p-3 hidden" id="timerContainer">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm text-gray-400">Tempo Restante</span>
+                                        <div id="timerDisplay" class="timer-display text-blue-400">00:00:00</div>
+                                    </div>
+                                    <div class="w-full bg-gray-700 rounded-full h-2">
+                                        <div id="timerProgress" class="timer-progress bg-purple-600 h-full rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Benefícios das Frequências -->
+                                <div class="space-y-3">
+                                    <div class="benefit-card">
+                                        <h4><i class="fas fa-bolt text-yellow-400"></i> Energia e Vitalidade</h4>
+                                        <p>Frequências específicas como 25 Hz e 50 Hz ajudam a aumentar os níveis de energia, combater a fadiga e melhorar a disposição para atividades diárias.</p>
+                                    </div>
+                                    
+                                    <div class="benefit-card">
+                                        <h4><i class="fas fa-brain text-blue-400"></i> Foco e Concentração</h4>
+                                        <p>Frequências na faixa de 40 Hz (ondas Gama) estão associadas à melhora da cognição, memória e capacidade de concentração prolongada.</p>
+                                    </div>
+                                    
+                                    <div class="benefit-card">
+                                        <h4><i class="fas fa-heart text-red-400"></i> Bem-Estar Emocional</h4>
+                                        <p>Frequências como 285 Hz e 639 Hz podem ajudar a reduzir sintomas de depressão, ansiedade e promover equilíbrio emocional.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Current Frequency Info -->
+                                <div id="currentInfo" class="bg-gray-900 rounded-lg p-4">
+                                    <div class="text-xl font-bold text-blue-400">40 Hz</div>
+                                    <div class="text-lg font-medium">Foco e Concentração</div>
+                                </div>
+                                <div id="currentDetails" class="bg-gray-900 rounded-lg p-4 text-sm">
+                                    <div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">Concentração</span></div>
+                                    <div><strong>Descrição:</strong> Frequência para melhorar foco cognitivo e clareza mental.</div>
+                                </div>
+                                <div id="waveRecommendation" class="bg-gray-900 rounded-lg p-4 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                                        <span><strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável para estimulação cognitiva.</span>
+                                    </div>
+                                </div>
+
+                                <!-- Favorite Button -->
+                                <button id="favoriteBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition w-full" aria-label="Adicionar aos favoritos">
+                                    <i class="far fa-star mr-2"></i>Adicionar aos Favoritos
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Seção de Histórico -->
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="history-heading">
+                            <h3 id="history-heading" class="text-lg font-semibold mb-4 text-purple-400"><i class="fas fa-history mr-2" aria-hidden="true"></i>Histórico Recente</h3>
+                            <div id="historyList" class="space-y-1 max-h-32 overflow-y-auto" aria-live="polite">
+                                <!-- Itens do histórico serão adicionados aqui -->
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Coluna 2: Banco de Dados de Frequências -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 id="database-heading" class="text-2xl font-semibold text-green-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências Terapêuticas</h2>
+                                <div class="text-sm text-gray-400"><span id="resultCount">0</span> resultados</div>
+                            </div>
+                            
+                            <!-- Filtros Avançados -->
+                            <div class="filter-section">
+                                <h3 class="text-lg font-semibold mb-4 text-blue-400">
+                                    <i class="fas fa-filter mr-2"></i>Filtros Avançados
+                                </h3>
+                                
+                                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="filter-group">
+                                        <label class="filter-label">Faixa de Frequência (Hz)</label>
+                                        <div class="range-slider-container">
+                                            <input type="range" id="minFreqRange" class="range-slider" min="20" max="20000" value="20">
+                                            <span id="minFreqValue" class="range-value">20</span>
+                                        </div>
+                                        <div class="range-slider-container mt-2">
+                                            <input type="range" id="maxFreqRange" class="range-slider" min="20" max="20000" value="20000">
+                                            <span id="maxFreqValue" class="range-value">20000</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label class="filter-label" for="categoryFilter">Categoria</label>
+                                        <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">Todas as Categorias</option>
+                                            <option value="concentracao">Concentração</option>
+                                            <option value="energia">Energia</option>
+                                            <option value="cura">Cura</option>
+                                            <option value="relaxamento">Relaxamento</option>
+                                            <option value="sono">Sono</option>
+                                            <option value="meditacao">Meditação</option>
+                                            <option value="vermifugacao">Vermifugação</option>
+                                            <option value="anti-inflamatorio">Anti-inflamatório</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label class="filter-label" for="evidenceFilter">Evidência Científica</label>
+                                        <select id="evidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">Qualquer Nível</option>
+                                            <option value="high">Alta Evidência</option>
+                                            <option value="medium">Evidência Média</option>
+                                            <option value="low">Baixa Evidência</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label class="filter-label" for="sortBy">Ordenar por</label>
+                                        <select id="sortBy" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="name">Nome</option>
+                                            <option value="frequency">Frequência</option>
+                                            <option value="category">Categoria</option>
+                                            <option value="evidence">Evidência</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end mt-4 space-x-2">
+                                    <button id="applyFilters" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                                        <i class="fas fa-check mr-2"></i>Aplicar Filtros
+                                    </button>
+                                    <button id="clearFilters" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
+                                        <i class="fas fa-times mr-2"></i>Limpar Filtros
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Container de Resultados -->
+                            <div id="resultsContainer" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+                                <!-- Resultados serão inseridos dinamicamente -->
+                            </div>
+                            
+                            <!-- Paginação -->
+                            <div id="pagination" class="pagination-container">
+                                <!-- Paginação será inserida dinamicamente -->
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção do Banco de Dados CAFL -->
+            <section id="databaseSection" class="db-section">
+                <div class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold text-green-400">
+                            <i class="fas fa-database mr-2"></i>Banco de Dados CAFL
+                        </h2>
+                        <div class="text-sm text-gray-400">
+                            <span id="dbResultCount">0</span> resultados
+                        </div>
+                    </div>
+                    
+                    <!-- Estatísticas do banco de dados -->
+                    <div class="db-stats">
+                        <div class="db-stat">
+                            <div class="db-stat-value" id="totalFreqCount">0</div>
+                            <div class="db-stat-label">Total Frequências</div>
+                        </div>
+                        <div class="db-stat">
+                            <div class="db-stat-value" id="categoryCount">0</div>
+                            <div class="db-stat-label">Categorias</div>
+                        </div>
+                        <div class="db-stat">
+                            <div class="db-stat-value" id="freqRange">0-0</div>
+                            <div class="db-stat-label">Faixa (Hz)</div>
+                        </div>
+                        <div class="db-stat">
+                            <div class="db-stat-value" id="avgFreqCount">0</div>
+                            <div class="db-stat-label">Média Freqs</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filtros Avançados -->
+                    <div class="filter-section mb-6">
+                        <h3 class="text-lg font-semibold mb-4 text-blue-400">
+                            <i class="fas fa-filter mr-2"></i>Filtros Avançados
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="filter-group">
+                                <label class="filter-label">Busca Rápida</label>
+                                <div class="relative">
+                                    <input type="text" id="dbQuickSearch" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Buscar...">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label" for="dbCategoryFilter">Categoria</label>
+                                <select id="dbCategoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Todas as Categorias</option>
+                                    <option value="inflamacao">Inflamação</option>
+                                    <option value="dor">Dor</option>
+                                    <option value="infecao">Infecção</option>
+                                    <option value="parasita">Parasita</option>
+                                    <option value="virus">Vírus</option>
+                                    <option value="bacteria">Bactéria</option>
+                                    <option value="fungo">Fungo</option>
+                                    <option value="cancer">Câncer</option>
+                                    <option value="sistema-nervoso">Sistema Nervoso</option>
+                                    <option value="sistema-digestivo">Sistema Digestivo</option>
+                                    <option value="respiratorio">Respiratório</option>
+                                    <option value="pele">Pele</option>
+                                    <option value="mental">Mental/Emocional</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label">Faixa de Frequência (Hz)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" id="dbMinFreq" placeholder="Mín" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <input type="number" id="dbMaxFreq" placeholder="Máx" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label" for="dbWaveTypeFilter">Tipo de Onda</label>
+                                <select id="dbWaveTypeFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Todos</option>
+                                    <option value="square">Quadrada</option>
+                                    <option value="sine">Senoidal</option>
+                                    <option value="sawtooth">Dente de Serra</option>
+                                    <option value="triangle">Triangular</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end mt-4 space-x-2">
+                            <button id="dbApplyFilters" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-check mr-2"></i>Aplicar Filtros
+                            </button>
+                            <button id="dbClearFilters" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-times mr-2"></i>Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Container de Resultados -->
+                    <div id="dbResultsContainer" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+                        <div class="db-loading">
+                            <div class="db-loading-spinner"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Paginação -->
+                    <div id="dbPagination" class="pagination-container">
+                        <!-- Paginação será inserida dinamicamente -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de Detalhes do Banco de Dados -->
+    <div id="dbDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="modal-content rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="dbModalTitle" class="text-2xl font-bold text-white"></h3>
+                <button onclick="closeDbModal()" class="text-gray-400 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="dbModalContent" class="space-y-4">
+                <!-- Conteúdo do modal será inserido dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão voltar ao topo -->
+    <button id="topBtn" class="top-btn" onclick="scrollToTop()" aria-label="Voltar ao topo">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // ======== VARIÁVEIS GLOBAIS ========
+        let audioContext;
+        let oscillator;
+        let gainNode;
+        let analyser;
+        let isPlaying = false;
+        let currentWaveType = 'sine';
+        let animationId;
+        let timerInterval;
+        let timerSeconds = 0;
+        let history = [];
+        let favorites = [];
+        let protocols = [];
+        let currentProtocol = null;
+        let currentStepIndex = 0;
+        
+        // Dados do banco de frequências terapêuticas
+        const frequencyDatabase = [
+            { id: 1, name: "Foco e Concentração", frequency: 40, category: "concentracao", description: "Frequência para melhorar foco cognitivo e clareza mental.", evidence: "high", waveType: "sine", duration: "15-30 min" },
+            { id: 2, name: "Energia Vital", frequency: 25, category: "energia", description: "Aumenta os níveis de energia e combate a fadiga.", evidence: "medium", waveType: "square", duration: "10-20 min" },
+            { id: 3, name: "Relaxamento Profundo", frequency: 528, category: "relaxamento", description: "Promove relaxamento profundo e redução do estresse.", evidence: "high", waveType: "sine", duration: "20-30 min" },
+            { id: 4, name: "Sono Reparador", frequency: 2.5, category: "sono", description: "Auxilia na indução do sono e melhora sua qualidade.", evidence: "medium", waveType: "sine", duration: "30-60 min" },
+            { id: 5, name: "Meditação", frequency: 432, category: "meditacao", description: "Frequência sagrada para meditação e equilíbrio espiritual.", evidence: "low", waveType: "sine", duration: "15-45 min" },
+            { id: 6, name: "Vermifugação", frequency: 20, category: "vermifugacao", description: "Auxilia na eliminação de parasitas intestinais.", evidence: "low", waveType: "square", duration: "7-10 min" },
+            { id: 7, name: "Anti-inflamatório", frequency: 678, category: "anti-inflamatorio", description: "Reduz processos inflamatórios no corpo.", evidence: "medium", waveType: "sawtooth", duration: "15-20 min" },
+            { id: 8, name: "Cura Celular", frequency: 528, category: "cura", description: "Estimula processos de cura e regeneração celular.", evidence: "high", waveType: "sine", duration: "20-30 min" },
+            { id: 9, name: "Bem-Estar Emocional", frequency: 396, category: "relaxamento", description: "Libera medo e culpa, promovendo bem-estar emocional.", evidence: "medium", waveType: "sine", duration: "15-25 min" },
+            { id: 10, name: "Consciência Elevada", frequency: 963, category: "meditacao", description: "Conecta com estados elevados de consciência.", evidence: "low", waveType: "sine", duration: "20-40 min" }
+        ];
+        
+        let filteredFrequencies = [...frequencyDatabase];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        
+        // Variáveis globais para o banco de dados CAFL
+        let caflData = [];
+        let filteredCaflData = [];
+        let dbCurrentPage = 1;
+        let dbItemsPerPage = 25;
+        let dbFilters = {
+            search: '',
+            category: '',
+            minFreq: '',
+            maxFreq: '',
+            waveType: ''
+        };
+        let dbSortBy = 'name';
+
+        // ======== FUNÇÕES DE INICIALIZAÇÃO ========
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar se deve mostrar o modal de headphones
+            const dontShowAgain = localStorage.getItem('dontShowHeadphonesModal');
+            if (!dontShowAgain) {
+                document.getElementById('headphoneModal').style.display = 'flex';
+            }
+            
+            // Inicializar o AudioContext
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error('Web Audio API não é suportada neste navegador.');
+            }
+            
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Renderizar banco de frequências inicial
+            renderFrequencies();
+            
+            // Inicializar com a seção do gerador visível
+            showSection('generator');
+            
+            // Configurar botão voltar ao topo
+            window.onscroll = () => {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    document.getElementById('topBtn').classList.add('show');
+                } else {
+                    document.getElementById('topBtn').classList.remove('show');
+                }
+            };
+        });
+
+        // ======== FUNÇÕES DO BANCO DE DADOS CAFL ========
+        
+        // Função para alternar entre as seções
+        function showSection(section) {
+            // Esconder todas as seções
+            document.querySelectorAll('.db-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            
+            // Remover classe ativa de todas as abas
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar a seção selecionada
+            document.getElementById(section + 'Section').classList.add('active');
+            document.getElementById(section + 'Tab').classList.add('active');
+            
+            // Carregar dados do banco de dados se necessário
+            if (section === 'database' && caflData.length === 0) {
+                loadCaflData();
+            }
+        }
+        
+        // Função para carregar os dados do CAFL
+        function loadCaflData() {
+            // Mostrar loading
+            document.getElementById('dbResultsContainer').innerHTML = `
+                <div class="db-loading">
+                    <div class="db-loading-spinner"></div>
+                </div>
+            `;
+            
+            // Simular carregamento assíncrono
+            setTimeout(() => {
+                // Dados do CAFL (versão completa)
+                const rawData = `CAFL
+Lista de frequências anotadas consolidada, v2023_05_25, turf@mindspring.com
+Todas as frequências em Hz
+Inflamação abdominal - 2720, 2489, 2170, 2000, 1865, 1800, 1600, 1550, 880, 832, 802, 787, 776, 727, 660, 465, 450, 444, 440, 428, 380, 250, 146, 125, 95, 72, 20, 1,2
+Dor abdominal - 10000, 3000, 95, 3
+Abcessos (também use Staphylococcus aureus e veja Listeriose) - 2720, 2170, 1865, 1550, 880, 802, 787, 727, 500, 444, 190
+Abcessos_1 - 2720, 2170, 1865, 1550, 880, 802, 787, 760, 727, 690, 660, 500, 465, 450, 444, 428, 190
+Abcessos_secundários - 1550, 802, 760, 660, 465, 450, 444, 428
+Acidose (hiperacidez. Também use um suplemento de cálcio e magnésio a longo prazo) - 10000, 880, 802, 787, 776, 727, 146, 20
+Acne (execute 564 por 6 min) - 2720, 2170, 1800, 1600, 1550, 1552, 1500, 802, 880, 778, 787, 760, 741, 727, 660, 564, 465, 450, 444, 428
+Acônito (usado para estimular a produção de linfócitos) - 3347, 5611, 2791
+Actinobacillus (uma bactéria potencialmente patogênica encontrada em mamíferos, 773*, 776*, 778*, 822*) - 488, 565, 672, 674, 678, 773, 766, 768, 776, 777, 778, 822, 885, 887, 7877, 9687, 42664, 42666, 46668, 46787
+Actinomyces_israelii (uma bactéria normalmente encontrada no intestino e na garganta que pode causar buracos profundos e cheios de pus no tecido. Veja também Streptothrix, 222*, 262*, 488*, 567*, 7880*) - 23, 222, 262, 2154, 465, 488, 567, 7880, 10000, 787, 747, 727, 20, 660, 690, 160, 73, 1.1
+Actinomicose (usar Streptothrix)
+Campo_de_perturbação_de_acupuntura (foco na cicatriz) - 5.9
+Dor aguda - 3000, 95, 10000, 1550, 802, 880, 787, 727, 690, 666
+Adenóides - 1550, 802, 880, 787, 776, 727, 444, 20, 428, 660, 2720, 2170, 14, 333, 523, 768, 786, 428, 1865, 590, 690, 780, 807, 810, 1570, 2000
+Adenoma_cervical (tumor epitelial do colo do útero que pode ser benigno ou maligno. Veja também Câncer.) - 433
+Adenovírus (um vírus que pode causar resfriados/gripes e infecções nos pulmões, estômago e intestinos) - 333, 523, 666, 786, 768, 959, 962
+Adenovirus_36 (AD-36 pode estar relacionado ao ganho de peso em alguns casos) - 8875, 6140, 5859, 5797, 5219
+Adenovirus_comp - 10000, 7767, 7762, 7702, 7009, 7001, 6989, 5000, 4868, 2720, 2050, 1500, 1395, 1062, 1060, 1034, 1009, 969, 968, 962, 959, 960, 952, 951, 942, 880, 1550, 802, 787, 768, 728, 690, 660, 555, 523, 522, 1865, 444, 333, 300, 180, 160, 125, 95, 72, 60, 48, 26, 20
+Adenovírus_HC - 28729,05, 16628,88, 18471,00, 18670,15, 19566,32, 1407,93, 827,90, 919,62, 929,53, 974,15
+Aderências - 2720, 2170, 1550, 802, 880, 787, 776, 760, 727, 660, 190
+Anexite (inchaço dos ovários ou trompas de Falópio) - 440, 441, 522, 572, 3343, 3833, 5312
+Estimulante_adrenal - 10, 20, 2250
+Adynamia_geriatric (fadiga da idade) - 410, 220, 100, 60, 27,5
+Aflatoxina (uma toxina prejudicial ao fígado produzida por certos fungos alimentares) - 344, 510, 943, 474, 476, 568
+Aflatoxina_HC - 438,74, 466,01, 9359,97, 8812,31
+Tripanossomíase africana - 656, 988, 780
+Agyfla_HC - 3534,88, 175,99
+AIDS_1 (não para uso nos EUA, veja HIV) - 2489, 465, 727, 787, 880, 1550, 1500, 1,2, 31000, 31750, 34750
+AIDS_2 - 1,44, 1550, 1500, 249, 418, 727, 787, 880, 2489, 3100, 3175, 3475
+AIDS_Kaposis_sarcoma (use Cancer_Kaposis_sarcoma)
+AIDS_secundário (use 1113 por 12 min, 2128 por 16 min, 6121 por 21 min, 33 por 1 min) - 1113, 2128, 6121, 33
+Acatisia - 230, 7,83, 3
+Alcoolismo - 10000
+Alergia (ver também Coqueluche) - 10000, 7344, 5000, 1550, 1234, 740, 880, 835, 787, 727, 500, 330, 160, 30, 3
+Alergia_1 - 10000, 1865, 880, 787, 727, 690, 660, 555, 522, 473, 444, 330, 290, 146, 125, 95, 72, 33, 20, 3
+Allergy_pollen_TR (pulso 64 75, convergência 2 0,03125, permanência 500) - 116113, 119061,03, 119441,8
+Alopecia (perda de cabelo) - 10000, 30000, 5000, 2720, 2170, 1552, 880, 800, 787, 727, 465, 330, 146, 95, 28, 20, 3
+Estreptococo alfa HC - 18919,09, 18670,15, 941,93, 929,53
+ALS_1 (esclerose lateral amiotrópica, possivelmente causada por micoplasma fermentans. Use também MS e veja Echo virus, Coxsackie, Herpes 6, Bartonella e frequências de Lyme. Use 2900 por 30 min) - 2900, 864, 790, 690, 610, 470, 484, 986, 644, 254
+ALS_2 (Potenciais vírus causadores) - 5000, 3636, 2632, 1850, 1500, 1488, 1422, 1189, 1044, 922, 868, 845, 822, 788, 776, 766, 742, 733, 721, 676, 654, 625, 620, 607, 608, 609, 610, 611, 612, 613, 595, 515, 487, 461, 435, 423, 380, 322, 283, 232, 144, 136, 20
+ALS_3 (use 2900 por 60 min) - 2900
+ALS_4 (também usado para MS) - 10000, 5000, 2900, 2750, 2700, 2145, 938, 862, 841, 777, 766, 741, 739, 688, 682, 660, 572, 532, 520, 477, 442, 433, 344, 343, 342, 338, 324, 322, 253, 242, 112
+ALS_5 (use 2900 por 20 min) - 2900, 986, 864, 790, 728, 690, 660, 644, 980, 692, 610, 484, 254
+Alternaria_tenuis (um fungo associado a doenças pulmonares) - 853, 304
+Alzheimers_1 (veja também conjuntos de ELA) - 430, 620, 624, 840, 866, 5148, 2213, 19180,5, 742,4, 303, 23,2, 3773,3, 943,3, 471,66, 470,9, 941,8, 3767,3
+Alzheimer_2 - 19180,5, 2213, 5148, 866, 840, 624, 620, 430
+Alzheimer_TR - 430, 620, 624, 866, 5148, 2213, 1918, 742,4, 303, 23,2, 2900, 864, 790, 690, 610, 470, 484, 986, 644, 254, 30, 33, 6
+Amenorréia (ausência de menstruação) - 10000, 880, 1550, 802, 787, 760, 727, 465, 20
+Ameba (um microrganismo unicelular, às vezes infeccioso) - 310, 333, 532, 732, 769, 827, 1522
+Amoeba_hepar_abcess (abcesso hepático causado por infecção amebiana) - 344, 605, 510, 943
+Disenteria amebiana (use Entamoeba histolytica)
+Esclerose lateral amiotrópica (usar ELA)
+Anal_itching (também use Parasitas enterobíase e veja Conjunto geral de parasitas) - 10000, 880, 787, 760, 727, 465, 125, 120, 95, 72, 444, 1865, 20, 773, 826, 827, 835, 4152
+Anafilaxia - 10000
+Anaplasma_marginale_HC - 19267,60, 959,28, 21010,14, 1046,03
+Aneurisma - 880, 787, 760, 727, 465, 125, 95, 72, 444, 1865, 20, 727
+Angina_angustia (inflamação do gânglio linfático da garganta) - 787, 776, 727, 690, 465, 428, 660
+Angina_pectoris - 3, 230, 2720, 2170, 1800, 1600, 1500, 880, 832, 787, 776, 727, 465, 444, 1865, 125, 95, 72, 20, 660, 7,83
+Espondilite anquilosante (artrite da coluna. Use 326 períodos mais longos após o acúmulo) - 3000, 95, 1550, 802, 880, 787, 776, 727, 650, 625, 600, 28, 10, 35, 28, 7,69, 1,2, 110, 100, 60, 428, 680, 326
+Anosmia (perda do olfato) - 20, 10000
+Antraz (veja também Bacillus_anthracis_HC) - 4000, 16655, 1370, 1365, 930, 900, 768, 633, 500, 420, 414, 400, 273, 224, 129
+Antraz_1 - 644, 643, 642, 639, 638, 637, 634, 633, 632, 629, 628, 627, 624, 623, 622
+Antisséptico (use antisséptico geral)
+Ansiedade_1 (Transtorno de ansiedade geral. Use 1,5 por 3 min, 6,8, 7,8 por 5 min, 95 por 3 min, 10000 por 5 min) - 1,5, 6,8, 7,8, 95, 10000
+Apoplexia_derrame_paralisia - 40, 1800, 880, 787, 727, 650, 625, 600, 125, 95, 72, 20, 1865, 522, 428
+Apendicite (Procure ajuda médica! Se ocorrer microperfuração, a infecção deve ser eliminada antes de beber água
