@@ -3184,5 +3184,29 @@ Campylobacter_pyloridid_HC - 17674,41, 879,96`;
             }
         }
     </script>
+    <script>
+    // Manipulador para fechar o modal de headphones
+    document.getElementById('closeHeadphoneModal').addEventListener('click', function() {
+        const modal = document.getElementById('headphoneModal');
+        const dontShowAgain = document.getElementById('dontShowAgain').checked;
+        
+        // Se o usuário marcou "Não mostrar novamente", armazena essa preferência
+        if (dontShowAgain) {
+            localStorage.setItem('dontShowHeadphoneModal', 'true');
+        }
+        
+        // Fecha o modal
+        modal.style.display = 'none';
+    });
+
+    // Verifica se o usuário já marcou "Não mostrar novamente" em visitas anteriores
+    window.addEventListener('load', function() {
+        const dontShowAgain = localStorage.getItem('dontShowHeadphoneModal');
+        if (dontShowAgain === 'true') {
+            document.getElementById('headphoneModal').style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
+
