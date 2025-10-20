@@ -15,6 +15,9 @@
     <!-- Chart.js para visualizações -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Banco de Dados CAFL -->
+    <script src="cafl_database.js"></script>
+
     <!-- Estilos customizados -->
     <style>
         :root {
@@ -539,112 +542,113 @@
             text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         }
 
-        /* Filtros avançados */
-        .filter-section {
+        /* Seção de Referências Científicas */
+        .references-section {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 3rem;
             border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
-        .filter-group {
-            margin-bottom: 1rem;
+        .reference-card {
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
         }
 
-        .filter-label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
+        .reference-card:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
         }
 
-        .range-slider-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .range-slider {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(59, 130, 246, 0.2);
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .range-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-        }
-
-        .range-value {
-            min-width: 80px;
-            text-align: center;
-            font-weight: 500;
+        .reference-title {
+            font-size: 1.1rem;
+            font-weight: 600;
             color: var(--primary-color);
+            margin-bottom: 0.5rem;
         }
 
-        /* Paginação */
-        .pagination-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .pagination-btn {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: var(--text-primary);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .pagination-btn:hover:not(:disabled) {
-            background: rgba(59, 130, 246, 0.3);
-        }
-
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .pagination-info {
-            font-size: 0.875rem;
+        .reference-authors {
             color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
         }
 
-        /* Modal de detalhes */
-        .detail-modal {
+        .reference-journal {
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reference-summary {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .reference-doi {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .reference-doi:hover {
+            text-decoration: underline;
+        }
+
+        /* Botão Mais Frequências */
+        .more-frequencies-btn {
+            background: linear-gradient(135deg, var(--success-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 3rem auto 0;
+            max-width: 300px;
+        }
+
+        .more-frequencies-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Modal de Banco de Dados Completo */
+        .database-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 3000;
             overflow-y: auto;
             padding: 2rem;
         }
 
-        .detail-content {
+        .database-modal-content {
             background: linear-gradient(135deg, #1e293b, #334155);
             border-radius: 16px;
             padding: 2rem;
-            max-width: 800px;
+            max-width: 1200px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
@@ -653,332 +657,26 @@
             position: relative;
         }
 
-        .detail-close {
+        .database-modal-close {
             position: absolute;
             top: 1rem;
             right: 1rem;
             background: var(--danger-color);
             color: white;
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.2rem;
             transition: background 0.3s ease;
         }
 
-        .detail-close:hover {
+        .database-modal-close:hover {
             background: #dc2626;
-        }
-
-        .detail-header {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .detail-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .detail-subtitle {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .detail-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .detail-tab {
-            padding: 0.75rem 1.5rem;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-
-        .detail-tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .detail-tab:hover {
-            color: var(--text-primary);
-        }
-
-        .detail-tab-content {
-            display: none;
-        }
-
-        .detail-tab-content.active {
-            display: block;
-        }
-
-        .detail-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .detail-section-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .evidence-item {
-            background: rgba(59, 130, 246, 0.05);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .evidence-study {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .evidence-year {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .evidence-description {
-            margin-top: 0.5rem;
-            color: var(--text-secondary);
-        }
-
-        .protocol-item {
-            background: rgba(139, 92, 246, 0.05);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-left: 3px solid var(--secondary-color);
-        }
-
-        .protocol-name {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .protocol-details {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .safety-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .safety-icon {
-            color: var(--warning-color);
-            margin-top: 0.1rem;
-        }
-
-        .synergy-tag {
-            display: inline-block;
-            background: rgba(59, 130, 246, 0.2);
-            color: var(--primary-color);
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Loading spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* No results message */
-        .no-results {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-        }
-
-        .no-results-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        /* Estilos específicos para o banco de dados */
-        .db-section {
-            display: none;
-        }
-        
-        .db-section.active {
-            display: block;
-        }
-        
-        .tab-navigation {
-            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
-            margin-bottom: 1.5rem;
-        }
-        
-        .tab-btn {
-            padding: 0.75rem 1.5rem;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-        
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-        
-        .tab-btn:hover {
-            color: var(--text-primary);
-        }
-        
-        /* Loading spinner para o banco de dados */
-        .db-loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-        }
-        
-        .db-loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top: 4px solid var(--primary-color);
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        
-        /* Estilos para o botão "Ver Todas" */
-        .show-all-btn {
-            background: linear-gradient(135deg, var(--success-color), var(--primary-color));
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .show-all-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
-        }
-        
-        /* Estilos para o botão "Exportar" */
-        .export-btn {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: var(--text-primary);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .export-btn:hover {
-            background: rgba(59, 130, 246, 0.3);
-        }
-        
-        /* Container para opções de visualização */
-        .view-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        /* Estilo para o select de itens por página */
-        .items-per-page {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .items-per-page select {
-            background: var(--card-bg);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: var(--text-primary);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-        }
-        
-        /* Botões de visualização */
-        .view-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .view-btn {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: var(--text-primary);
-            width: 36px;
-            height: 36px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .view-btn.active {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .view-btn:hover:not(.active) {
-            background: rgba(59, 130, 246, 0.3);
         }
     </style>
 </head>
@@ -1049,64 +747,15 @@
             </div>
         </section>
 
-        <!-- Navegação por Abas -->
-        <div class="tab-navigation mb-8">
-            <div class="flex space-x-1">
-                <button id="generatorTab" class="tab-btn active" onclick="showSection('generator')">
-                    <i class="fas fa-wave-square mr-2"></i>Gerador de Frequências
-                </button>
-                <button id="databaseTab" class="tab-btn" onclick="showSection('database')">
-                    <i class="fas fa-database mr-2"></i>Banco de Dados CAFL
-                </button>
-            </div>
-        </div>
-
         <!-- Conteúdo Principal -->
         <main>
             <!-- Seção do Gerador de Frequências -->
-            <section id="generatorSection" class="db-section active">
+            <section id="generatorSection" class="mb-12">
                 <div class="grid lg:grid-cols-12 gap-8">
                     <!-- Coluna 1: Gerador de Frequências + Histórico -->
                     <div class="lg:col-span-5 space-y-6">
                         <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
                             <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
-
-                            <!-- Protocol Controls (inicialmente oculto) -->
-                            <div id="protocolControls" class="protocol-controls hidden mb-6 p-4 bg-gray-900 rounded-lg">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="text-lg font-semibold text-purple-400"><i class="fas fa-tasks mr-2" aria-hidden="true"></i><span id="protocolName">Protocolo Ativo</span></h3>
-                                    <button id="exitProtocolBtn" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Sair do protocolo">
-                                        <i class="fas fa-times mr-1" aria-hidden="true"></i>Sair
-                                    </button>
-                                </div>
-                                <!-- Progress Bar -->
-                                <div class="mb-4">
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span>Progresso do Protocolo</span>
-                                        <span id="protocolProgressText">0/0</span>
-                                    </div>
-                                    <div class="w-full bg-gray-700 rounded-full h-2.5" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                        <div id="protocolProgressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                                <!-- Step Indicators -->
-                                <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist">
-                                    <!-- Indicadores serão adicionados dinamicamente -->
-                                </div>
-                                <!-- Step Navigation -->
-                                <div class="flex justify-between">
-                                    <button id="prevStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Passo anterior">
-                                        <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
-                                    </button>
-                                    <div class="text-center">
-                                        <div class="text-sm text-gray-400">Passo Atual</div>
-                                        <div id="currentStepName" class="font-medium">-</div>
-                                    </div>
-                                    <button id="nextStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Próximo passo">
-                                        Próximo<i class="fas fa-chevron-right ml-2" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </div>
 
                             <div class="space-y-4">
                                 <!-- Frequency Input e Visualizer -->
@@ -1172,24 +821,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Benefícios das Frequências -->
-                                <div class="space-y-3">
-                                    <div class="benefit-card">
-                                        <h4><i class="fas fa-bolt text-yellow-400"></i> Energia e Vitalidade</h4>
-                                        <p>Frequências específicas como 25 Hz e 50 Hz ajudam a aumentar os níveis de energia, combater a fadiga e melhorar a disposição para atividades diárias.</p>
-                                    </div>
-                                    
-                                    <div class="benefit-card">
-                                        <h4><i class="fas fa-brain text-blue-400"></i> Foco e Concentração</h4>
-                                        <p>Frequências na faixa de 40 Hz (ondas Gama) estão associadas à melhora da cognição, memória e capacidade de concentração prolongada.</p>
-                                    </div>
-                                    
-                                    <div class="benefit-card">
-                                        <h4><i class="fas fa-heart text-red-400"></i> Bem-Estar Emocional</h4>
-                                        <p>Frequências como 285 Hz e 639 Hz podem ajudar a reduzir sintomas de depressão, ansiedade e promover equilíbrio emocional.</p>
-                                    </div>
-                                </div>
-
                                 <!-- Current Frequency Info -->
                                 <div id="currentInfo" class="bg-gray-900 rounded-lg p-4">
                                     <div class="text-xl font-bold text-blue-400">40 Hz</div>
@@ -1222,193 +853,59 @@
                         </section>
                     </div>
 
-                    <!-- Coluna 2: Banco de Dados de Frequências -->
+                    <!-- Coluna 2: Frequências Principais -->
                     <div class="lg:col-span-7 space-y-6">
-                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="main-frequencies-heading">
                             <div class="flex justify-between items-center mb-6">
-                                <h2 id="database-heading" class="text-2xl font-semibold text-green-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados CAFL Completo</h2>
-                                <div class="text-sm text-gray-400"><span id="resultCount">0</span> frequências terapêuticas</div>
+                                <h2 id="main-frequencies-heading" class="text-2xl font-semibold text-green-400"><i class="fas fa-star mr-2" aria-hidden="true"></i>Frequências Principais</h2>
+                                <div class="text-sm text-gray-400"><span id="mainResultCount">5</span> frequências terapêuticas</div>
                             </div>
                             
-                            <!-- Filtros Avançados -->
-                            <div class="filter-section mb-6">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="filter-group">
-                                        <label for="searchInput" class="filter-label">Buscar</label>
-                                        <input type="text" id="searchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Nome, descrição ou categoria">
-                                    </div>
-                                    
-                                    <div class="filter-group">
-                                        <label for="categoryFilter" class="filter-label">Categoria</label>
-                                        <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                                            <option value="all">Todas as Categorias</option>
-                                            <option value="Dor">Dor</option>
-                                            <option value="Concentração">Concentração</option>
-                                            <option value="Inflamação">Inflamação</option>
-                                            <option value="Energia">Energia</option>
-                                            <option value="Sono">Sono</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="filter-group">
-                                        <label for="evidenceFilter" class="filter-label">Nível de Evidência</label>
-                                        <select id="evidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                                            <option value="all">Todos</option>
-                                            <option value="high">Alta Evidência</option>
-                                            <option value="medium">Média Evidência</option>
-                                            <option value="low">Baixa Evidência</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Container de Frequências -->
-                            <div class="database-container" id="frequenciesContainer">
-                                <div id="frequenciesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <!-- Cards de frequência serão adicionados aqui -->
-                                </div>
-                                
-                                <!-- Loading Spinner -->
-                                <div id="dbLoading" class="db-loading hidden">
-                                    <div class="db-loading-spinner"></div>
-                                </div>
-                                
-                                <!-- No Results Message -->
-                                <div id="noResults" class="no-results hidden">
-                                    <div class="no-results-icon">
-                                        <i class="fas fa-search"></i>
-                                    </div>
-                                    <h3 class="text-xl font-medium mb-2">Nenhuma frequência encontrada</h3>
-                                    <p>Tente ajustar seus filtros ou termos de busca</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Paginação -->
-                            <div class="pagination-container">
-                                <button id="prevPageBtn" class="pagination-btn" disabled>
-                                    <i class="fas fa-chevron-left mr-2"></i>Anterior
-                                </button>
-                                <div class="pagination-info">
-                                    Página <span id="currentPage">1</span> de <span id="totalPages">1</span>
-                                </div>
-                                <button id="nextPageBtn" class="pagination-btn" disabled>
-                                    Próximo<i class="fas fa-chevron-right ml-2"></i>
-                                </button>
+                            <!-- Container de Frequências Principais -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="mainFrequenciesList">
+                                <!-- Cards de frequência serão adicionados aqui -->
                             </div>
                         </section>
+
+                        <!-- Benefícios das Frequências -->
+                        <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+                            <h2 class="text-2xl font-semibold mb-6 text-yellow-400"><i class="fas fa-lightbulb mr-2" aria-hidden="true"></i>Benefícios das Frequências Terapêuticas</h2>
+                            
+                            <div class="space-y-3">
+                                <div class="benefit-card">
+                                    <h4><i class="fas fa-bolt text-yellow-400"></i> Energia e Vitalidade</h4>
+                                    <p>Frequências específicas como 25 Hz e 50 Hz ajudam a aumentar os níveis de energia, combater a fadiga e melhorar a disposição para atividades diárias.</p>
+                                </div>
+                                
+                                <div class="benefit-card">
+                                    <h4><i class="fas fa-brain text-blue-400"></i> Foco e Concentração</h4>
+                                    <p>Frequências na faixa de 40 Hz (ondas Gama) estão associadas à melhora da cognição, memória e capacidade de concentração prolongada.</p>
+                                </div>
+                                
+                                <div class="benefit-card">
+                                    <h4><i class="fas fa-heart text-red-400"></i> Bem-Estar Emocional</h4>
+                                    <p>Frequências como 285 Hz e 639 Hz podem ajudar a reduzir sintomas de depressão, ansiedade e promover equilíbrio emocional.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Botão Mais Frequências -->
+                        <button id="moreFrequenciesBtn" class="more-frequencies-btn">
+                            <i class="fas fa-database"></i>
+                            <span>Acessar Banco de Dados Completo</span>
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- Seção do Banco de Dados CAFL -->
-            <section id="databaseSection" class="db-section">
-                <div class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-semibold text-green-400"><i class="fas fa-database mr-2"></i>Banco de Dados CAFL Completo</h2>
-                        <div class="flex space-x-2">
-                            <button class="export-btn">
-                                <i class="fas fa-file-export mr-2"></i>Exportar
-                            </button>
-                            <button class="show-all-btn">
-                                <i class="fas fa-list mr-2"></i>Ver Todas
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Filtros Avançados -->
-                    <div class="filter-section mb-6">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div class="filter-group">
-                                <label for="dbSearchInput" class="filter-label">Buscar</label>
-                                <input type="text" id="dbSearchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Nome, descrição ou categoria">
-                            </div>
-                            
-                            <div class="filter-group">
-                                <label for="dbCategoryFilter" class="filter-label">Categoria</label>
-                                <select id="dbCategoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                                    <option value="all">Todas as Categorias</option>
-                                    <option value="Dor">Dor</option>
-                                    <option value="Concentração">Concentração</option>
-                                    <option value="Inflamação">Inflamação</option>
-                                    <option value="Energia">Energia</option>
-                                    <option value="Sono">Sono</option>
-                                </select>
-                            </div>
-                            
-                            <div class="filter-group">
-                                <label for="dbEvidenceFilter" class="filter-label">Nível de Evidência</label>
-                                <select id="dbEvidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                                    <option value="all">Todos</option>
-                                    <option value="high">Alta Evidência</option>
-                                    <option value="medium">Média Evidência</option>
-                                    <option value="low">Baixa Evidência</option>
-                                </select>
-                            </div>
-                            
-                            <div class="filter-group">
-                                <label for="dbFrequencyRange" class="filter-label">Faixa de Frequência</label>
-                                <div class="range-slider-container">
-                                    <input type="range" id="dbFrequencyRange" class="range-slider" min="20" max="20000" value="10000">
-                                    <div class="range-value">20-20000 Hz</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Opções de Visualização -->
-                    <div class="view-options mb-4">
-                        <div class="items-per-page">
-                            <span>Itens por página:</span>
-                            <select id="itemsPerPage">
-                                <option value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                        </div>
-                        <div class="view-buttons">
-                            <button class="view-btn active" data-view="grid">
-                                <i class="fas fa-th"></i>
-                            </button>
-                            <button class="view-btn" data-view="list">
-                                <i class="fas fa-list"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Container de Frequências -->
-                    <div class="database-container" id="dbFrequenciesContainer">
-                        <div id="dbFrequenciesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Cards de frequência serão adicionados aqui -->
-                        </div>
-                        
-                        <!-- Loading Spinner -->
-                        <div id="dbLoading" class="db-loading hidden">
-                            <div class="db-loading-spinner"></div>
-                        </div>
-                        
-                        <!-- No Results Message -->
-                        <div id="dbNoResults" class="no-results hidden">
-                            <div class="no-results-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <h3 class="text-xl font-medium mb-2">Nenhuma frequência encontrada</h3>
-                            <p>Tente ajustar seus filtros ou termos de busca</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Paginação -->
-                    <div class="pagination-container">
-                        <button id="dbPrevPageBtn" class="pagination-btn" disabled>
-                            <i class="fas fa-chevron-left mr-2"></i>Anterior
-                        </button>
-                        <div class="pagination-info">
-                            Página <span id="dbCurrentPage">1</span> de <span id="dbTotalPages">1</span>
-                        </div>
-                        <button id="dbNextPageBtn" class="pagination-btn" disabled>
-                            Próximo<i class="fas fa-chevron-right ml-2"></i>
-                        </button>
-                    </div>
+            <!-- Seção de Referências Científicas -->
+            <section class="references-section">
+                <h2 class="text-2xl font-semibold mb-6 text-purple-400">
+                    <i class="fas fa-book-medical mr-2"></i>Referências Científicas
+                </h2>
+                
+                <div id="scientificReferences" class="space-y-4">
+                    <!-- Referências serão adicionadas aqui -->
                 </div>
             </section>
         </main>
@@ -1417,6 +914,115 @@
         <button id="topBtn" onclick="scrollToTop()" aria-label="Voltar ao topo">
             <i class="fas fa-arrow-up"></i>
         </button>
+    </div>
+
+    <!-- Modal de Banco de Dados Completo -->
+    <div id="databaseModal" class="database-modal hidden">
+        <div class="database-modal-content">
+            <button id="closeDatabaseModal" class="database-modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-green-400 mb-2">Banco de Dados CAFL Completo</h2>
+                <p class="text-gray-400">Acesse todas as frequências terapêuticas disponíveis no banco de dados CAFL</p>
+            </div>
+            
+            <!-- Filtros Avançados -->
+            <div class="filter-section mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="filter-group">
+                        <label for="dbSearchInput" class="filter-label">Buscar</label>
+                        <input type="text" id="dbSearchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Nome, descrição ou categoria">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="dbCategoryFilter" class="filter-label">Categoria</label>
+                        <select id="dbCategoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="all">Todas as Categorias</option>
+                            <option value="Dor">Dor</option>
+                            <option value="Concentração">Concentração</option>
+                            <option value="Inflamação">Inflamação</option>
+                            <option value="Energia">Energia</option>
+                            <option value="Sono">Sono</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="dbEvidenceFilter" class="filter-label">Nível de Evidência</label>
+                        <select id="dbEvidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="all">Todos</option>
+                            <option value="high">Alta Evidência</option>
+                            <option value="medium">Média Evidência</option>
+                            <option value="low">Baixa Evidência</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="dbFrequencyRange" class="filter-label">Faixa de Frequência</label>
+                        <div class="range-slider-container">
+                            <input type="range" id="dbFrequencyRange" class="range-slider" min="20" max="20000" value="10000">
+                            <div class="range-value">20-20000 Hz</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Opções de Visualização -->
+            <div class="view-options mb-4">
+                <div class="items-per-page">
+                    <span>Itens por página:</span>
+                    <select id="itemsPerPage">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="view-buttons">
+                    <button class="view-btn active" data-view="grid">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" data-view="list">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Container de Frequências -->
+            <div class="database-container" id="dbFrequenciesContainer">
+                <div id="dbFrequenciesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Cards de frequência serão adicionados aqui -->
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div id="dbLoading" class="db-loading hidden">
+                    <div class="db-loading-spinner"></div>
+                </div>
+                
+                <!-- No Results Message -->
+                <div id="dbNoResults" class="no-results hidden">
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="text-xl font-medium mb-2">Nenhuma frequência encontrada</h3>
+                    <p>Tente ajustar seus filtros ou termos de busca</p>
+                </div>
+            </div>
+            
+            <!-- Paginação -->
+            <div class="pagination-container">
+                <button id="dbPrevPageBtn" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left mr-2"></i>Anterior
+                </button>
+                <div class="pagination-info">
+                    Página <span id="dbCurrentPage">1</span> de <span id="dbTotalPages">1</span>
+                </div>
+                <button id="dbNextPageBtn" class="pagination-btn" disabled>
+                    Próximo<i class="fas fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Detalhes da Frequência -->
@@ -1563,123 +1169,6 @@
     </div>
 
     <script>
-        // Dados das frequências terapêuticas - Banco de Dados CAFL Completo
-        const frequenciesData = [
-            // Inflamação abdominal
-            { id: 1, name: "Inflamação abdominal", frequency: 2720, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 2, name: "Inflamação abdominal", frequency: 2489, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 3, name: "Inflamação abdominal", frequency: 2170, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 4, name: "Inflamação abdominal", frequency: 2000, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 5, name: "Inflamação abdominal", frequency: 1865, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 6, name: "Inflamação abdominal", frequency: 1800, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 7, name: "Inflamação abdominal", frequency: 1600, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 8, name: "Inflamação abdominal", frequency: 1550, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 9, name: "Inflamação abdominal", frequency: 880, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 10, name: "Inflamação abdominal", frequency: 832, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 11, name: "Inflamação abdominal", frequency: 802, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 12, name: "Inflamação abdominal", frequency: 787, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 13, name: "Inflamação abdominal", frequency: 776, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 14, name: "Inflamação abdominal", frequency: 727, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 15, name: "Inflamação abdominal", frequency: 660, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 16, name: "Inflamação abdominal", frequency: 465, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 17, name: "Inflamação abdominal", frequency: 450, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 18, name: "Inflamação abdominal", frequency: 444, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 19, name: "Inflamação abdominal", frequency: 440, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 20, name: "Inflamação abdominal", frequency: 428, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 21, name: "Inflamação abdominal", frequency: 380, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 22, name: "Inflamação abdominal", frequency: 250, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 23, name: "Inflamação abdominal", frequency: 146, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 24, name: "Inflamação abdominal", frequency: 125, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 25, name: "Inflamação abdominal", frequency: 95, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 26, name: "Inflamação abdominal", frequency: 72, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 27, name: "Inflamação abdominal", frequency: 20, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 28, name: "Inflamação abdominal", frequency: 1.2, category: "Inflamação", description: "Frequência para reduzir inflamações na região abdominal", evidence: "medium", benefits: ["Redução da inflamação", "Alívio da dor"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            
-            // Dor abdominal
-            { id: 29, name: "Dor abdominal", frequency: 10000, category: "Dor", description: "Frequência para alívio de dores abdominais", evidence: "medium", benefits: ["Alívio da dor", "Redução do desconforto"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 30, name: "Dor abdominal", frequency: 3000, category: "Dor", description: "Frequência para alívio de dores abdominais", evidence: "medium", benefits: ["Alívio da dor", "Redução do desconforto"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 31, name: "Dor abdominal", frequency: 95, category: "Dor", description: "Frequência para alívio de dores abdominais", evidence: "medium", benefits: ["Alívio da dor", "Redução do desconforto"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 32, name: "Dor abdominal", frequency: 3, category: "Dor", description: "Frequência para alívio de dores abdominais", evidence: "medium", benefits: ["Alívio da dor", "Redução do desconforto"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            
-            // Abcessos
-            { id: 33, name: "Abcessos", frequency: 2720, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 34, name: "Abcessos", frequency: 2170, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 35, name: "Abcessos", frequency: 1865, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 36, name: "Abcessos", frequency: 1550, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 37, name: "Abcessos", frequency: 880, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 38, name: "Abcessos", frequency: 802, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 39, name: "Abcessos", frequency: 787, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 40, name: "Abcessos", frequency: 727, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 41, name: "Abcessos", frequency: 500, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 42, name: "Abcessos", frequency: 444, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            { id: 43, name: "Abcessos", frequency: 190, category: "Inflamação", description: "Frequência para tratamento de abcessos", evidence: "medium", benefits: ["Redução da infecção", "Cicatrização"], protocols: [], references: [], synergy: [], safety: "Use com moderação" },
-            
-            // Adicionei apenas alguns exemplos para manter o código gerenciável
-            // O arquivo original contém centenas de frequências
-            
-            // Foco e Concentração
-            { id: 44, name: "Foco e Concentração", frequency: 40, category: "Concentração", description: "Frequência para melhorar foco cognitivo e clareza mental", evidence: "high", benefits: ["Melhora do foco", "Aumento da clareza mental", "Estímulo cognitivo"], protocols: [
-                {
-                    name: "Protocolo de Foco Matinal",
-                    description: "Use por 15 minutos pela manhã para aumentar a clareza mental",
-                    steps: [
-                        { frequency: 40, duration: 15, waveType: "sine", description: "Estimulação cognitiva matinal" }
-                    ]
-                },
-                {
-                    name: "Protocolo de Estudo",
-                    description: "Use durante sessões de estudo para melhorar a retenção",
-                    steps: [
-                        { frequency: 40, duration: 30, waveType: "sine", description: "Estímulo durante o estudo" }
-                    ]
-                }
-            ], references: ["Smith, J. et al. (2020). Gamma Frequency Stimulation and Cognitive Enhancement", "Johnson, R. & Lee, K. (2018). Therapeutic Frequencies: A Comprehensive Review"], synergy: ["Ondas Alfa", "Meditação"], safety: "Não usar em caso de epilepsia" },
-            
-            // Energia e Vitalidade
-            { id: 45, name: "Energia e Vitalidade", frequency: 25, category: "Energia", description: "Frequência para aumentar os níveis de energia e combater a fadiga", evidence: "medium", benefits: ["Aumento da energia", "Redução da fadiga", "Melhora do ânimo"], protocols: [
-                {
-                    name: "Protocolo Energético Matinal",
-                    description: "Use por 10 minutos ao acordar para aumentar os níveis de energia",
-                    steps: [
-                        { frequency: 25, duration: 10, waveType: "sine", description: "Estímulo energético matinal" }
-                    ]
-                }
-            ], references: ["Garcia, M. et al. (2019). Neural Oscillations and Energy Levels"], synergy: ["Vitamina B12", "Exercícios físicos"], safety: "Não usar antes de dormir" },
-            
-            // Sono Reparador
-            { id: 46, name: "Sono Reparador", frequency: 2.5, category: "Sono", description: "Frequência para induzir sono profundo e reparador", evidence: "medium", benefits: ["Melhora da qualidade do sono", "Redução da insônia", "Descanso reparador"], protocols: [
-                {
-                    name: "Protocolo Noturno",
-                    description: "Use 30 minutos antes de dormir para preparar o corpo para o sono",
-                    steps: [
-                        { frequency: 2.5, duration: 15, waveType: "sine", description: "Preparação para o sono" }
-                    ]
-                }
-            ], references: ["Martinez, P. et al. (2021). Delta Waves and Sleep Quality"], synergy: ["Rotina noturna", "Ambiente escuro"], safety: "Não usar durante atividades que requerem atenção" },
-            
-            // Equilíbrio Emocional
-            { id: 47, name: "Equilíbrio Emocional", frequency: 639, category: "Concentração", description: "Frequência para promover equilíbrio emocional e reduzir ansiedade", evidence: "medium", benefits: ["Redução da ansiedade", "Equilíbrio emocional", "Bem-estar"], protocols: [
-                {
-                    name: "Protocolo de Relaxamento",
-                    description: "Use durante momentos de estresse para acalmar a mente",
-                    steps: [
-                        { frequency: 639, duration: 20, waveType: "sine", description: "Relaxamento emocional" }
-                    ]
-                }
-            ], references: ["Silva, A. et al. (2019). Emotional Balance and Sound Frequencies"], synergy: ["Respiração profunda", "Meditação"], safety: "Use em ambiente tranquilo" },
-            
-            // Alívio da Dor
-            { id: 48, name: "Alívio da Dor", frequency: 95, category: "Dor", description: "Frequência para alívio de dores gerais", evidence: "medium", benefits: ["Redução da dor", "Alívio do desconforto", "Relaxamento muscular"], protocols: [
-                {
-                    name: "Protocolo de Alívio da Dor",
-                    description: "Use por 15 minutos para aliviar dores musculares e articulares",
-                    steps: [
-                        { frequency: 95, duration: 15, waveType: "sine", description: "Alívio da dor" }
-                    ]
-                }
-            ], references: ["Rodrigues, L. et al. (2020). Pain Management with Sound Frequencies"], synergy: ["Alongamento", "Massagem"], safety: "Consulte um médico para dores crônicas" }
-        ];
-
         // Variáveis globais
         let audioContext = null;
         let oscillator = null;
@@ -1691,30 +1180,21 @@
         let timerSeconds = 0;
         let history = [];
         let favorites = [];
-        let currentProtocol = null;
-        let currentStep = 0;
         
         // Variáveis de paginação e filtros
-        let currentPage = 1;
-        let itemsPerPage = 10;
-        let filteredData = [...frequenciesData];
         let dbCurrentPage = 1;
         let dbItemsPerPage = 20;
-        let dbFilteredData = [...frequenciesData];
+        let dbFilteredData = [...CAFL_DATABASE.fullDatabase];
         let currentView = 'grid';
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
             initializeAudio();
             setupEventListeners();
-            updateFrequenciesList();
-            updateResultCount();
+            updateMainFrequenciesList();
+            updateScientificReferences();
             initializeWaveVisualizer();
             updateHistoryList();
-            
-            // Configurar abas
-            document.getElementById('generatorTab').classList.add('active');
-            document.getElementById('generatorSection').classList.add('active');
         });
         
         // Inicializar contexto de áudio
@@ -1766,14 +1246,11 @@
             // Botão de favoritos
             document.getElementById('favoriteBtn').addEventListener('click', toggleFavorite);
             
-            // Filtros
-            document.getElementById('searchInput').addEventListener('input', filterFrequencies);
-            document.getElementById('categoryFilter').addEventListener('change', filterFrequencies);
-            document.getElementById('evidenceFilter').addEventListener('change', filterFrequencies);
+            // Botão Mais Frequências
+            document.getElementById('moreFrequenciesBtn').addEventListener('click', openDatabaseModal);
             
-            // Paginação
-            document.getElementById('prevPageBtn').addEventListener('click', () => changePage(-1));
-            document.getElementById('nextPageBtn').addEventListener('click', () => changePage(1));
+            // Modal de banco de dados
+            document.getElementById('closeDatabaseModal').addEventListener('click', closeDatabaseModal);
             
             // Filtros do banco de dados
             document.getElementById('dbSearchInput').addEventListener('input', filterDbFrequencies);
@@ -1810,11 +1287,6 @@
                     openDetailTab(tabName);
                 });
             });
-            
-            // Protocolos
-            document.getElementById('exitProtocolBtn').addEventListener('click', exitProtocol);
-            document.getElementById('prevStepBtn').addEventListener('click', prevProtocolStep);
-            document.getElementById('nextStepBtn').addEventListener('click', nextProtocolStep);
             
             // Botão voltar ao topo
             window.addEventListener('scroll', function() {
@@ -1984,8 +1456,8 @@
         
         // Atualizar informações da frequência atual
         function updateCurrentFrequencyInfo(frequency) {
-            // Buscar informações no banco de dados
-            const frequencyInfo = frequenciesData.find(item => item.frequency === frequency);
+            // Buscar informações no banco de dados principal
+            const frequencyInfo = CAFL_DATABASE.mainFrequencies.find(item => item.frequency === frequency);
             
             if (frequencyInfo) {
                 document.getElementById('currentInfo').innerHTML = `
@@ -2081,7 +1553,7 @@
                 alert('Removido dos favoritos!');
             } else {
                 // Adicionar aos favoritos
-                const frequencyInfo = frequenciesData.find(item => item.id === frequencyId);
+                const frequencyInfo = CAFL_DATABASE.mainFrequencies.find(item => item.id === frequencyId);
                 if (frequencyInfo) {
                     favorites.push(frequencyInfo);
                     document.getElementById('favoriteBtn').innerHTML = '<i class="fas fa-star mr-2"></i>Remover dos Favoritos';
@@ -2090,116 +1562,34 @@
             }
         }
         
-        // Filtrar frequências
-        function filterFrequencies() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const evidenceFilter = document.getElementById('evidenceFilter').value;
+        // Atualizar lista de frequências principais
+        function updateMainFrequenciesList() {
+            const mainFrequenciesList = document.getElementById('mainFrequenciesList');
+            mainFrequenciesList.innerHTML = '';
             
-            filteredData = frequenciesData.filter(item => {
-                const matchesSearch = searchTerm === '' || 
-                    item.name.toLowerCase().includes(searchTerm) || 
-                    item.description.toLowerCase().includes(searchTerm) ||
-                    item.category.toLowerCase().includes(searchTerm);
-                
-                const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
-                const matchesEvidence = evidenceFilter === 'all' || item.evidence === evidenceFilter;
-                
-                return matchesSearch && matchesCategory && matchesEvidence;
+            CAFL_DATABASE.mainFrequencies.forEach(item => {
+                const frequencyCard = createFrequencyCard(item);
+                mainFrequenciesList.appendChild(frequencyCard);
             });
-            
-            currentPage = 1;
-            updateFrequenciesList();
-            updateResultCount();
         }
         
-        // Filtrar frequências do banco de dados
-        function filterDbFrequencies() {
-            const searchTerm = document.getElementById('dbSearchInput').value.toLowerCase();
-            const categoryFilter = document.getElementById('dbCategoryFilter').value;
-            const evidenceFilter = document.getElementById('dbEvidenceFilter').value;
-            const maxFrequency = parseInt(document.getElementById('dbFrequencyRange').value);
+        // Atualizar referências científicas
+        function updateScientificReferences() {
+            const referencesContainer = document.getElementById('scientificReferences');
+            referencesContainer.innerHTML = '';
             
-            dbFilteredData = frequenciesData.filter(item => {
-                const matchesSearch = searchTerm === '' || 
-                    item.name.toLowerCase().includes(searchTerm) || 
-                    item.description.toLowerCase().includes(searchTerm) ||
-                    item.category.toLowerCase().includes(searchTerm);
-                
-                const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
-                const matchesEvidence = evidenceFilter === 'all' || item.evidence === evidenceFilter;
-                const matchesFrequency = item.frequency <= maxFrequency;
-                
-                return matchesSearch && matchesCategory && matchesEvidence && matchesFrequency;
+            CAFL_DATABASE.scientificReferences.forEach(reference => {
+                const referenceCard = document.createElement('div');
+                referenceCard.className = 'reference-card';
+                referenceCard.innerHTML = `
+                    <h3 class="reference-title">${reference.title}</h3>
+                    <div class="reference-authors">${reference.authors} (${reference.year})</div>
+                    <div class="reference-journal">${reference.journal}, ${reference.volume}${reference.issue ? `(${reference.issue})` : ''}, pp. ${reference.pages}</div>
+                    <p class="reference-summary">${reference.summary}</p>
+                    <a href="https://doi.org/${reference.doi}" target="_blank" class="reference-doi">DOI: ${reference.doi}</a>
+                `;
+                referencesContainer.appendChild(referenceCard);
             });
-            
-            dbCurrentPage = 1;
-            updateDbFrequenciesList();
-            updateDbResultCount();
-            
-            // Atualizar texto da faixa de frequência
-            document.querySelector('.range-value').textContent = `20-${maxFrequency} Hz`;
-        }
-        
-        // Atualizar lista de frequências
-        function updateFrequenciesList() {
-            const frequenciesList = document.getElementById('frequenciesList');
-            frequenciesList.innerHTML = '';
-            
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedData = filteredData.slice(startIndex, endIndex);
-            
-            if (paginatedData.length === 0) {
-                document.getElementById('noResults').classList.remove('hidden');
-                document.getElementById('frequenciesList').classList.add('hidden');
-            } else {
-                document.getElementById('noResults').classList.add('hidden');
-                document.getElementById('frequenciesList').classList.remove('hidden');
-                
-                paginatedData.forEach(item => {
-                    const frequencyCard = createFrequencyCard(item);
-                    frequenciesList.appendChild(frequencyCard);
-                });
-            }
-            
-            updatePagination();
-        }
-        
-        // Atualizar lista de frequências do banco de dados
-        function updateDbFrequenciesList() {
-            const dbFrequenciesList = document.getElementById('dbFrequenciesList');
-            dbFrequenciesList.innerHTML = '';
-            
-            const startIndex = (dbCurrentPage - 1) * dbItemsPerPage;
-            const endIndex = startIndex + dbItemsPerPage;
-            const paginatedData = dbFilteredData.slice(startIndex, endIndex);
-            
-            if (paginatedData.length === 0) {
-                document.getElementById('dbNoResults').classList.remove('hidden');
-                document.getElementById('dbFrequenciesList').classList.add('hidden');
-            } else {
-                document.getElementById('dbNoResults').classList.add('hidden');
-                document.getElementById('dbFrequenciesList').classList.remove('hidden');
-                
-                if (currentView === 'grid') {
-                    dbFrequenciesList.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
-                    
-                    paginatedData.forEach(item => {
-                        const frequencyCard = createFrequencyCard(item);
-                        dbFrequenciesList.appendChild(frequencyCard);
-                    });
-                } else {
-                    dbFrequenciesList.className = 'space-y-4';
-                    
-                    paginatedData.forEach(item => {
-                        const listItem = createFrequencyListItem(item);
-                        dbFrequenciesList.appendChild(listItem);
-                    });
-                }
-            }
-            
-            updateDbPagination();
         }
         
         // Criar card de frequência
@@ -2251,13 +1641,136 @@
             return card;
         }
         
-        // Criar item de lista de frequência
-        function createFrequencyListItem(item) {
+        // Abrir modal de banco de dados
+        function openDatabaseModal() {
+            document.getElementById('databaseModal').classList.remove('hidden');
+            updateDbFrequenciesList();
+        }
+        
+        // Fechar modal de banco de dados
+        function closeDatabaseModal() {
+            document.getElementById('databaseModal').classList.add('hidden');
+        }
+        
+        // Filtrar frequências do banco de dados
+        function filterDbFrequencies() {
+            const searchTerm = document.getElementById('dbSearchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('dbCategoryFilter').value;
+            const evidenceFilter = document.getElementById('dbEvidenceFilter').value;
+            const maxFrequency = parseInt(document.getElementById('dbFrequencyRange').value);
+            
+            dbFilteredData = CAFL_DATABASE.fullDatabase.filter(item => {
+                const matchesSearch = searchTerm === '' || 
+                    item.name.toLowerCase().includes(searchTerm) || 
+                    item.description.toLowerCase().includes(searchTerm) ||
+                    item.category.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+                const matchesEvidence = evidenceFilter === 'all' || item.evidence === evidenceFilter;
+                const matchesFrequency = item.frequency <= maxFrequency;
+                
+                return matchesSearch && matchesCategory && matchesEvidence && matchesFrequency;
+            });
+            
+            dbCurrentPage = 1;
+            updateDbFrequenciesList();
+            
+            // Atualizar texto da faixa de frequência
+            document.querySelector('.range-value').textContent = `20-${maxFrequency} Hz`;
+        }
+        
+        // Atualizar lista de frequências do banco de dados
+        function updateDbFrequenciesList() {
+            const dbFrequenciesList = document.getElementById('dbFrequenciesList');
+            dbFrequenciesList.innerHTML = '';
+            
+            const startIndex = (dbCurrentPage - 1) * dbItemsPerPage;
+            const endIndex = startIndex + dbItemsPerPage;
+            const paginatedData = dbFilteredData.slice(startIndex, endIndex);
+            
+            if (paginatedData.length === 0) {
+                document.getElementById('dbNoResults').classList.remove('hidden');
+                document.getElementById('dbFrequenciesList').classList.add('hidden');
+            } else {
+                document.getElementById('dbNoResults').classList.add('hidden');
+                document.getElementById('dbFrequenciesList').classList.remove('hidden');
+                
+                if (currentView === 'grid') {
+                    dbFrequenciesList.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+                    
+                    paginatedData.forEach(item => {
+                        const frequencyCard = createDbFrequencyCard(item);
+                        dbFrequenciesList.appendChild(frequencyCard);
+                    });
+                } else {
+                    dbFrequenciesList.className = 'space-y-4';
+                    
+                    paginatedData.forEach(item => {
+                        const listItem = createDbFrequencyListItem(item);
+                        dbFrequenciesList.appendChild(listItem);
+                    });
+                }
+            }
+            
+            updateDbPagination();
+        }
+        
+        // Criar card de frequência para o banco de dados
+        function createDbFrequencyCard(item) {
+            const card = document.createElement('div');
+            card.className = 'frequency-card bg-gray-700 rounded-lg p-4 cursor-pointer';
+            card.dataset.frequencyId = item.id;
+            
+            const evidenceClass = item.evidence ? `evidence-${item.evidence}` : 'evidence-low';
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold text-lg">${item.name}</h3>
+                    <span class="evidence-badge ${evidenceClass}">${item.evidence === 'high' ? 'Alta' : item.evidence === 'medium' ? 'Média' : 'Baixa'}</span>
+                </div>
+                <div class="text-2xl font-bold text-blue-400 mb-2">${item.frequency} Hz</div>
+                <div class="mb-3">
+                    <span class="category-badge bg-blue-600">${item.category}</span>
+                </div>
+                <p class="text-sm text-gray-300 mb-4">${item.description}</p>
+                <div class="flex justify-between items-center">
+                    <button class="play-frequency-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition">
+                        <i class="fas fa-play mr-1"></i> Tocar
+                    </button>
+                    <button class="view-details-btn text-gray-400 hover:text-white transition">
+                        <i class="fas fa-info-circle"></i> Detalhes
+                    </button>
+                </div>
+            `;
+            
+            // Event listeners
+            card.querySelector('.play-frequency-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('frequency').value = item.frequency;
+                updateCurrentFrequencyInfo(item.frequency);
+                playFrequency();
+            });
+            
+            card.querySelector('.view-details-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                showFrequencyDetails(item);
+            });
+            
+            card.addEventListener('click', () => {
+                document.getElementById('frequency').value = item.frequency;
+                updateCurrentFrequencyInfo(item.frequency);
+            });
+            
+            return card;
+        }
+        
+        // Criar item de lista de frequência para o banco de dados
+        function createDbFrequencyListItem(item) {
             const listItem = document.createElement('div');
             listItem.className = 'bg-gray-700 rounded-lg p-4 flex items-center';
             listItem.dataset.frequencyId = item.id;
             
-            const evidenceClass = `evidence-${item.evidence}`;
+            const evidenceClass = item.evidence ? `evidence-${item.evidence}` : 'evidence-low';
             
             listItem.innerHTML = `
                 <div class="flex-1">
@@ -2304,7 +1817,7 @@
         function showFrequencyDetails(item) {
             document.getElementById('detailTitle').textContent = item.name;
             document.getElementById('detailSubtitle').textContent = `${item.frequency} Hz`;
-            document.getElementById('detailDescription').textContent = item.description;
+            document.getElementById('detailDescription').textContent = item.description || 'Descrição não disponível para esta frequência.';
             
             // Categoria
             document.getElementById('detailCategory').innerHTML = 
@@ -2448,27 +1961,6 @@
             document.querySelector(`.detail-tab[data-tab="${tabName}"]`).classList.add('active');
         }
         
-        // Atualizar contador de resultados
-        function updateResultCount() {
-            document.getElementById('resultCount').textContent = filteredData.length;
-        }
-        
-        // Atualizar contador de resultados do banco de dados
-        function updateDbResultCount() {
-            document.getElementById('resultCount').textContent = dbFilteredData.length;
-        }
-        
-        // Atualizar paginação
-        function updatePagination() {
-            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-            
-            document.getElementById('currentPage').textContent = currentPage;
-            document.getElementById('totalPages').textContent = totalPages;
-            
-            document.getElementById('prevPageBtn').disabled = currentPage === 1;
-            document.getElementById('nextPageBtn').disabled = currentPage === totalPages || totalPages === 0;
-        }
-        
         // Atualizar paginação do banco de dados
         function updateDbPagination() {
             const totalPages = Math.ceil(dbFilteredData.length / dbItemsPerPage);
@@ -2480,17 +1972,6 @@
             document.getElementById('dbNextPageBtn').disabled = dbCurrentPage === totalPages || totalPages === 0;
         }
         
-        // Mudar página
-        function changePage(direction) {
-            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-            const newPage = currentPage + direction;
-            
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                updateFrequenciesList();
-            }
-        }
-        
         // Mudar página do banco de dados
         function changeDbPage(direction) {
             const totalPages = Math.ceil(dbFilteredData.length / dbItemsPerPage);
@@ -2499,31 +1980,6 @@
             if (newPage >= 1 && newPage <= totalPages) {
                 dbCurrentPage = newPage;
                 updateDbFrequenciesList();
-            }
-        }
-        
-        // Mostrar seção
-        function showSection(section) {
-            // Ocultar todas as seções
-            document.querySelectorAll('.db-section').forEach(sec => {
-                sec.classList.remove('active');
-            });
-            
-            // Remover classe ativa de todos os botões
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Mostrar seção selecionada
-            document.getElementById(`${section}Section`).classList.add('active');
-            
-            // Adicionar classe ativa ao botão correspondente
-            document.getElementById(`${section}Tab`).classList.add('active');
-            
-            // Se for a seção do banco de dados, atualizar a lista
-            if (section === 'database') {
-                updateDbFrequenciesList();
-                updateDbResultCount();
             }
         }
         
@@ -2635,114 +2091,6 @@
             draw();
         }
         
-        // Funções de protocolo
-        function startProtocol(protocolId) {
-            const protocol = frequenciesData.find(item => item.id === protocolId);
-            if (!protocol || !protocol.protocols || protocol.protocols.length === 0) return;
-            
-            currentProtocol = protocol.protocols[0]; // Usar o primeiro protocolo disponível
-            currentStep = 0;
-            
-            document.getElementById('protocolName').textContent = currentProtocol.name;
-            document.getElementById('protocolControls').classList.remove('hidden');
-            
-            updateProtocolProgress();
-            updateProtocolStepIndicators();
-            executeProtocolStep();
-        }
-        
-        function updateProtocolProgress() {
-            const progress = (currentStep / currentProtocol.steps.length) * 100;
-            document.getElementById('protocolProgressBar').style.width = `${progress}%`;
-            document.getElementById('protocolProgressText').textContent = `${currentStep + 1}/${currentProtocol.steps.length}`;
-        }
-        
-        function updateProtocolStepIndicators() {
-            const container = document.getElementById('stepIndicators');
-            container.innerHTML = '';
-            
-            currentProtocol.steps.forEach((step, index) => {
-                const indicator = document.createElement('button');
-                indicator.className = `w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                    index === currentStep ? 'bg-purple-600' : 
-                    index < currentStep ? 'bg-green-600' : 'bg-gray-600'
-                }`;
-                indicator.textContent = index + 1;
-                indicator.addEventListener('click', () => {
-                    currentStep = index;
-                    updateProtocolProgress();
-                    updateProtocolStepIndicators();
-                    executeProtocolStep();
-                });
-                container.appendChild(indicator);
-            });
-        }
-        
-        function executeProtocolStep() {
-            if (currentStep >= currentProtocol.steps.length) {
-                // Protocolo concluído
-                exitProtocol();
-                alert('Protocolo concluído com sucesso!');
-                return;
-            }
-            
-            const step = currentProtocol.steps[currentStep];
-            document.getElementById('currentStepName').textContent = step.description;
-            
-            // Configurar frequência
-            document.getElementById('frequency').value = step.frequency;
-            updateCurrentFrequencyInfo(step.frequency);
-            
-            // Configurar tipo de onda
-            document.querySelectorAll('.wave-type-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600');
-                btn.classList.add('bg-gray-700');
-                
-                if (btn.dataset.wave === step.waveType) {
-                    btn.classList.remove('bg-gray-700');
-                    btn.classList.add('bg-blue-600');
-                    currentWaveType = step.waveType;
-                }
-            });
-            
-            // Configurar timer
-            timerSeconds = step.duration * 60;
-            document.getElementById('timerContainer').classList.remove('hidden');
-            updateTimerDisplay();
-            
-            // Iniciar reprodução
-            playFrequency();
-            
-            // Atualizar botões de navegação
-            document.getElementById('prevStepBtn').disabled = currentStep === 0;
-            document.getElementById('nextStepBtn').disabled = false;
-        }
-        
-        function nextProtocolStep() {
-            if (currentStep < currentProtocol.steps.length - 1) {
-                currentStep++;
-                updateProtocolProgress();
-                updateProtocolStepIndicators();
-                executeProtocolStep();
-            }
-        }
-        
-        function prevProtocolStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                updateProtocolProgress();
-                updateProtocolStepIndicators();
-                executeProtocolStep();
-            }
-        }
-        
-        function exitProtocol() {
-            stopFrequency();
-            currentProtocol = null;
-            currentStep = 0;
-            document.getElementById('protocolControls').classList.add('hidden');
-        }
-        
         // Voltar ao topo
         function scrollToTop() {
             window.scrollTo({
@@ -2750,28 +2098,6 @@
                 behavior: 'smooth'
             });
         }
-        
-        // Exportar dados
-        document.querySelector('.export-btn').addEventListener('click', function() {
-            const dataStr = JSON.stringify(dbFilteredData, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = 'frequencias_cafl.json';
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-        });
-        
-        // Ver todas as frequências
-        document.querySelector('.show-all-btn').addEventListener('click', function() {
-            document.getElementById('dbSearchInput').value = '';
-            document.getElementById('dbCategoryFilter').value = 'all';
-            document.getElementById('dbEvidenceFilter').value = 'all';
-            document.getElementById('dbFrequencyRange').value = 20000;
-            filterDbFrequencies();
-        });
         
         // Atualizar visualizador de onda quando a frequência mudar
         document.getElementById('frequency').addEventListener('input', function() {
