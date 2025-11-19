@@ -1980,6 +1980,963 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Substitua o script existente por este -->
+
+<script>
+    // Dados enriquecidos de frequências
+    const frequenciesData = [
+        // ... (mantenha os dados existentes)
+    ];
+
+    // Variáveis globais
+    let filteredFrequencies = [...frequenciesData];
+    let currentPage = 1;
+    const itemsPerPage = 6;
+    
+    // Variáveis para controle de áudio
+    let audioContext;
+    let oscillator;
+    let gainNode;
+    let isPlaying = false;
+    let waveType = 'sine';
+    let currentFrequency = 40;
+    let timerInterval;
+    let timerSeconds = 0;
+    let isTimerActive = false;
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+        // CORREÇÃO: Configuração do modal de headphones
+        const headphoneModal = document.getElementById('headphoneModal');
+        const closeHeadphoneModalBtn = document.getElementById('closeHeadphoneModal');
+        const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
+        
+        // Verificar se o modal já foi fechado anteriormente
+        const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
+        
+        // Controlar a exibição do modal
+        if (headphoneModalClosed === 'true') {
+            headphoneModal.style.display = 'none';
+        } else {
+            headphoneModal.style.display = 'flex';
+        }
+        
+        // CORREÇÃO: Adicionar evento de clique ao botão "Entendi"
+        if (closeHeadphoneModalBtn) {
+            closeHeadphoneModalBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevenir comportamento padrão
+                
+                // Verificar se o checkbox "Não mostrar novamente" está marcado
+                if (dontShowAgainCheckbox && dontShowAgainCheckbox.checked) {
+                    localStorage.setItem('headphoneModalClosed', 'true');
+                }
+                
+                // Fechar o modal
+                headphoneModal.style.display = 'none';
+                
+                console.log('Modal fechado'); // Para debug
+            });
+        }
+        
+        // CORREÇÃO: Também adicionar evento para fechar ao clicar fora do modal
+        headphoneModal.addEventListener('click', function(e) {
+            // Se o clique foi diretamente no fundo do modal (não no conteúdo)
+            if (e.target === headphoneModal) {
+                headphoneModal.style.display = 'none';
+                console.log('Modal fechado ao clicar fora'); // Para debug
+            }
+        });
+        
+        // Inicializar o contexto de áudio
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // Função para tocar a frequência
+        function playTone() {
+            if (isPlaying) return;
+            
+            initAudioContext();
+            
+            // Obter a frequência do input
+            currentFrequency = parseFloat(document.getElementById('frequency').value);
+            
+            // Criar um oscilador
+            oscillator = audioContext.createOscillator();
+            gainNode = audioContext.createGain();
+            
+            // Configurar o tipo de onda
+            oscillator.type = waveType;
+            
+            // Configurar a frequência
+            oscillator.frequency.setValueAtTime(currentFrequency, audioContext.currentTime);
+            
+            // Configurar o volume (0 a 1)
+            const volume = document.getElementById('volume').value / 100;
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            
+            // Conectar o oscilador ao nó de ganho e ao destino
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Iniciar o oscilador
+            oscillator.start();
+            
+            isPlaying = true;
+            
+            // Atualizar a interface
+            document.getElementById('playBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            
+            // Adicionar ao histórico
+            addToHistory({
+                frequency: currentFrequency,
+                name: document.querySelector('#currentInfo .text-lg.font-medium').textContent || 'Frequência Personalizada'
+            });
+            
+            // Desenhar a onda no canvas
+            drawWave();
+        }
+        
+        // Função para parar a frequência
+        function stopTone() {
+            if (!isPlaying) return;
+            
+            // Parar o oscilador
+            if (oscillator) {
+                oscillator.stop();
+                oscillator.disconnect();
+                oscillator = null;
+            }
+            
+            // Desconectar o nó de ganho
+            if (gainNode) {
+                gainNode.disconnect();
+                gainNode = null;
+            }
+            
+            isPlaying = false;
+            
+            // Atualizar a interface
+            document.getElementById('playBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            
+            // Parar o timer se estiver ativo
+            if (isTimerActive) {
+                clearInterval(timerInterval);
+                isTimerActive = false;
+                document.getElementById('timerContainer').classList.add('hidden');
+            }
+        }
+        
+        // Função para desenhar a onda no canvas
+        function drawWave() {
+            const canvas = document.getElementById('waveCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Configurar estilo da linha
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            // Desenhar a forma de onda baseada no tipo selecionado
+            const amplitude = height / 3;
+            const frequency = currentFrequency / 100; // Escalar para visualização
+            const time = Date.now() / 1000;
+            
+            for (let x = 0; x < width; x++) {
+                let y;
+                const t = (x / width) * 4 * Math.PI + time * frequency;
+                
+                switch (waveType) {
+                    case 'sine':
+                        y = height / 2 + amplitude * Math.sin(t);
+                        break;
+                    case 'square':
+                        y = height / 2 + amplitude * (Math.sin(t) > 0 ? 1 : -1);
+                        break;
+                    case 'sawtooth':
+                        y = height / 2 + amplitude * (2 * (t / (2 * Math.PI) - Math.floor(0.5 + t / (2 * Math.PI))));
+                        break;
+                    case 'triangle':
+                        y = height / 2 + amplitude * (2 * Math.abs(2 * (t / (2 * Math.PI) - Math.floor(0.5 + t / (2 * Math.PI)))) - 1);
+                        break;
+                }
+                
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Continuar animando se estiver tocando
+            if (isPlaying) {
+                requestAnimationFrame(drawWave);
+            }
+        }
+        
+        // Adicionar evento ao botão de play
+        document.getElementById('playBtn').addEventListener('click', playTone);
+        
+        // Adicionar evento ao botão de stop
+        document.getElementById('stopBtn').addEventListener('click', stopTone);
+        
+        // Adicionar evento ao controle de volume
+        document.getElementById('volume').addEventListener('input', function() {
+            const volumeValue = this.value;
+            document.getElementById('volumeValue').textContent = volumeValue;
+            
+            if (gainNode && isPlaying) {
+                gainNode.gain.setValueAtTime(volumeValue / 100, audioContext.currentTime);
+            }
+        });
+        
+        // Adicionar eventos aos botões de tipo de onda
+        document.querySelectorAll('.wave-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remover classe ativa de todos os botões
+                document.querySelectorAll('.wave-type-btn').forEach(b => {
+                    b.classList.remove('bg-blue-600');
+                    b.classList.add('bg-gray-700');
+                });
+                
+                // Adicionar classe ativa ao botão clicado
+                this.classList.remove('bg-gray-700');
+                this.classList.add('bg-blue-600');
+                
+                // Atualizar o tipo de onda
+                waveType = this.dataset.wave;
+                
+                // Atualizar a recomendação de onda
+                updateWaveRecommendation();
+            });
+        });
+        
+        // Função para atualizar a recomendação de onda
+        function updateWaveRecommendation() {
+            const recommendationDiv = document.getElementById('waveRecommendation');
+            let recommendation = '';
+            
+            switch (waveType) {
+                case 'sine':
+                    recommendation = '<strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável.';
+                    break;
+                case 'square':
+                    recommendation = '<strong>Onda recomendada:</strong> Quadrada - Mais intensa, ideal para aplicações terapêuticas específicas.';
+                    break;
+                case 'sawtooth':
+                    recommendation = '<strong>Onda recomendada:</strong> Dente de Serra - Rica em harmônicos, boa para estimulação energética.';
+                    break;
+                case 'triangle':
+                    recommendation = '<strong>Onda recomendada:</strong> Triangular - Suave como a senoidal, mas com características únicas.';
+                    break;
+            }
+            
+            recommendationDiv.innerHTML = `<div class="flex items-center gap-2">
+                <i class="fas fa-lightbulb text-yellow-500"></i>
+                <span>${recommendation}</span>
+            </div>`;
+        }
+        
+        // Adicionar evento ao botão de timer
+        document.getElementById('timerBtn').addEventListener('click', function() {
+            const minutes = prompt('Digite o tempo em minutos:', '5');
+            
+            if (minutes && !isNaN(minutes) && minutes > 0) {
+                timerSeconds = parseInt(minutes) * 60;
+                isTimerActive = true;
+                
+                // Mostrar o container do timer
+                document.getElementById('timerContainer').classList.remove('hidden');
+                
+                // Iniciar o contador
+                updateTimerDisplay();
+                
+                timerInterval = setInterval(function() {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    
+                    if (timerSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        isTimerActive = false;
+                        stopTone();
+                        document.getElementById('timerContainer').classList.add('hidden');
+                    }
+                }, 1000);
+            }
+        });
+        
+        // Função para atualizar o display do timer
+        function updateTimerDisplay() {
+            const hours = Math.floor(timerSeconds / 3600);
+            const minutes = Math.floor((timerSeconds % 3600) / 60);
+            const seconds = timerSeconds % 60;
+            
+            const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = display;
+            
+            // Atualizar a barra de progresso
+            const totalSeconds = parseInt(document.getElementById('timerBtn').dataset.totalSeconds || timerSeconds);
+            const progress = ((totalSeconds - timerSeconds) / totalSeconds) * 100;
+            document.getElementById('timerProgress').style.width = `${progress}%`;
+        }
+        
+        // Função para adicionar ao histórico
+        function addToHistory(item) {
+            const historyList = document.getElementById('historyList');
+            const historyItem = document.createElement('div');
+            historyItem.className = 'flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-600 transition cursor-pointer';
+            historyItem.innerHTML = `
+                <div>
+                    <div class="font-medium">${item.frequency} Hz</div>
+                    <div class="text-xs text-gray-400">${item.name}</div>
+                </div>
+                <div class="text-xs text-gray-400">${new Date().toLocaleTimeString()}</div>
+            `;
+            
+            // Adicionar evento de clique para carregar a frequência
+            historyItem.addEventListener('click', function() {
+                document.getElementById('frequency').value = item.frequency;
+                updateCurrentFrequency(item.frequency);
+            });
+            
+            // Adicionar ao início da lista
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            
+            // Limitar a 5 itens no histórico
+            while (historyList.children.length > 5) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+        
+        // Função para atualizar a frequência atual
+        function updateCurrentFrequency(frequency) {
+            // Encontrar a frequência nos dados
+            const freqData = frequenciesData.find(f => f.value === frequency);
+            
+            if (freqData) {
+                // Atualizar as informações
+                document.getElementById('currentInfo').innerHTML = `
+                    <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
+                    <div class="text-lg font-medium">${freqData.name}</div>
+                `;
+                
+                document.getElementById('currentDetails').innerHTML = `
+                    <div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">${getCategoryName(freqData.category)}</span></div>
+                    <div><strong>Descrição:</strong> ${freqData.description}</div>
+                `;
+                
+                // Atualizar recomendação de onda
+                updateWaveRecommendation();
+            } else {
+                // Frequência personalizada
+                document.getElementById('currentInfo').innerHTML = `
+                    <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
+                    <div class="text-lg font-medium">Frequência Personalizada</div>
+                `;
+                
+                document.getElementById('currentDetails').innerHTML = `
+                    <div><strong>Categoria:</strong> <span class="category-badge bg-gray-600">Personalizada</span></div>
+                    <div><strong>Descrição:</strong> Frequência definida pelo usuário.</div>
+                `;
+            }
+        }
+        
+        // Função para obter o nome da categoria
+        function getCategoryName(category) {
+            const categories = {
+                'concentracao': 'Concentração',
+                'energia': 'Energia',
+                'cura': 'Cura',
+                'relaxamento': 'Relaxamento',
+                'sono': 'Sono',
+                'meditacao': 'Meditação',
+                'vermifugacao': 'Vermifugação',
+                'anti-inflamatorio': 'Anti-inflamatório'
+            };
+            
+            return categories[category] || category;
+        }
+        
+        // Adicionar evento ao input de frequência
+        document.getElementById('frequency').addEventListener('input', function() {
+            const frequency = parseFloat(this.value);
+            if (!isNaN(frequency) && frequency >= 20 && frequency <= 20000) {
+                updateCurrentFrequency(frequency);
+            }
+        });
+        
+        // Inicializar a frequência atual
+        updateCurrentFrequency(currentFrequency);
+        
+        // Renderizar frequências iniciais
+        renderFrequencies();
+        
+        // Adicionar eventos aos filtros
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+        document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+        document.getElementById('showFavoritesBtn').addEventListener('click', showFavorites);
+        
+        // Adicionar eventos aos controles de faixa de frequência
+        document.getElementById('minFreqRange').addEventListener('input', function() {
+            document.getElementById('minFreqValue').textContent = this.value;
+        });
+        
+        document.getElementById('maxFreqRange').addEventListener('input', function() {
+            document.getElementById('maxFreqValue').textContent = this.value;
+        });
+        
+        // Adicionar eventos aos botões de paginação
+        document.getElementById('prevPageBtn').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderFrequencies();
+            }
+        });
+        
+        document.getElementById('nextPageBtn').addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderFrequencies();
+            }
+        });
+        
+        // Função para renderizar as frequências
+        function renderFrequencies() {
+            const grid = document.getElementById('frequenciesGrid');
+            grid.innerHTML = '';
+            
+            // Calcular paginação
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageFrequencies = filteredFrequencies.slice(startIndex, endIndex);
+            
+            // Atualizar contador de resultados
+            document.getElementById('resultCount').textContent = filteredFrequencies.length;
+            
+            // Renderizar cada frequência
+            pageFrequencies.forEach(freq => {
+                const card = document.createElement('div');
+                card.className = 'frequency-card bg-gray-700 rounded-lg p-4 border border-gray-600';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="text-lg font-semibold">${freq.name}</h3>
+                            <div class="text-2xl font-bold text-blue-400">${freq.value} Hz</div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="category-badge bg-blue-600">${getCategoryName(freq.category)}</span>
+                            ${getEvidenceBadge(freq.scientificEvidence[0]?.reliability)}
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-300 mb-3">${freq.description}</p>
+                    <div class="flex justify-between items-center">
+                        <button class="select-frequency-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition">
+                            Selecionar
+                        </button>
+                        <button class="details-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-sm transition">
+                            Detalhes
+                        </button>
+                    </div>
+                `;
+                
+                // Adicionar evento ao botão de selecionar
+                card.querySelector('.select-frequency-btn').addEventListener('click', function() {
+                    document.getElementById('frequency').value = freq.value;
+                    updateCurrentFrequency(freq.value);
+                    
+                    // Adicionar ao histórico
+                    addToHistory({
+                        frequency: freq.value,
+                        name: freq.name
+                    });
+                });
+                
+                // Adicionar evento ao botão de detalhes
+                card.querySelector('.details-btn').addEventListener('click', function() {
+                    showFrequencyDetails(freq);
+                });
+                
+                grid.appendChild(card);
+            });
+            
+            // Atualizar paginação
+            updatePagination();
+        }
+        
+        // Função para obter o badge de evidência
+        function getEvidenceBadge(reliability) {
+            if (!reliability) return '';
+            
+            const badges = {
+                'high': '<span class="evidence-badge evidence-high">Alta</span>',
+                'medium': '<span class="evidence-badge evidence-medium">Média</span>',
+                'low': '<span class="evidence-badge evidence-low">Baixa</span>'
+            };
+            
+            return badges[reliability] || '';
+        }
+        
+        // Função para atualizar a paginação
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
+            
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+        }
+        
+        // Função para aplicar filtros
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const evidenceFilter = document.getElementById('evidenceFilter').value;
+            const effectivenessFilter = document.getElementById('effectivenessFilter').value;
+            const minFreq = parseInt(document.getElementById('minFreqRange').value);
+            const maxFreq = parseInt(document.getElementById('maxFreqRange').value);
+            
+            // Filtrar as frequências
+            filteredFrequencies = frequenciesData.filter(freq => {
+                // Filtro de busca
+                if (searchTerm && !freq.name.toLowerCase().includes(searchTerm) && 
+                    !freq.description.toLowerCase().includes(searchTerm) &&
+                    !freq.mechanism.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+                
+                // Filtro de categoria
+                if (categoryFilter && freq.category !== categoryFilter) {
+                    return false;
+                }
+                
+                // Filtro de evidência
+                if (evidenceFilter && freq.scientificEvidence[0]?.reliability !== evidenceFilter) {
+                    return false;
+                }
+                
+                // Filtro de eficácia
+                if (effectivenessFilter && freq.statistics.successRate < parseInt(effectivenessFilter)) {
+                    return false;
+                }
+                
+                // Filtro de faixa de frequência
+                if (freq.value < minFreq || freq.value > maxFreq) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Resetar para a primeira página
+            currentPage = 1;
+            
+            // Renderizar as frequências filtradas
+            renderFrequencies();
+        }
+        
+        // Função para resetar filtros
+        function resetFilters() {
+            // Resetar os campos de filtro
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('evidenceFilter').value = '';
+            document.getElementById('effectivenessFilter').value = '';
+            document.getElementById('minFreqRange').value = 20;
+            document.getElementById('maxFreqRange').value = 20000;
+            document.getElementById('minFreqValue').textContent = '20';
+            document.getElementById('maxFreqValue').textContent = '20000';
+            
+            // Resetar as frequências filtradas
+            filteredFrequencies = [...frequenciesData];
+            
+            // Resetar para a primeira página
+            currentPage = 1;
+            
+            // Renderizar as frequências
+            renderFrequencies();
+        }
+        
+        // Função para mostrar favoritos
+        function showFavorites() {
+            // Obter favoritos do localStorage
+            const favorites = JSON.parse(localStorage.getItem('favoriteFrequencies') || '[]');
+            
+            // Filtrar as frequências para mostrar apenas os favoritos
+            filteredFrequencies = frequenciesData.filter(freq => 
+                favorites.includes(freq.id)
+            );
+            
+            // Resetar para a primeira página
+            currentPage = 1;
+            
+            // Renderizar as frequências
+            renderFrequencies();
+        }
+        
+        // Função para mostrar detalhes da frequência
+        function showFrequencyDetails(freq) {
+            const modal = document.getElementById('detailModal');
+            
+            // Preencher os dados do modal
+            document.getElementById('detailTitle').textContent = freq.name;
+            document.getElementById('detailSubtitle').textContent = `${freq.value} Hz`;
+            
+            // Preencher a aba de visão geral
+            document.getElementById('detailOverview').innerHTML = `
+                <p><strong>Categoria:</strong> ${getCategoryName(freq.category)}</p>
+                <p><strong>Subcategoria:</strong> ${freq.subcategory}</p>
+                <p><strong>Descrição:</strong> ${freq.description}</p>
+                <p><strong>Uso Tradicional:</strong> ${freq.traditionalUse}</p>
+            `;
+            
+            document.getElementById('detailMechanism').innerHTML = `<p>${freq.mechanism}</p>`;
+            
+            document.getElementById('detailSynergies').innerHTML = `
+                <div class="flex flex-wrap gap-2">
+                    ${freq.synergies.map(s => `<span class="synergy-tag">${s}</span>`).join('')}
+                </div>
+            `;
+            
+            // Preencher a aba de ciência
+            document.getElementById('detailEvidence').innerHTML = freq.scientificEvidence.map(evidence => `
+                <div class="evidence-item">
+                    <div class="evidence-study">${evidence.study} (${evidence.year})</div>
+                    <div class="evidence-description">${evidence.description}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('detailResearchStatus').innerHTML = `<p>${freq.researchStatus}</p>`;
+            
+            // Preencher a aba de protocolos
+            document.getElementById('detailProtocols').innerHTML = freq.protocols.map(protocol => `
+                <div class="protocol-item">
+                    <div class="protocol-name">${protocol.name}</div>
+                    <div class="protocol-details">
+                        <span><i class="fas fa-clock mr-1"></i> ${protocol.duration}</span>
+                    </div>
+                    <div class="mt-2">${protocol.instructions}</div>
+                </div>
+            `).join('');
+            
+            // Preencher a aba de segurança
+            document.getElementById('detailSafety').innerHTML = `
+                <div class="mb-3">
+                    <h4 class="font-medium text-red-400 mb-2">Contraindicações:</h4>
+                    <ul class="space-y-1">
+                        ${freq.safety.contraindications.map(c => `
+                            <li class="safety-item">
+                                <i class="fas fa-exclamation-triangle safety-icon"></i>
+                                <span>${c}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-yellow-400 mb-2">Efeitos Colaterais:</h4>
+                    <ul class="space-y-1">
+                        ${freq.safety.sideEffects.map(s => `
+                            <li class="safety-item">
+                                <i class="fas fa-info-circle safety-icon"></i>
+                                <span>${s}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            // Preencher a aba de estatísticas
+            document.getElementById('detailStatistics').innerHTML = `
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="bg-gray-800 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-blue-400">${freq.statistics.uses.toLocaleString()}</div>
+                        <div class="text-sm text-gray-400">Usos</div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-green-400">${freq.statistics.successRate}%</div>
+                        <div class="text-sm text-gray-400">Taxa de Sucesso</div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-yellow-400">${freq.statistics.userRating}/5</div>
+                        <div class="text-sm text-gray-400">Avaliação</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center mb-2">
+                        <div class="w-full bg-gray-700 rounded-full h-2.5 mr-2">
+                            <div class="bg-yellow-500 h-2.5 rounded-full" style="width: ${freq.statistics.userRating * 20}%"></div>
+                        </div>
+                        <span class="text-sm">${freq.statistics.userRating}/5</span>
+                    </div>
+                </div>
+            `;
+            
+            // Mostrar o modal
+            modal.style.display = 'flex';
+            
+            // Adicionar evento para fechar o modal
+            document.getElementById('closeDetailModal').onclick = function() {
+                modal.style.display = 'none';
+            };
+            
+            // Adicionar evento para as abas
+            document.querySelectorAll('.detail-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remover classe ativa de todas as abas
+                    document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+                    
+                    // Adicionar classe ativa à aba clicada
+                    this.classList.add('active');
+                    
+                    // Esconder todos os conteúdos de aba
+                    document.querySelectorAll('.detail-tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Mostrar o conteúdo da aba selecionada
+                    document.getElementById(`${this.dataset.tab}Tab`).classList.add('active');
+                });
+            });
+        }
+        
+        // Adicionar evento ao botão de favoritos
+        document.getElementById('favoriteBtn').addEventListener('click', function() {
+            // Obter a frequência atual
+            const currentFreqValue = parseFloat(document.getElementById('frequency').value);
+            const currentFreq = frequenciesData.find(f => f.value === currentFreqValue);
+            
+            if (currentFreq) {
+                // Obter favoritos do localStorage
+                let favorites = JSON.parse(localStorage.getItem('favoriteFrequencies') || '[]');
+                
+                // Verificar se já é favorito
+                const index = favorites.indexOf(currentFreq.id);
+                
+                if (index === -1) {
+                    // Adicionar aos favoritos
+                    favorites.push(currentFreq.id);
+                    this.innerHTML = '<i class="fas fa-star mr-2"></i>Remover dos Favoritos';
+                    this.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                    this.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                } else {
+                    // Remover dos favoritos
+                    favorites.splice(index, 1);
+                    this.innerHTML = '<i class="far fa-star mr-2"></i>Adicionar aos Favoritos';
+                    this.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+                    this.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                }
+                
+                // Salvar no localStorage
+                localStorage.setItem('favoriteFrequencies', JSON.stringify(favorites));
+            }
+        });
+        
+        // Adicionar evento ao botão voltar ao topo
+        const topBtn = document.getElementById('topBtn');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                topBtn.classList.add('show');
+            } else {
+                topBtn.classList.remove('show');
+            }
+        });
+        
+        topBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Função para iniciar protocolos
+        window.startProtocol = function(protocolType) {
+            // Definir os passos do protocolo com base no tipo
+            let protocolSteps = [];
+            let protocolName = '';
+            
+            switch (protocolType) {
+                case 'geral':
+                    protocolName = 'Protocolo Geral';
+                    protocolSteps = [
+                        { frequency: 20, waveType: 'square', duration: 5, name: 'Fase 1' },
+                        { frequency: 72, waveType: 'square', duration: 7, name: 'Fase 2' },
+                        { frequency: 120, waveType: 'square', duration: 5, name: 'Fase 3' },
+                        { frequency: 432, waveType: 'sine', duration: 3, name: 'Fase 4' }
+                    ];
+                    break;
+                case 'intestinal':
+                    protocolName = 'Protocolo Intestinal';
+                    protocolSteps = [
+                        { frequency: 432, waveType: 'sine', duration: 2, name: 'Preparo' },
+                        { frequency: 120, waveType: 'square', duration: 10, name: 'Tratamento' },
+                        { frequency: 440, waveType: 'square', duration: 5, name: 'Reforço' },
+                        { frequency: 528, waveType: 'sine', duration: 3, name: 'Finalização' }
+                    ];
+                    break;
+                case 'sistemico':
+                    protocolName = 'Protocolo Sistêmico';
+                    protocolSteps = [
+                        { frequency: 1865, waveType: 'square', duration: 15, name: 'Dia 1: Giárdia' },
+                        { frequency: 800, waveType: 'square', duration: 15, name: 'Dia 2: Ancilostomídeos' },
+                        { frequency: 2127, waveType: 'square', duration: 15, name: 'Dia 3' },
+                        { frequency: 0, waveType: 'sine', duration: 0, name: 'Descanso' }
+                    ];
+                    break;
+                case 'energia':
+                    protocolName = 'Protocolo de Energia';
+                    protocolSteps = [
+                        { frequency: 25, waveType: 'sawtooth', duration: 8, name: 'Ativação' },
+                        { frequency: 50, waveType: 'sine', duration: 10, name: 'Amplificação' },
+                        { frequency: 100, waveType: 'sawtooth', duration: 7, name: 'Estabilização' },
+                        { frequency: 432, waveType: 'sine', duration: 5, name: 'Integração' }
+                    ];
+                    break;
+                case 'foco':
+                    protocolName = 'Protocolo de Foco';
+                    protocolSteps = [
+                        { frequency: 15, waveType: 'sine', duration: 5, name: 'Preparação' },
+                        { frequency: 40, waveType: 'sine', duration: 12, name: 'Concentração' },
+                        { frequency: 50, waveType: 'sine', duration: 8, name: 'Manutenção' },
+                        { frequency: 852, waveType: 'sine', duration: 5, name: 'Integração' }
+                    ];
+                    break;
+                case 'desinflamacao':
+                    protocolName = 'Desinflamação Intestinal';
+                    protocolSteps = [
+                        { frequency: 285, waveType: 'sine', duration: 8, name: 'Calma' },
+                        { frequency: 432, waveType: 'sine', duration: 12, name: 'Tratamento' },
+                        { frequency: 7.83, waveType: 'sine', duration: 10, name: 'Equilíbrio' },
+                        { frequency: 639, waveType: 'sine', duration: 7, name: 'Harmonização' }
+                    ];
+                    break;
+                case 'harmonia':
+                    protocolName = 'Protocolo de Harmonia';
+                    protocolSteps = [
+                        { frequency: 136.1, waveType: 'sine', duration: 8, name: 'Centramento' },
+                        { frequency: 639, waveType: 'sine', duration: 10, name: 'Conexão' },
+                        { frequency: 852, waveType: 'sine', duration: 8, name: 'Expansão' },
+                        { frequency: 963, waveType: 'sine', duration: 7, name: 'Integração' }
+                    ];
+                    break;
+            }
+            
+            // Mostrar os controles do protocolo
+            const protocolControls = document.getElementById('protocolControls');
+            protocolControls.classList.remove('hidden');
+            
+            // Configurar o nome do protocolo
+            document.getElementById('protocolName').textContent = protocolName;
+            
+            // Configurar os indicadores de passo
+            const stepIndicators = document.getElementById('stepIndicators');
+            stepIndicators.innerHTML = '';
+            
+            protocolSteps.forEach((step, index) => {
+                const indicator = document.createElement('button');
+                indicator.className = `px-3 py-1 rounded-full text-sm ${index === 0 ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'}`;
+                indicator.textContent = index + 1;
+                indicator.dataset.step = index;
+                
+                indicator.addEventListener('click', function() {
+                    goToStep(parseInt(this.dataset.step));
+                });
+                
+                stepIndicators.appendChild(indicator);
+            });
+            
+            // Configurar o passo atual
+            let currentStep = 0;
+            
+            // Função para ir para um passo específico
+            function goToStep(step) {
+                // Validar o passo
+                if (step < 0 || step >= protocolSteps.length) return;
+                
+                // Atualizar o passo atual
+                currentStep = step;
+                
+                // Atualizar os indicadores
+                document.querySelectorAll('#stepIndicators button').forEach((btn, index) => {
+                    if (index === currentStep) {
+                        btn.className = 'px-3 py-1 rounded-full text-sm bg-purple-600 text-white';
+                    } else {
+                        btn.className = 'px-3 py-1 rounded-full text-sm bg-gray-700 text-gray-300';
+                    }
+                });
+                
+                // Atualizar o nome do passo
+                document.getElementById('currentStepName').textContent = protocolSteps[currentStep].name;
+                
+                // Atualizar o progresso
+                updateProtocolProgress();
+                
+                // Se o passo tiver frequência, configurá-la
+                if (protocolSteps[currentStep].frequency > 0) {
+                    document.getElementById('frequency').value = protocolSteps[currentStep].frequency;
+                    updateCurrentFrequency(protocolSteps[currentStep].frequency);
+                    
+                    // Configurar o tipo de onda
+                    waveType = protocolSteps[currentStep].waveType;
+                    
+                    // Atualizar os botões de tipo de onda
+                    document.querySelectorAll('.wave-type-btn').forEach(btn => {
+                        btn.classList.remove('bg-blue-600');
+                        btn.classList.add('bg-gray-700');
+                        
+                        if (btn.dataset.wave === waveType) {
+                            btn.classList.remove('bg-gray-700');
+                            btn.classList.add('bg-blue-600');
+                        }
+                    });
+                    
+                    // Atualizar a recomendação de onda
+                    updateWaveRecommendation();
+                }
+            }
+            
+            // Função para atualizar o progresso do protocolo
+            function updateProtocolProgress() {
+                const progress = ((currentStep + 1) / protocolSteps.length) * 100;
+                document.getElementById('protocolProgressBar').style.width = `${progress}%`;
+                document.getElementById('protocolProgressText').textContent = `${currentStep + 1}/${protocolSteps.length}`;
+            }
+            
+            // Configurar os botões de navegação
+            document.getElementById('prevStepBtn').onclick = function() {
+                if (currentStep > 0) {
+                    goToStep(currentStep - 1);
+                }
+            };
+            
+            document.getElementById('nextStepBtn').onclick = function() {
+                if (currentStep < protocolSteps.length - 1) {
+                    goToStep(currentStep + 1);
+                }
+            };
+            
+            // Configurar o botão de sair
+            document.getElementById('exitProtocolBtn').onclick = function() {
+                protocolControls.classList.add('hidden');
+                stopTone();
+            };
+            
+            // Iniciar no primeiro passo
+            goToStep(0);
+        };
+    });
+</script>
     <script>
         // Dados enriquecidos de frequências
         const frequenciesData = [
@@ -2705,3 +3662,4 @@
                 pageFrequencies.forEach(freq => {
                     const card = document.createElement('div');
                     card.className = 'frequency
+
