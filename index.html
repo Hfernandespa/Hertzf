@@ -2302,26 +2302,29 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar se o modal de headphones já foi fechado anteriormente
-            const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
+            // CORREÇÃO: Configuração do modal de headphones
             const headphoneModal = document.getElementById('headphoneModal');
+            const closeHeadphoneModalBtn = document.getElementById('closeHeadphoneModal');
+            const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
             
-            if (!headphoneModalClosed) {
-                headphoneModal.style.display = 'flex';
-            } else {
+            // Verificar se o modal já foi fechado anteriormente
+            const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
+            
+            if (headphoneModalClosed === 'true') {
                 headphoneModal.style.display = 'none';
+            } else {
+                headphoneModal.style.display = 'flex';
             }
             
-            // Fechar modal de headphones
-            document.getElementById('closeHeadphoneModal').addEventListener('click', function() {
-                const dontShowAgain = document.getElementById('dontShowAgain').checked;
-                
-                if (dontShowAgain) {
-                    localStorage.setItem('headphoneModalClosed', 'true');
-                }
-                
-                headphoneModal.style.display = 'none';
-            });
+            // Adicionar evento de clique ao botão "Entendi"
+            if (closeHeadphoneModalBtn) {
+                closeHeadphoneModalBtn.addEventListener('click', function() {
+                    if (dontShowAgainCheckbox.checked) {
+                        localStorage.setItem('headphoneModalClosed', 'true');
+                    }
+                    headphoneModal.style.display = 'none';
+                });
+            }
             
             // Inicializar o contexto de áudio
             function initAudioContext() {
@@ -2400,4 +2403,305 @@
                 document.getElementById('stopBtn').classList.add('hidden');
                 
                 // Parar o timer se estiver ativo
-                if (is
+                if (isTimerActive) {
+                    clearInterval(timerInterval);
+                    isTimerActive = false;
+                    document.getElementById('timerContainer').classList.add('hidden');
+                }
+            }
+            
+            // Função para desenhar a onda no canvas
+            function drawWave() {
+                const canvas = document.getElementById('waveCanvas');
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                // Configurar estilo da linha
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                // Desenhar a forma de onda baseada no tipo selecionado
+                const amplitude = height / 3;
+                const frequency = currentFrequency / 100; // Escalar para visualização
+                const time = Date.now() / 1000;
+                
+                for (let x = 0; x < width; x++) {
+                    let y;
+                    const t = (x / width) * 4 * Math.PI + time * frequency;
+                    
+                    switch (waveType) {
+                        case 'sine':
+                            y = height / 2 + amplitude * Math.sin(t);
+                            break;
+                        case 'square':
+                            y = height / 2 + amplitude * (Math.sin(t) > 0 ? 1 : -1);
+                            break;
+                        case 'sawtooth':
+                            y = height / 2 + amplitude * (2 * (t / (2 * Math.PI) - Math.floor(0.5 + t / (2 * Math.PI))));
+                            break;
+                        case 'triangle':
+                            y = height / 2 + amplitude * (2 * Math.abs(2 * (t / (2 * Math.PI) - Math.floor(0.5 + t / (2 * Math.PI)))) - 1);
+                            break;
+                    }
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+                
+                // Continuar animando se estiver tocando
+                if (isPlaying) {
+                    requestAnimationFrame(drawWave);
+                }
+            }
+            
+            // Adicionar evento ao botão de play
+            document.getElementById('playBtn').addEventListener('click', playTone);
+            
+            // Adicionar evento ao botão de stop
+            document.getElementById('stopBtn').addEventListener('click', stopTone);
+            
+            // Adicionar evento ao controle de volume
+            document.getElementById('volume').addEventListener('input', function() {
+                const volumeValue = this.value;
+                document.getElementById('volumeValue').textContent = volumeValue;
+                
+                if (gainNode && isPlaying) {
+                    gainNode.gain.setValueAtTime(volumeValue / 100, audioContext.currentTime);
+                }
+            });
+            
+            // Adicionar eventos aos botões de tipo de onda
+            document.querySelectorAll('.wave-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remover classe ativa de todos os botões
+                    document.querySelectorAll('.wave-type-btn').forEach(b => {
+                        b.classList.remove('bg-blue-600');
+                        b.classList.add('bg-gray-700');
+                    });
+                    
+                    // Adicionar classe ativa ao botão clicado
+                    this.classList.remove('bg-gray-700');
+                    this.classList.add('bg-blue-600');
+                    
+                    // Atualizar o tipo de onda
+                    waveType = this.dataset.wave;
+                    
+                    // Atualizar a recomendação de onda
+                    updateWaveRecommendation();
+                });
+            });
+            
+            // Função para atualizar a recomendação de onda
+            function updateWaveRecommendation() {
+                const recommendationDiv = document.getElementById('waveRecommendation');
+                let recommendation = '';
+                
+                switch (waveType) {
+                    case 'sine':
+                        recommendation = '<strong>Onda recomendada:</strong> Senoidal - Proporciona uma experiência mais suave e agradável.';
+                        break;
+                    case 'square':
+                        recommendation = '<strong>Onda recomendada:</strong> Quadrada - Mais intensa, ideal para aplicações terapêuticas específicas.';
+                        break;
+                    case 'sawtooth':
+                        recommendation = '<strong>Onda recomendada:</strong> Dente de Serra - Rica em harmônicos, boa para estimulação energética.';
+                        break;
+                    case 'triangle':
+                        recommendation = '<strong>Onda recomendada:</strong> Triangular - Suave como a senoidal, mas com características únicas.';
+                        break;
+                }
+                
+                recommendationDiv.innerHTML = `<div class="flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-yellow-500"></i>
+                    <span>${recommendation}</span>
+                </div>`;
+            }
+            
+            // Adicionar evento ao botão de timer
+            document.getElementById('timerBtn').addEventListener('click', function() {
+                const minutes = prompt('Digite o tempo em minutos:', '5');
+                
+                if (minutes && !isNaN(minutes) && minutes > 0) {
+                    timerSeconds = parseInt(minutes) * 60;
+                    isTimerActive = true;
+                    
+                    // Mostrar o container do timer
+                    document.getElementById('timerContainer').classList.remove('hidden');
+                    
+                    // Iniciar o contador
+                    updateTimerDisplay();
+                    
+                    timerInterval = setInterval(function() {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                        
+                        if (timerSeconds <= 0) {
+                            clearInterval(timerInterval);
+                            isTimerActive = false;
+                            stopTone();
+                            document.getElementById('timerContainer').classList.add('hidden');
+                        }
+                    }, 1000);
+                }
+            });
+            
+            // Função para atualizar o display do timer
+            function updateTimerDisplay() {
+                const hours = Math.floor(timerSeconds / 3600);
+                const minutes = Math.floor((timerSeconds % 3600) / 60);
+                const seconds = timerSeconds % 60;
+                
+                const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timerDisplay').textContent = display;
+                
+                // Atualizar a barra de progresso
+                const totalSeconds = parseInt(document.getElementById('timerBtn').dataset.totalSeconds || timerSeconds);
+                const progress = ((totalSeconds - timerSeconds) / totalSeconds) * 100;
+                document.getElementById('timerProgress').style.width = `${progress}%`;
+            }
+            
+            // Função para adicionar ao histórico
+            function addToHistory(item) {
+                const historyList = document.getElementById('historyList');
+                const historyItem = document.createElement('div');
+                historyItem.className = 'flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-600 transition cursor-pointer';
+                historyItem.innerHTML = `
+                    <div>
+                        <div class="font-medium">${item.frequency} Hz</div>
+                        <div class="text-xs text-gray-400">${item.name}</div>
+                    </div>
+                    <div class="text-xs text-gray-400">${new Date().toLocaleTimeString()}</div>
+                `;
+                
+                // Adicionar evento de clique para carregar a frequência
+                historyItem.addEventListener('click', function() {
+                    document.getElementById('frequency').value = item.frequency;
+                    updateCurrentFrequency(item.frequency);
+                });
+                
+                // Adicionar ao início da lista
+                historyList.insertBefore(historyItem, historyList.firstChild);
+                
+                // Limitar a 5 itens no histórico
+                while (historyList.children.length > 5) {
+                    historyList.removeChild(historyList.lastChild);
+                }
+            }
+            
+            // Função para atualizar a frequência atual
+            function updateCurrentFrequency(frequency) {
+                // Encontrar a frequência nos dados
+                const freqData = frequenciesData.find(f => f.value === frequency);
+                
+                if (freqData) {
+                    // Atualizar as informações
+                    document.getElementById('currentInfo').innerHTML = `
+                        <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
+                        <div class="text-lg font-medium">${freqData.name}</div>
+                    `;
+                    
+                    document.getElementById('currentDetails').innerHTML = `
+                        <div><strong>Categoria:</strong> <span class="category-badge bg-blue-600">${getCategoryName(freqData.category)}</span></div>
+                        <div><strong>Descrição:</strong> ${freqData.description}</div>
+                    `;
+                    
+                    // Atualizar recomendação de onda
+                    updateWaveRecommendation();
+                } else {
+                    // Frequência personalizada
+                    document.getElementById('currentInfo').innerHTML = `
+                        <div class="text-xl font-bold text-blue-400">${frequency} Hz</div>
+                        <div class="text-lg font-medium">Frequência Personalizada</div>
+                    `;
+                    
+                    document.getElementById('currentDetails').innerHTML = `
+                        <div><strong>Categoria:</strong> <span class="category-badge bg-gray-600">Personalizada</span></div>
+                        <div><strong>Descrição:</strong> Frequência definida pelo usuário.</div>
+                    `;
+                }
+            }
+            
+            // Função para obter o nome da categoria
+            function getCategoryName(category) {
+                const categories = {
+                    'concentracao': 'Concentração',
+                    'energia': 'Energia',
+                    'cura': 'Cura',
+                    'relaxamento': 'Relaxamento',
+                    'sono': 'Sono',
+                    'meditacao': 'Meditação',
+                    'vermifugacao': 'Vermifugação',
+                    'anti-inflamatorio': 'Anti-inflamatório'
+                };
+                
+                return categories[category] || category;
+            }
+            
+            // Adicionar evento ao input de frequência
+            document.getElementById('frequency').addEventListener('input', function() {
+                const frequency = parseFloat(this.value);
+                if (!isNaN(frequency) && frequency >= 20 && frequency <= 20000) {
+                    updateCurrentFrequency(frequency);
+                }
+            });
+            
+            // Inicializar a frequência atual
+            updateCurrentFrequency(currentFrequency);
+            
+            // Renderizar frequências iniciais
+            renderFrequencies();
+            
+            // Adicionar eventos aos filtros
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+            document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+            document.getElementById('showFavoritesBtn').addEventListener('click', showFavorites);
+            
+            // Adicionar eventos aos controles de faixa de frequência
+            document.getElementById('minFreqRange').addEventListener('input', function() {
+                document.getElementById('minFreqValue').textContent = this.value;
+            });
+            
+            document.getElementById('maxFreqRange').addEventListener('input', function() {
+                document.getElementById('maxFreqValue').textContent = this.value;
+            });
+            
+            // Adicionar eventos aos botões de paginação
+            document.getElementById('prevPageBtn').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderFrequencies();
+                }
+            });
+            
+            document.getElementById('nextPageBtn').addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderFrequencies();
+                }
+            });
+            
+            // Função para renderizar as frequências
+            function renderFrequencies() {
+                const grid = document.getElementById('frequenciesGrid');
+                grid.innerHTML = '';
+                
+                // Calcular paginação
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const pageFrequencies = filteredFrequencies.slice(startIndex, endIndex);
+                
+                // Renderizar cada frequência
+                pageFrequencies.forEach(freq => {
+                    const card = document.createElement('div');
+                    card.className = 'frequency
