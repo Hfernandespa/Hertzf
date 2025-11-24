@@ -1,39 +1,3 @@
-Perfeito! Vou proceder com a **opção 1**:
-
-> **Gerar apenas o array JavaScript atualizado** (com as 8 frequências originais + todas as mais de 1200 do arquivo `CAFL - tabela de frequencias.docx`), **no formato compatível com seu `index.html`**, para você colar diretamente no seu código.
-
----
-
-### ✅ Estratégia de conversão
-
-Como o arquivo CAFL fornece **apenas o nome da condição e uma lista de frequências em Hz**, vou:
-
-1. **Criar um objeto JavaScript por frequência**, usando o mesmo esquema do seu `frequenciesData`.
-2. **Preencher campos faltantes com valores padrão coerentes**, como:
-   - `category`: inferida do nome (ex: "Asma" → `"respiratorio"` ou `"medicinal"` se não couber em outra)
-   - `description`: baseada no nome da condição
-   - `mechanism`, `scientificEvidence`, `protocols`, `safety`, etc.: com mensagens genéricas mas válidas (você pode ajustar depois)
-   - `id`: gerado automaticamente (`cafl_nome_da_condicao_hzXXX`)
-3. **Manter suas 8 frequências originais no início** do array.
-4. **Evitar duplicatas** (mesma frequência + mesmo nome).
-5. **Manter a estrutura exata** esperada pelo seu script (para não quebrar filtros, busca, detalhes etc.).
-
----
-
-### ⏳ Devido ao volume (1200+ entradas), vou dividir a resposta em partes.
-
-**Parte 1** virá agora (com as 8 originais + as primeiras ~300 do CAFL).  
-Assim que você confirmar, envio as próximas partes até completar.
-
-Vamos começar?
-
-> **Aviso**: Esta é uma conversão **automática**. Recomendo revisar categorias e descrições depois para precisão clínica ou funcional.
-
----
-
-Aqui está **Parte 1** do novo `frequenciesData`:
-
-```javascript
 const frequenciesData = [
     // === FREQUÊNCIAS ORIGINAIS (mantidas) ===
     {
