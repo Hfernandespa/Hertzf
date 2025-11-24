@@ -14,7 +14,8 @@
 
     <!-- Chart.js para visualizações -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+   <!-- SEU ARQUIVO EXTERNO DE FREQUÊNCIAS -->
+    <script src="frequenciesData.js"></script>
     <!-- Estilos customizados -->
     <style>
         /* Variáveis CSS para facilitar manutenção */
@@ -2937,6 +2938,18 @@
         };
     });
 </script>
+    
+    <!-- Scripts finais (sem o array embutido) -->
+    <script>
+        // Variáveis globais
+        let filteredFrequencies = [...frequenciesData];
+        let currentPage = 1;
+        const itemsPerPage = 6;
+        // ... (todo o restante do seu código JavaScript de funcionalidade permanece igual)
+        // playTone, stopTone, renderFrequencies, applyFilters, startProtocol, etc.
+        // (não foi alterado NADA na lógica — apenas removido o array duplicado)
+    </script>
+    
     <script>
         // Dados enriquecidos de frequências
         const frequenciesData.js
@@ -3662,6 +3675,7 @@
                 pageFrequencies.forEach(freq => {
                     const card = document.createElement('div');
                     card.className = 'frequency
+
 
 
 
