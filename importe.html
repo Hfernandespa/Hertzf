@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Frequências CAFL - HERTZF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #8b5cf6;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #fbbf24;
+            --danger-color: #ef4444;
+            --dark-bg: #1e293b;
+            --darker-bg: #0f172a;
+            --card-bg: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .upload-area.dragover {
+            background-color: rgba(59, 130, 246, 0.2);
+            border-color: var(--secondary-color);
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--card-bg);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .preview-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .preview-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .preview-container::-webkit-scrollbar-track {
+            background: var(--card-bg);
+        }
+
+        .preview-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success {
+            background-color: var(--success-color);
+        }
+
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+
+        .notification.warning {
+            background-color: var(--warning-color);
+        }
+
+        .frequency-item {
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .frequency-item.error {
+            border-left-color: var(--danger-color);
+        }
+
+        .frequency-item.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-blue-400 mb-2">Importar Frequências CAFL</h1>
+            <p class="text-gray-400">Importe o arquivo CAFL - Consolidated Annotated Frequencies List para o banco de dados</p>
+        </header>
+
+        <div class="bg-gray-800 rounded-xl p-6 shadow-2xl">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">Instruções</h2>
+                <ol class="list-decimal pl-5 space-y-2 text-gray-300">
+                    <li>Copie todo o conteúdo do arquivo CAFL%20-%20tabela%20de%20frequencias.docx</li>
+                    <li>Cole o conteúdo na caixa de texto abaixo</li>
+                    <li>Clique em "Analisar e Importar"</li>
+                    <li>Revise as frequências detectadas e confirme a importação</li>
+                </ol>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Cole o conteúdo do CAFL aqui</h3>
+                <p class="text-gray-400 mb-4">Ou arraste um arquivo de texto para esta área</p>
+                <textarea id="caflContent" class="w-full h-64 bg-gray-700 border border-gray-600 rounded-lg p-4 text-white resize-none" placeholder="Cole o conteúdo do arquivo CAFL aqui..."></textarea>
+            </div>
+
+            <div class="flex justify-center mt-6 space-x-4">
+                <button id="analyzeBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition">
+                    <i class="fas fa-search mr-2"></i>Analisar e Importar
+                </button>
+                <button id="clearBtn" class="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg font-medium transition">
+                    <i class="fas fa-eraser mr-2"></i>Limpar
+                </button>
+            </div>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="mb-2 flex justify-between">
+                    <span class="text-sm">Processando...</span>
+                    <span id="progressText" class="text-sm">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="statsGrid" style="display: none;">
+                <div class="stat-card">
+                    <div id="totalFrequencies" class="stat-number">0</div>
+                    <div class="stat-label">Total de Frequências</div>
+                </div>
+                <div class="stat-card">
+                    <div id="validFrequencies" class="stat-number">0</div>
+                    <div class="stat-label">Frequências Válidas</div>
+                </div>
+                <div class="stat-card">
+                    <div id="duplicateFrequencies" class="stat-number">0</div>
+                    <div class="stat-label">Duplicadas</div>
+                </div>
+                <div class="stat-card">
+                    <div id="errorFrequencies" class="stat-number">0</div>
+                    <div class="stat-label">Com Erros</div>
+                </div>
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+                <h3 class="text-lg font-semibold mb-4">Pré-visualização das Frequências</h3>
+                <div id="previewContent">
+                    <!-- As frequências serão exibidas aqui -->
+                </div>
+                <div class="flex justify-center mt-6">
+                    <button id="confirmImportBtn" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-medium transition">
+                        <i class="fas fa-check mr-2"></i>Confirmar Importação
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="database.html" class="text-blue-400 hover:text-blue-300 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar para o Banco de Dados
+            </a>
+        </div>
+    </div>
+
+    <!-- Notificação -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Função para mostrar notificação
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Função para atualizar o progresso
+        function updateProgress(percent) {
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = `${percent}%`;
+        }
+
+        // Função para atualizar estatísticas
+        function updateStats(total, valid, duplicates, errors) {
+            document.getElementById('totalFrequencies').textContent = total;
+            document.getElementById('validFrequencies').textContent = valid;
+            document.getElementById('duplicateFrequencies').textContent = duplicates;
+            document.getElementById('errorFrequencies').textContent = errors;
+            document.getElementById('statsGrid').style.display = 'grid';
+        }
+
+        // Função para analisar o conteúdo do CAFL
+        function analyzeCAFLContent(content) {
+            const lines = content.split('\n');
+            const frequencies = [];
+            let currentCategory = '';
+            let currentName = '';
+            let currentDescription = '';
+            let errors = [];
+            let duplicates = [];
+            
+            // Expressão regular para encontrar frequências
+            const frequencyPattern = /(\d+(?:\.\d+)?)/g;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (!line) continue;
+                
+                // Verificar se é uma categoria (termina com :)
+                if (line.endsWith(':') && !line.startsWith('-')) {
+                    currentCategory = line.replace(':', '');
+                    continue;
+                }
+                
+                // Verificar se é um nome de frequência (não começa com número ou -)
+                if (!/^[0-9-]/.test(line) && !line.includes('Hz')) {
+                    // Se já temos uma categoria e nome, e esta linha não parece ser frequência
+                    if (currentCategory && currentName) {
+                        currentDescription = line;
+                    } else if (!currentCategory) {
+                        currentName = line;
+                    }
+                    continue;
+                }
+                
+                // Extrair frequências da linha
+                const frequencyMatches = line.match(frequencyPattern);
+                
+                if (frequencyMatches) {
+                    // Criar um objeto para cada frequência
+                    frequencyMatches.forEach(freq => {
+                        const frequencyValue = parseFloat(freq);
+                        
+                        // Gerar um ID único
+                        const id = `${currentName.toLowerCase().replace(/\s+/g, '_')}_${frequencyValue}`.replace(/[^a-z0-9_]/g, '');
+                        
+                        // Determinar a categoria com base no nome
+                        let category = 'outros';
+                        if (currentCategory.toLowerCase().includes('inflamação') || 
+                            currentName.toLowerCase().includes('inflamação')) {
+                            category = 'anti-inflamatorio';
+                        } else if (currentCategory.toLowerCase().includes('câncer') || 
+                                  currentName.toLowerCase().includes('câncer')) {
+                            category = 'cura';
+                        } else if (currentCategory.toLowerCase().includes('parasita') || 
+                                  currentName.toLowerCase().includes('verme') ||
+                                  currentName.toLowerCase().includes('giárdia') ||
+                                  currentName.toLowerCase().includes('ascaris')) {
+                            category = 'vermifugacao';
+                        } else if (currentCategory.toLowerCase().includes('estresse') || 
+                                  currentName.toLowerCase().includes('ansiedade') ||
+                                  currentName.toLowerCase().includes('depressão')) {
+                            category = 'relaxamento';
+                        } else if (currentCategory.toLowerCase().includes('sono') || 
+                                  currentName.toLowerCase().includes('insônia')) {
+                            category = 'sono';
+                        } else if (currentCategory.toLowerCase().includes('foco') || 
+                                  currentName.toLowerCase().includes('concentração') ||
+                                  currentName.toLowerCase().includes('memória')) {
+                            category = 'concentracao';
+                        } else if (currentCategory.toLowerCase().includes('energia') || 
+                                  currentName.toLowerCase().includes('fadiga')) {
+                            category = 'energia';
+                        } else if (currentCategory.toLowerCase().includes('meditação') || 
+                                  currentName.toLowerCase().includes('espiritual')) {
+                            category = 'meditacao';
+                        }
+                        
+                        // Criar objeto de frequência
+                        const frequencyObj = {
+                            id: id,
+                            name: currentName || `Frequência ${frequencyValue}Hz`,
+                            value: frequencyValue,
+                            category: category,
+                            subcategory: currentCategory,
+                            description: currentDescription || `Frequência para ${currentName.toLowerCase()}`,
+                            mechanism: `Terapia por frequência de ${frequencyValue}Hz`,
+                            reliability: 'low', // Padrão para CAFL
+                            successRate: 70, // Padrão para CAFL
+                            researchStatus: 'Pouco estudado', // Padrão para CAFL
+                            traditionalUse: `Utilizada em tradições de cura para ${currentName.toLowerCase()}`
+                        };
+                        
+                        frequencies.push(frequencyObj);
+                    });
+                    
+                    // Resetar variáveis para a próxima entrada
+                    currentName = '';
+                    currentDescription = '';
+                }
+            }
+            
+            return { frequencies, errors, duplicates };
+        }
+
+        // Função para detectar duplicatas
+        function detectDuplicates(frequencies) {
+            const existingData = JSON.parse(localStorage.getItem('frequenciesData') || '[]');
+            const existingIds = existingData.map(f => f.id);
+            const duplicates = [];
+            
+            frequencies.forEach((freq, index) => {
+                if (existingIds.includes(freq.id)) {
+                    duplicates.push({
+                        index: index,
+                        id: freq.id,
+                        name: freq.name
+                    });
+                }
+            });
+            
+            return duplicates;
+        }
+
+        // Função para exibir pré-visualização
+        function showPreview(frequencies, duplicates) {
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = '';
+            
+            frequencies.forEach((freq, index) => {
+                const isDuplicate = duplicates.some(d => d.id === freq.id);
+                const itemClass = isDuplicate ? 'frequency-item warning' : 'frequency-item';
+                
+                const item = document.createElement('div');
+                item.className = itemClass;
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="font-medium">${freq.name}</div>
+                            <div class="text-sm text-gray-400">${freq.value} Hz - ${freq.category}</div>
+                        </div>
+                        ${isDuplicate ? '<span class="text-yellow-400 text-sm"><i class="fas fa-exclamation-triangle mr-1"></i>Duplicada</span>' : ''}
+                    </div>
+                `;
+                previewContent.appendChild(item);
+            });
+            
+            document.getElementById('previewContainer').style.display = 'block';
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const caflContent = document.getElementById('caflContent');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const confirmImportBtn = document.getElementById('confirmImportBtn');
+            
+            let parsedFrequencies = [];
+            let duplicateList = [];
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type === 'text/plain') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        caflContent.value = e.target.result;
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            
+            // Analyze button
+            analyzeBtn.addEventListener('click', function() {
+                const content = caflContent.value.trim();
+                
+                if (!content) {
+                    showNotification('Por favor, cole o conteúdo do CAFL na caixa de texto', 'error');
+                    return;
+                }
+                
+                // Mostrar progresso
+                document.getElementById('progressContainer').style.display = 'block';
+                updateProgress(10);
+                
+                // Analisar conteúdo
+                setTimeout(() => {
+                    try {
+                        const result = analyzeCAFLContent(content);
+                        parsedFrequencies = result.frequencies;
+                        
+                        updateProgress(50);
+                        
+                        // Detectar duplicatas
+                        duplicateList = detectDuplicates(parsedFrequencies);
+                        
+                        updateProgress(80);
+                        
+                        // Atualizar estatísticas
+                        updateStats(
+                            parsedFrequencies.length,
+                            parsedFrequencies.length - duplicateList.length,
+                            duplicateList.length,
+                            result.errors.length
+                        );
+                        
+                        // Mostrar pré-visualização
+                        showPreview(parsedFrequencies, duplicateList);
+                        
+                        updateProgress(100);
+                        
+                        showNotification(`Análise concluída! ${parsedFrequencies.length} frequências encontradas.`, 'success');
+                        
+                        // Habilitar botão de confirmação
+                        confirmImportBtn.disabled = false;
+                    } catch (error) {
+                        console.error('Erro ao analisar conteúdo:', error);
+                        showNotification('Erro ao analisar o conteúdo. Verifique o formato.', 'error');
+                        document.getElementById('progressContainer').style.display = 'none';
+                    }
+                }, 500);
+            });
+            
+            // Clear button
+            clearBtn.addEventListener('click', function() {
+                caflContent.value = '';
+                document.getElementById('progressContainer').style.display = 'none';
+                document.getElementById('statsGrid').style.display = 'none';
+                document.getElementById('previewContainer').style.display = 'none';
+                parsedFrequencies = [];
+                duplicateList = [];
+            });
+            
+            // Confirm import button
+            confirmImportBtn.addEventListener('click', function() {
+                if (parsedFrequencies.length === 0) {
+                    showNotification('Nenhuma frequência para importar', 'warning');
+                    return;
+                }
+                
+                // Obter dados existentes
+                const existingData = JSON.parse(localStorage.getItem('frequenciesData') || '[]');
+                const existingIds = existingData.map(f => f.id);
+                
+                // Filtrar apenas frequências não duplicadas
+                const newFrequencies = parsedFrequencies.filter(freq => 
+                    !existingIds.includes(freq.id)
+                );
+                
+                // Adicionar novas frequências
+                const updatedData = [...existingData, ...newFrequencies];
+                
+                // Salvar no localStorage
+                localStorage.setItem('frequenciesData', JSON.stringify(updatedData));
+                
+                showNotification(`Importação concluída! ${newFrequencies.length} novas frequências adicionadas.`, 'success');
+                
+                // Limpar formulário
+                setTimeout(() => {
+                    clearBtn.click();
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
