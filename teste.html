@@ -2843,6 +2843,98 @@
             };
             return reliabilityMap[reliability] || reliability;
         }
+<!-- Substitua a seção de filtros por esta versão otimizada -->
+<div class="filter-section">
+    <div class="grid md:grid-cols-4 gap-4">
+        <div class="filter-group md:col-span-2">
+            <label for="searchInput" class="filter-label">Buscar Frequências</label>
+            <div class="relative">
+                <input type="text" id="searchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Nome, descrição, valor ou categoria...">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
+                </div>
+                <div id="searchResultsCount" class="text-sm text-gray-400 mt-1"></div>
+            </div>
+        </div>
+        <div class="filter-group">
+            <label for="categoryFilter" class="filter-label">Categoria</label>
+            <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <option value="">Todas as categorias</option>
+                <option value="geral">Geral</option>
+                <option value="concentracao">Concentração</option>
+                <option value="energia">Energia</option>
+                <option value="relaxamento">Relaxamento</option>
+                <option value="sono">Sono</option>
+                <option value="cura">Cura</option>
+                <option value="vermifugacao">Vermifugação</option>
+                <option value="anti-inflamatorio">Anti-inflamatório</option>
+                <option value="meditacao">Meditação</option>
+                <option value="digestivo">Digestivo</option>
+                <option value="infeccao">Infecção</option>
+                <option value="metabolico">Metabólico</option>
+                <option value="dermatologico">Dermatológico</option>
+                <option value="respiratorio">Respiratório</option>
+                <option value="cardiovascular">Cardiovascular</option>
+                <option value="neurologico">Neurológico</option>
+                <option value="muscular">Muscular</option>
+                <option value="articular">Articular</option>
+                <option value="imunologico">Imunológico</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="sortBy" class="filter-label">Ordenar por</label>
+            <select id="sortBy" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <option value="relevance">Relevância</option>
+                <option value="name">Nome</option>
+                <option value="value">Frequência</option>
+                <option value="category">Categoria</option>
+                <option value="popularity">Popularidade</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Filtros avançados -->
+    <div class="mt-4 grid md:grid-cols-3 gap-4">
+        <div class="filter-group">
+            <label for="minFrequency" class="filter-label">Frequência Mínima (Hz)</label>
+            <input type="number" id="minFrequency" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="0" min="0" max="20000">
+        </div>
+        <div class="filter-group">
+            <label for="maxFrequency" class="filter-label">Frequência Máxima (Hz)</label>
+            <input type="number" id="maxFrequency" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="20000" min="0" max="20000">
+        </div>
+        <div class="filter-group">
+            <label for="evidenceFilter" class="filter-label">Nível de Evidência</label>
+            <select id="evidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <option value="">Todos</option>
+                <option value="high">Alta</option>
+                <option value="medium">Média</option>
+                <option value="low">Baixa</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Botões de ação -->
+    <div class="mt-4 flex justify-between items-center">
+        <div class="flex gap-2">
+            <button id="clearFiltersBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition">
+                <i class="fas fa-times mr-2"></i>Limpar Filtros
+            </button>
+            <button id="exportResultsBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition">
+                <i class="fas fa-download mr-2"></i>Exportar Resultados
+            </button>
+        </div>
+        <div class="flex items-center gap-2">
+            <label for="itemsPerPage" class="text-sm">Itens por página:</label>
+            <select id="itemsPerPage" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm">
+                <option value="9">9</option>
+                <option value="18">18</option>
+                <option value="36">36</option>
+                <option value="72">72</option>
+            </select>
+        </div>
+    </div>
+</div>
+        
     </script>
 </body>
 </html>
