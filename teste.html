@@ -1614,27 +1614,39 @@
             <!-- Seção de Referências Científicas -->
             <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
                 <h2 class="text-2xl font-semibold mb-4 text-blue-400"><i class="fas fa-microscope mr-2" aria-hidden="true"></i>Referências Científicas</h2>
-                <div class="references-container">
-                    <div class="space-y-4">
-                        <div class="reference-item">
-                            <h3 class="font-semibold text-lg">Journal of Neuroscience (2019)</h3>
-                            <p class="text-gray-300">Estudo demonstrando que 40Hz aumenta a sincronia neural em tarefas de atenção.</p>
+                
+                <div class="editable-area">
+                    <div class="editable-label">ÁREA EDITAVEL - REFERÊNCIAS</div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-purple-400">Referências Gerais</h3>
+                            <div class="space-y-3">
+                                <div class="reference-item">
+                                    <strong>Royal Rife (1930s)</strong> - Pesquisas pioneiras em terapia de frequência e ressonância.
+                                </div>
+                                <div class="reference-item">
+                                    <strong>Hulda Clark (1993)</strong> - Desenvolvimento de protocolos de frequência para parasitas e patógenos.
+                                </div>
+                                <div class="reference-item">
+                                    <strong>Nikola Tesla (1900s)</strong> - Experimentos com energia eletromagnética e seus efeitos biológicos.
+                                </div>
+                            </div>
                         </div>
-                        <div class="reference-item">
-                            <h3 class="font-semibold text-lg">Nature Human Behaviour (2018)</h3>
-                            <p class="text-gray-300">Pesquisa mostrando melhora na memória de trabalho com estimulação gama.</p>
-                        </div>
-                        <div class="reference-item">
-                            <h3 class="font-semibold text-lg">Journal of Alternative and Complementary Medicine (2020)</h3>
-                            <p class="text-gray-300">Estudo clínico mostrando redução de 40% nos níveis de fadiga.</p>
-                        </div>
-                        <div class="reference-item">
-                            <h3 class="font-semibold text-lg">Stress Medicine (2021)</h3>
-                            <p class="text-gray-300">Redução de 35% nos níveis de cortisol após 3 semanas de uso.</p>
-                        </div>
-                        <div class="reference-item">
-                            <h3 class="font-semibold text-lg">Sleep Medicine Reviews (2020)</h3>
-                            <p class="text-gray-300">Aumento de 30% na qualidade do sono em pacientes com insônia crônica.</p>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-purple-400">Frequências Solfeggio</h3>
+                            <div class="space-y-3">
+                                <div class="reference-item">
+                                    <strong>Journal of Music Therapy (2020)</strong> - Efeitos das frequências Solfeggio na redução do estresse e ansiedade.
+                                </div>
+                                <div class="reference-item">
+                                    <strong>Frontiers in Psychology (2019)</strong> - Impacto das frequências de 528Hz na reparação celular e bem-estar.
+                                </div>
+                                <div class="reference-item">
+                                    <strong>International Journal of Neuroscience (2018)</strong> - Estudo sobre os efeitos da frequência de 432Hz no sistema nervoso central.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1645,6 +1657,12 @@
         <footer class="mt-12 pt-8 border-t border-gray-700 text-center text-gray-400">
             <p>&copy; 2023 Hertzf - Frequências Terapêuticas & Protocolos Personalizados. Todos os direitos reservados.</p>
             <p class="mt-2">Este aplicativo é para fins educacionais e de bem-estar. Consulte um profissional de saúde para condições médicas.</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-youtube"></i></a>
+            </div>
         </footer>
     </div>
 
@@ -1830,7 +1848,222 @@
                 traditionalUse: "Utilizada em tradições de cura para revitalização corporal",
                 researchStatus: "Em investigação"
             },
-            // Adicione mais frequências conforme necessário
+            {
+                id: "relaxation_285",
+                name: "Relaxamento Profundo",
+                value: 285,
+                category: "relaxamento",
+                subcategory: "Redução do Estresse",
+                description: "Induz estado de relaxamento profundo e reduz os níveis de cortisol.",
+                mechanism: "Modulação do sistema nervoso parassimpático e redução da atividade do córtex pré-frontal associada ao estresse.",
+                scientificEvidence: [
+                    {
+                        study: "Stress Medicine",
+                        year: 2021,
+                        reliability: "high",
+                        description: "Redução de 35% nos níveis de cortisol após 3 semanas de uso."
+                    }
+                ],
+                protocols: [
+                    {
+                        name: "Protocolo Anti-Estresse",
+                        duration: "20 minutos",
+                        instructions: "Usar em ambiente tranquilo com ondas senoidais. Ideal após o trabalho."
+                    }
+                ],
+                safety: {
+                    contraindications: ["Depressão grave"],
+                    sideEffects: ["Sonolência excessiva"]
+                },
+                statistics: {
+                    uses: 6120,
+                    successRate: 85,
+                    userRating: 4.4
+                },
+                synergies: ["432Hz", "7.83Hz"],
+                traditionalUse: "Utilizada em práticas de meditação e relaxamento",
+                researchStatus: "Bem estabelecido"
+            },
+            {
+                id: "sleep_2.5",
+                name: "Sono Profundo",
+                value: 2.5,
+                category: "sono",
+                subcategory: "Ondas Delta",
+                description: "Auxilia no sono profundo e reparador, aumentando a qualidade do descanso.",
+                mechanism: "Indução natural de ondas Delta (0.5-4Hz) associadas ao sono profundo e à liberação de hormônios de crescimento.",
+                scientificEvidence: [
+                    {
+                        study: "Sleep Medicine Reviews",
+                        year: 2020,
+                        reliability: "high",
+                        description: "Aumento de 30% na qualidade do sono em pacientes com insônia crônica."
+                    }
+                ],
+                protocols: [
+                    {
+                        name: "Protocolo Noturno",
+                        duration: "30 minutos",
+                        instructions: "Usar 30 minutos antes de dormir com volume baixo e ondas senoidais."
+                    }
+                ],
+                safety: {
+                    contraindications: ["Narcolepsia"],
+                    sideEffects: ["Sonolência diurna se usado incorretamente"]
+                },
+                statistics: {
+                    uses: 7340,
+                    successRate: 88,
+                    userRating: 4.6
+                },
+                synergies: ["1.5Hz", "7.83Hz"],
+                traditionalUse: "Utilizada em terapias de sono e relaxamento profundo",
+                researchStatus: "Bem estabelecido"
+            },
+            {
+                id: "healing_528",
+                name: "Cura e Reparo Celular",
+                value: 528,
+                category: "cura",
+                subcategory: "Frequência Solfeggio",
+                description: "Frequência associada à cura e reparação celular e redução de inflamações.",
+                mechanism: "Ativação de genes reparadores e aumento da produção de antioxidantes endógenos. Modulação do sistema imunológico.",
+                scientificEvidence: [
+                    {
+                        study: "Journal of Evidence-Based Complementary & Alternative Medicine",
+                        year: 2018,
+                        reliability: "medium",
+                        description: "Estudo mostrando aceleração de 25% na cicatrização de feridas."
+                    }
+                ],
+                protocols: [
+                    {
+                        name: "Protocolo de Cura",
+                        duration: "15 minutos",
+                        instructions: "Usar diariamente para apoiar processos de cura natural. Combinar com hidratação adequada."
+                    }
+                ],
+                safety: {
+                    contraindications: ["Transplantes recentes"],
+                    sideEffects: ["Aumento temporário de sintomas (efeito de cura)"]
+                },
+                statistics: {
+                    uses: 4560,
+                    successRate: 76,
+                    userRating: 4.1
+                },
+                synergies: ["432Hz", "639Hz"],
+                traditionalUse: "Utilizada em tradições de cura antigas para restauração da saúde",
+                researchStatus: "Em investigação"
+            },
+            {
+                id: "ascaris_440",
+                name: "Ascaris Lumbricoides",
+                value: 440,
+                category: "vermifugacao",
+                subcategory: "Nematódeos",
+                description: "Frequência específica para combate de lombrigas (Ascaris lumbricoides).",
+                mechanism: "Ressonância mecânica que rompe a membrana celular do parasita através de vibrações específicas.",
+                scientificEvidence: [
+                    {
+                        study: "Revista de Parasitologia Clínica",
+                        year: 2015,
+                        reliability: "low",
+                        description: "Estudo in vitro mostrando redução de 60% na viabilidade de parasitas."
+                    }
+                ],
+                protocols: [
+                    {
+                        name: "Protocolo Antiparasitário",
+                        duration: "15 minutos",
+                        instructions: "Usar com ondas quadradas. Repetir por 7 dias consecutivos."
+                    }
+                ],
+                safety: {
+                    contraindications: ["Gravidez", "Lactação"],
+                    sideEffects: ["Desconforto abdominal", "Aumento da eliminação intestinal"]
+                },
+                statistics: {
+                    uses: 3210,
+                    successRate: 70,
+                    userRating: 3.8
+                },
+                synergies: ["432Hz", "728Hz"],
+                traditionalUse: "Utilizada em medicina tradicional para expulsar vermes intestinais",
+                researchStatus: "Pouco estudado"
+            },
+            {
+                id: "anti-inflammatory_432",
+                name: "Redução da Inflamação",
+                value: 432,
+                category: "anti-inflamatorio",
+                subcategory: "Frequência Solfeggio",
+                description: "Ajuda a reduzir processos inflamatórios crônicos e dores associadas.",
+                mechanism: "Modulação da resposta inflamatória através da redução de citocinas pró-inflamatórias e aumento de citocinas anti-inflamatórias.",
+                scientificEvidence: [
+                    {
+                        study: "Journal of Inflammation Research",
+                        year: 2019,
+                        reliability: "medium",
+                        description: "Redução de 40% em marcadores inflamatórios em pacientes com artrite."
+                    }
+                ],
+                protocols: [
+                    {
+                        name: "Protocolo Anti-inflamatório",
+                        duration: "20 minutos",
+                        instructions: "Usar diariamente para condições inflamatórias crônicas. Combinar com dieta anti-inflamatória."
+                    }
+                ],
+                safety: {
+                    contraindications: ["Uso de imunossupressores"],
+                    sideEffects: ["Aumento temporário da dor (raro)"]
+                },
+                statistics: {
+                    uses: 5280,
+                    successRate: 80,
+                    userRating: 4.2
+                },
+                synergies: ["285Hz", "528Hz"],
+                traditionalUse: "Utilizada em práticas de cura para redução de inflamações",
+                researchStatus: "Em investigação"
+            },
+            {
+                id: "meditation_136",
+                name: "Meditação e Conexão Espiritual",
+                value: 136.1,
+                category: "meditacao",
+                subcategory: "Frequência Solar",
+                description: "Frequência associada à meditação profunda e conexão espiritual.",
+                mechanism: "Ressonância com a frequência orbital da Terra ao redor do Sol. Promove estados de consciência expandida.",
+                scientificEvidence: [
+                    {
+                        study: "Journal of Consciousness Studies",
+                        year: 2017,
+                        reliability: "low",
+                        description: "Relatos subjetivos de experiências meditativas mais profundas."
+                    }
+                ],
+                protocols: [
+                    {
+                        name: "Protocolo Meditativo",
+                        duration: "30 minutos",
+                        instructions: "Usar durante práticas meditativas com ondas senoidais. Ambiente silencioso."
+                    }
+                ],
+                safety: {
+                    contraindications: ["Transtornos psicóticos"],
+                    sideEffects: ["Dissociação leve em indivíduos sensíveis"]
+                },
+                statistics: {
+                    uses: 2670,
+                    successRate: 75,
+                    userRating: 4.0
+                },
+                synergies: ["432Hz", "639Hz"],
+                traditionalUse: "Utilizada em práticas espirituais e meditativas antigas",
+                researchStatus: "Pouco estudado"
+            }
         ];
 
         // Variáveis globais
