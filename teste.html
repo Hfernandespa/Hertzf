@@ -102,42 +102,6 @@
             color: #ef4444;
         }
 
-        /* Destaque de busca */
-        .search-highlight {
-            background-color: rgba(59, 130, 246, 0.3);
-            padding: 0 2px;
-            border-radius: 2px;
-        }
-
-        /* Passos de protocolo */
-        .protocol-step {
-            position: relative;
-            padding-left: 2rem;
-        }
-
-        .protocol-step::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0.5rem;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-        }
-
-        .protocol-step.energy::before { background: var(--accent-color); }
-        .protocol-step.focus::before { background: var(--primary-color); }
-        .protocol-step.anti-inflammatory::before { background: var(--success-color); }
-        .protocol-step.harmony::before { background: var(--secondary-color); }
-
-        /* Título estilizado */
-        .harmonizador-title {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
         /* Container do banco de dados */
         .database-container {
             height: 600px;
@@ -155,27 +119,6 @@
         }
 
         .database-container::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
-            border-radius: 4px;
-        }
-
-        /* Container do Top 10 */
-        .top10-container {
-            max-height: 500px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) var(--card-bg);
-        }
-
-        .top10-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .top10-container::-webkit-scrollbar-track {
-            background: var(--card-bg);
-        }
-
-        .top10-container::-webkit-scrollbar-thumb {
             background-color: var(--primary-color);
             border-radius: 4px;
         }
@@ -223,154 +166,6 @@
             transform: translateY(-3px);
         }
 
-        /* Destaque de protocolo */
-        .protocol-highlight {
-            animation: pulse 2s infinite;
-        }
-
-        /* Eficiência alta */
-        .efficiency-high {
-            color: var(--warning-color);
-        }
-
-        /* Itens de referência */
-        .reference-item {
-            position: relative;
-            padding-left: 2rem;
-        }
-
-        .reference-item::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
-
-        /* Eficiência da onda */
-        .wave-efficiency {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Input do timer */
-        .timer-input {
-            width: 3rem;
-            text-align: center;
-        }
-
-        /* Melhorias de acessibilidade */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-
-        /* Melhorias de foco para acessibilidade */
-        button:focus,
-        input:focus,
-        select:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        /* Melhorias para modo de alto contraste */
-        @media (prefers-contrast: high) {
-            .frequency-card:hover,
-            .frequency-card.selected {
-                border-width: 3px;
-            }
-        }
-
-        /* Melhorias para redução de movimento */
-        @media (prefers-reduced-motion: reduce) {
-            .frequency-card,
-            #topBtn,
-            .timer-progress,
-            .protocol-highlight {
-                transition: none;
-                animation: none;
-            }
-        }
-
-        /* Container de referências com rolagem */
-        .references-container {
-            max-height: 400px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) var(--card-bg);
-        }
-
-        .references-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .references-container::-webkit-scrollbar-track {
-            background: var(--card-bg);
-        }
-
-        .references-container::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
-            border-radius: 4px;
-        }
-
-        /* Layout do Visualizador de Onda ao lado da Frequência */
-        .frequency-input-group {
-            display: flex;
-            gap: 1rem;
-            align-items: flex-end;
-        }
-
-        .frequency-controls {
-            flex: 1;
-        }
-
-        .wave-visualizer-small {
-            width: 120px;
-            height: 80px;
-            flex-shrink: 0;
-        }
-
-        /* Responsividade para telas pequenas */
-        @media (max-width: 768px) {
-            .frequency-input-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .wave-visualizer-small {
-                width: 100%;
-                height: 100px;
-                margin-top: 1rem;
-            }
-        }
-        
-        /* Destaque para áreas editáveis */
-        .editable-area {
-            border: 2px dashed var(--warning-color);
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            position: relative;
-        }
-        
-        .editable-label {
-            position: absolute;
-            top: -12px;
-            left: 15px;
-            background: var(--dark-bg);
-            padding: 0 8px;
-            font-size: 12px;
-            color: var(--warning-color);
-            font-weight: bold;
-        }
-        
         /* Modal de informações sobre headphones */
         .headphone-modal {
             position: fixed;
@@ -418,37 +213,6 @@
             margin-bottom: 1.5rem;
         }
         
-        .headphone-benefits {
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .headphone-benefits h4 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .headphone-benefits ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        .headphone-benefits li {
-            padding: 0.25rem 0;
-            padding-left: 1.5rem;
-            position: relative;
-        }
-        
-        .headphone-benefits li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--success-color);
-            font-weight: bold;
-        }
-        
         .headphone-close {
             background: var(--primary-color);
             color: white;
@@ -478,31 +242,8 @@
         .dont-show-again input {
             margin-right: 0.5rem;
         }
-        
-        /* Cards de benefícios */
-        .benefit-card {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .benefit-card h4 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .benefit-card p {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-        
-        /* Seção Hero no topo */
+
+        /* Seção Hero */
         .hero-section {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)), 
                         url('https://images.unsplash.com/photo-1648080473344-a399955ac123?q=80&w=1974&auto=format&fit=crop') center/cover;
@@ -549,97 +290,7 @@
             max-width: 700px;
             margin-bottom: 2rem;
         }
-        
-        .hero-features {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .hero-feature {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            width: 180px;
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        .hero-feature:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-        
-        .hero-feature:nth-child(3) {
-            animation-delay: 1s;
-        }
-        
-        .hero-feature:nth-child(4) {
-            animation-delay: 1.5s;
-        }
-        
-        .hero-feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .hero-feature-title {
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-            color: var(--text-primary);
-        }
-        
-        .hero-feature-text {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-        
-        .hero-cta {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-        }
-        
-        .hero-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
-        }
-        
-        /* Responsividade para a seção hero */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
-            .hero-features {
-                gap: 1.5rem;
-            }
-            
-            .hero-feature {
-                width: 150px;
-            }
-            
-            .hero-feature-icon {
-                font-size: 2rem;
-            }
-        }
-        
+
         /* Cabeçalho com imagem de fundo */
         .header-with-bg {
             background: linear-gradient(to right, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), 
@@ -664,149 +315,17 @@
             z-index: 1;
         }
         
-        /* Efeito de brilho no título */
-        .title-glow {
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-        }
-
-        /* Seção de Instruções de Uso */
-        .instructions-section {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 2px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .instructions-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .instructions-title {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        /* Título estilizado */
+        .harmonizador-title {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .instructions-subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        .instructions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .instruction-card {
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border-left: 4px solid var(--primary-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .instruction-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .instruction-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .instruction-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: var(--text-primary);
-            text-align: center;
-        }
-
-        .instruction-steps {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .instruction-steps ol {
-            margin: 0;
-            padding-left: 1.2rem;
-        }
-
-        .instruction-steps li {
-            margin-bottom: 0.5rem;
-        }
-
-        .instruction-tip {
-            background: rgba(245, 158, 11, 0.1);
-            border-radius: 8px;
-            padding: 0.75rem;
-            margin-top: 1rem;
-            border-left: 3px solid var(--warning-color);
-        }
-
-        .instruction-tip strong {
-            color: var(--warning-color);
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .quick-start {
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        .quick-start h3 {
-            color: var(--success-color);
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .quick-steps {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .quick-step {
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--text-primary);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .quick-step-number {
-            background: var(--success-color);
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.875rem;
+        /* Efeito de brilho no título */
+        .title-glow {
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         }
 
         /* Filtros avançados */
@@ -827,38 +346,6 @@
             font-weight: 500;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
-        }
-
-        .range-slider-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .range-slider {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(59, 130, 246, 0.2);
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .range-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-        }
-
-        .range-value {
-            min-width: 80px;
-            text-align: center;
-            font-weight: 500;
-            color: var(--primary-color);
         }
 
         /* Paginação */
@@ -945,25 +432,6 @@
             background: #dc2626;
         }
 
-        .detail-header {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .detail-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .detail-subtitle {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
         .detail-tabs {
             display: flex;
             gap: 0.5rem;
@@ -1021,41 +489,12 @@
             border-left: 3px solid var(--primary-color);
         }
 
-        .evidence-study {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .evidence-year {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .evidence-description {
-            margin-top: 0.5rem;
-            color: var(--text-secondary);
-        }
-
         .protocol-item {
             background: rgba(139, 92, 246, 0.05);
             border-radius: 8px;
             padding: 1rem;
             margin-bottom: 1rem;
             border-left: 3px solid var(--secondary-color);
-        }
-
-        .protocol-name {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .protocol-details {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
         }
 
         .safety-item {
@@ -1107,6 +546,62 @@
             font-size: 3rem;
             margin-bottom: 1rem;
             opacity: 0.5;
+        }
+
+        /* Error message */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.375rem;
+        }
+
+        .error-title {
+            font-weight: 600;
+            color: var(--danger-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .error-details {
+            font-family: monospace;
+            font-size: 0.875rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+            overflow-x: auto;
+        }
+
+        /* Debug panel */
+        .debug-panel {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 9999;
+            display: none;
+        }
+
+        .debug-panel.show {
+            display: block;
+        }
+
+        /* Responsividade para telas pequenas */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -1205,279 +700,67 @@
                         <p class="hero-feature-text">Melhore a qualidade do seu descanso</p>
                     </div>
                 </div>
-                
-                <button class="hero-cta" onclick="document.getElementById('instructionsSection').scrollIntoView({behavior: 'smooth'})">
-                    Como Funciona <i class="fas fa-arrow-down ml-2"></i>
-                </button>
-            </div>
-        </section>
-
-        <!-- Seção de Instruções de Uso -->
-        <section id="instructionsSection" class="instructions-section">
-            <div class="instructions-header">
-                <h2 class="instructions-title"><i class="fas fa-graduation-cap mr-3"></i>Como Usar o Harmonizador Fernandes</h2>
-                <p class="instructions-subtitle">Siga estas instruções passo a passo para aproveitar ao máximo as frequências terapêuticas</p>
-            </div>
-
-            <div class="instructions-grid">
-                <!-- Card 1: Preparação -->
-                <div class="instruction-card">
-                    <div class="instruction-icon">
-                        <i class="fas fa-headphones-alt"></i>
-                    </div>
-                    <h3 class="instruction-title">1. Preparação</h3>
-                    <div class="instruction-steps">
-                        <ol>
-                            <li>Use headphones de boa qualidade</li>
-                            <li>Encontre um ambiente tranquilo e confortável</li>
-                            <li>Sente-se ou deite-se em uma posição relaxada</li>
-                            <li>Feche os olhos para melhor concentração</li>
-                        </ol>
-                        <div class="instruction-tip">
-                            <strong>Dica importante:</strong> 
-                            A qualidade dos headphones直接影响 a experiência. Use over-ear ou in-ear com bom isolamento.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 2: Escolha da Frequência -->
-                <div class="instruction-card">
-                    <div class="instruction-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3 class="instruction-title">2. Escolha da Frequência</h3>
-                    <div class="instruction-steps">
-                        <ol>
-                            <li>Use o campo de busca para encontrar frequências</li>
-                            <li>Utilize os filtros por categoria (Energia, Foco, Relaxamento, etc.)</li>
-                            <li>Clique em uma frequência para ver detalhes completos</li>
-                            <li>Selecione a frequência desejada</li>
-                        </ol>
-                        <div class="instruction-tip">
-                            <strong>Dica importante:</strong> 
-                            Comece com frequências básicas como 40Hz (Foco) ou 25Hz (Energia) para familiarizar-se.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3: Configuração -->
-                <div class="instruction-card">
-                    <div class="instruction-icon">
-                        <i class="fas fa-sliders-h"></i>
-                    </div>
-                    <h3 class="instruction-title">3. Configuração</h3>
-                    <div class="instruction-steps">
-                        <ol>
-                            <li>Ajuste o volume para um nível confortável (50-70%)</li>
-                            <li>Escolha o tipo de onda (Senoidal recomendada para iniciantes)</li>
-                            <li>Defina o timer se desejar uma sessão programada</li>
-                            <li>Verifique se todos os ajustes estão corretos</li>
-                        </ol>
-                        <div class="instruction-tip">
-                            <strong>Dica importante:</strong> 
-                            Ondas senoidais são mais suaves e ideais para relaxamento, enquanto quadradas são mais intensas.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 4: Sessão -->
-                <div class="instruction-card">
-                    <div class="instruction-icon">
-                        <i class="fas fa-play-circle"></i>
-                    </div>
-                    <h3 class="instruction-title">4. Sessão Terapêutica</h3>
-                    <div class="instruction-steps">
-                        <ol>
-                            <li>Clique em "Tocar" para iniciar a frequência</li>
-                            <li>Mantenha-se relaxado durante toda a sessão</li>
-                            <li>Respire profundamente e mantenha o foco</li>
-                            <li>Observe as sensações no seu corpo</li>
-                        </ol>
-                        <div class="instruction-tip">
-                            <strong>Dica importante:</strong> 
-                            Seja consistente. Use diariamente por pelo menos 21 dias para melhores resultados.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 5: Protocolos -->
-                <div class="instruction-card">
-                    <div class="instruction-icon">
-                        <i class="fas fa-clipboard-list"></i>
-                    </div>
-                    <h3 class="instruction-title">5. Protocolos Avançados</h3>
-                    <div class="instruction-steps">
-                        <ol>
-                            <li>Explore os protocolos pré-definidos (Energia, Foco, Harmonia)</li>
-                            <li>Siga as instruções específicas de cada protocolo</li>
-                            <li>Respeite os tempos recomendados</li>
-                            <li>Mantenha hidratação adequada</li>
-                        </ol>
-                        <div class="instruction-tip">
-                            <strong>Dica importante:</strong> 
-                            Protocolos combinam múltiplas frequências para efeitos terapêuticos mais completos.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 6: Pós-Sessão -->
-                <div class="instruction-card">
-                    <div class="instruction-icon">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
-                    <h3 class="instruction-title">6. Pós-Sessão</h3>
-                    <div class="instruction-steps">
-                        <ol>
-                            <li>Aguarde alguns minutos antes de se levantar</li>
-                            <li>Beba um copo de água para hidratação</li>
-                            <li>Anote suas sensações e experiências</li>
-                            <li>Mantenha a regularidade nas sessões</li>
-                        </ol>
-                        <div class="instruction-tip">
-                            <strong>Dica importante:</strong> 
-                            Os efeitos são cumulativos. A consistência é mais importante que a duração.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Início Rápido -->
-            <div class="quick-start">
-                <h3><i class="fas fa-rocket mr-2"></i>Início Rápido em 4 Passos</h3>
-                <div class="quick-steps">
-                    <div class="quick-step">
-                        <span class="quick-step-number">1</span>
-                        <span>Coloque os headphones</span>
-                    </div>
-                    <div class="quick-step">
-                        <span class="quick-step-number">2</span>
-                        <span>Escolha uma frequência</span>
-                    </div>
-                    <div class="quick-step">
-                        <span class="quick-step-number">3</span>
-                        <span>Ajuste volume e toque</span>
-                    </div>
-                    <div class="quick-step">
-                        <span class="quick-step-number">4</span>
-                        <span>Relaxe e sinta os efeitos</span>
-                    </div>
-                </div>
             </div>
         </section>
 
         <!-- Main Content -->
         <main class="space-y-8">
-            <!-- Layout Principal: Gerador + Banco de Dados + Referências -->
+            <!-- Layout Principal: Gerador + Banco de Dados -->
             <div class="grid lg:grid-cols-12 gap-8">
-                <!-- Coluna 1: Gerador de Frequências + Histórico -->
+                <!-- Coluna 1: Gerador de Frequências -->
                 <div class="lg:col-span-5 space-y-6">
                     <section id="generatorSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                        <h2 class="text-2xl font-semibold mb-6 text-blue-400" id="generator-heading"><i class="fas fa-wave-square mr-2" aria-hidden="true"></i>Gerador de Frequências</h2>
-
-                        <!-- Protocol Controls (inicialmente oculto) -->
-                        <div id="protocolControls" class="protocol-controls hidden mb-6 p-4 bg-gray-900 rounded-lg">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-purple-400"><i class="fas fa-tasks mr-2" aria-hidden="true"></i><span id="protocolName">Protocolo Ativo</span></h3>
-                                <button id="exitProtocolBtn" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-sm transition" aria-label="Sair do protocolo">
-                                    <i class="fas fa-times mr-1" aria-hidden="true"></i>Sair
-                                </button>
-                            </div>
-                            <!-- Progress Bar -->
-                            <div class="mb-4">
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span>Progresso do Protocolo</span>
-                                    <span id="protocolProgressText">0/0</span>
-                                </div>
-                                <div class="w-full bg-gray-700 rounded-full h-2.5" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                    <div id="protocolProgressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                </div>
-                            </div>
-                            <!-- Step Indicators -->
-                            <div id="stepIndicators" class="flex flex-wrap gap-2 mb-4" role="tablist">
-                                <!-- Indicadores serão adicionados dinamicamente -->
-                            </div>
-                            <!-- Step Navigation -->
-                            <div class="flex justify-between">
-                                <button id="prevStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Passo anterior">
-                                    <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
-                                </button>
-                                <div class="text-center">
-                                    <div class="text-sm text-gray-400">Passo Atual</div>
-                                    <div id="currentStepName" class="font-medium">-</div>
-                                </div>
-                                <button id="nextStepBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Próximo passo">
-                                    Próximo<i class="fas fa-chevron-right ml-2" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </div>
+                        <h2 class="text-2xl font-semibold mb-6 text-blue-400">
+                            <i class="fas fa-wave-square mr-2"></i>Gerador de Frequências
+                        </h2>
 
                         <div class="space-y-4">
                             <!-- Frequency Input e Visualizer -->
-                            <div class="frequency-input-group">
-                                <div class="frequency-controls">
+                            <div class="flex gap-4 items-end">
+                                <div class="flex-1">
                                     <label for="frequency" class="block text-sm font-medium mb-2">Frequência (Hz)</label>
                                     <div class="flex gap-2">
-                                        <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1" aria-describedby="frequency-description">
-                                        <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105" aria-label="Tocar frequência">
-                                            <i class="fas fa-play mr-2" aria-hidden="true"></i>Tocar
+                                        <input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1">
+                                        <button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium">
+                                            <i class="fas fa-play mr-2"></i>Tocar
                                         </button>
-                                        <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition transform hover:scale-105 hidden" aria-label="Parar frequência">
-                                            <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
+                                        <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium hidden">
+                                            <i class="fas fa-stop mr-2"></i>Parar
                                         </button>
                                     </div>
-                                    <div id="frequency-description" class="sr-only">Insira uma frequência entre 20 Hz e 20.000 Hz</div>
                                 </div>
-                                <div class="wave-visualizer-small bg-gray-900 rounded-lg p-2">
+                                <div class="bg-gray-900 rounded-lg p-2">
                                     <h3 class="text-xs font-medium mb-1 text-gray-400 text-center">Onda em Tempo Real</h3>
-                                    <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded" aria-label="Visualização da forma de onda"></canvas>
+                                    <canvas id="waveCanvas" width="120" height="80" class="w-full h-full rounded"></canvas>
                                 </div>
                             </div>
 
                             <!-- Volume Control -->
                             <div>
                                 <label for="volume" class="block text-sm font-medium mb-2">Volume: <span id="volumeValue">50</span>%</label>
-                                <input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="50" aria-describedby="volume-description">
-                                <div id="volume-description" class="sr-only">Ajuste o volume de 0% a 100%</div>
+                                <input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="50">
                             </div>
 
                             <!-- Wave Type Selection -->
                             <div>
                                 <label class="block text-sm font-medium mb-2">Tipo de Onda</label>
                                 <div class="grid grid-cols-4 gap-2">
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-type="sine" aria-label="Onda senoidal">
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-type="sine">
                                         <i class="fas fa-wave-square"></i>
                                         <span class="block text-xs mt-1">Senoidal</span>
                                     </button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-type="square" aria-label="Onda quadrada">
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-type="square">
                                         <i class="fas fa-square"></i>
                                         <span class="block text-xs mt-1">Quadrada</span>
                                     </button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-type="sawtooth" aria-label="Onda dente de serra">
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-type="sawtooth">
                                         <i class="fas fa-chart-line"></i>
                                         <span class="block text-xs mt-1">Dente de Serra</span>
                                     </button>
-                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-type="triangle" aria-label="Onda triangular">
+                                    <button class="wave-type-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-type="triangle">
                                         <i class="fas fa-play"></i>
                                         <span class="block text-xs mt-1">Triangular</span>
                                     </button>
-                                </div>
-                            </div>
-
-                            <!-- Timer -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Timer (minutos)</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" id="timerMinutes" class="timer-input bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" min="1" max="60" value="5">
-                                    <button id="startTimerBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition">
-                                        <i class="fas fa-clock mr-2" aria-hidden="true"></i>Iniciar
-                                    </button>
-                                    <button id="stopTimerBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition hidden">
-                                        <i class="fas fa-stop mr-2" aria-hidden="true"></i>Parar
-                                    </button>
-                                    <div class="timer-display ml-2" id="timerDisplay">00:00</div>
-                                </div>
-                                <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
-                                    <div id="timerProgress" class="timer-progress bg-green-600 h-2 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
 
@@ -1485,143 +768,59 @@
                             <div>
                                 <label class="block text-sm font-medium mb-2">Frequências Pré-definidas</label>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-freq="40">
-                                        <i class="fas fa-brain mr-2" aria-hidden="true"></i>Foco (40Hz)
+                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-freq="40">
+                                        <i class="fas fa-brain mr-2"></i>Foco (40Hz)
                                     </button>
-                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-freq="25">
-                                        <i class="fas fa-bolt mr-2" aria-hidden="true"></i>Energia (25Hz)
+                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-freq="25">
+                                        <i class="fas fa-bolt mr-2"></i>Energia (25Hz)
                                     </button>
-                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-freq="285">
-                                        <i class="fas fa-spa mr-2" aria-hidden="true"></i>Relaxamento (285Hz)
+                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-freq="285">
+                                        <i class="fas fa-spa mr-2"></i>Relaxamento (285Hz)
                                     </button>
-                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition" data-freq="2.5">
-                                        <i class="fas fa-moon mr-2" aria-hidden="true"></i>Sono (2.5Hz)
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Protocol Selection -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Protocolos Terapêuticos</label>
-                                <div class="grid grid-cols-1 gap-2">
-                                    <button class="protocol-btn bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 py-3 rounded-lg transition" data-protocol="energy">
-                                        <i class="fas fa-bolt mr-2" aria-hidden="true"></i>Protocolo de Energia
-                                    </button>
-                                    <button class="protocol-btn bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-3 rounded-lg transition" data-protocol="focus">
-                                        <i class="fas fa-brain mr-2" aria-hidden="true"></i>Protocolo de Foco
-                                    </button>
-                                    <button class="protocol-btn bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 py-3 rounded-lg transition" data-protocol="harmony">
-                                        <i class="fas fa-heart mr-2" aria-hidden="true"></i>Protocolo de Harmonia
+                                    <button class="preset-btn bg-gray-700 hover:bg-gray-600 py-2 rounded-lg" data-freq="2.5">
+                                        <i class="fas fa-moon mr-2"></i>Sono (2.5Hz)
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </section>
-
-                    <!-- Histórico de Uso -->
-                    <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                        <h2 class="text-2xl font-semibold mb-4 text-blue-400"><i class="fas fa-history mr-2" aria-hidden="true"></i>Histórico de Uso</h2>
-                        <div id="historyList" class="space-y-2">
-                            <div class="text-gray-400 text-center py-4">Nenhum histórico disponível</div>
-                        </div>
-                        <button id="clearHistoryBtn" class="mt-4 w-full bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition">
-                            <i class="fas fa-trash mr-2" aria-hidden="true"></i>Limpar Histórico
-                        </button>
                     </section>
                 </div>
 
                 <!-- Coluna 2: Banco de Dados de Frequências -->
                 <div class="lg:col-span-7 space-y-6">
                     <section id="databaseSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                        <h2 class="text-2xl font-semibold mb-6 text-blue-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências</h2>
+                        <h2 class="text-2xl font-semibold mb-6 text-blue-400">
+                            <i class="fas fa-database mr-2"></i>Banco de Dados de Frequências
+                        </h2>
 
                         <!-- Filtros e Busca -->
                         <div class="filter-section">
-                            <div class="grid md:grid-cols-4 gap-4">
-                                <div class="filter-group md:col-span-2">
-                                    <label for="searchInput" class="filter-label">Buscar Frequências</label>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="filter-group">
+                                    <label for="searchInput" class="filter-label">Buscar</label>
                                     <div class="relative">
-                                        <input type="text" id="searchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Nome, descrição, valor ou categoria...">
-                                            <i class="fas fa-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
+                                        <input type="text" id="searchInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome, descrição ou valor...">
+                                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                                         </div>
-                                        <div id="searchResultsCount" class="text-sm text-gray-400 mt-1"></div>
                                     </div>
                                 </div>
                                 <div class="filter-group">
                                     <label for="categoryFilter" class="filter-label">Categoria</label>
-                                    <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                    <select id="categoryFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">Todas as categorias</option>
-                                        <option value="geral">Geral</option>
                                         <option value="concentracao">Concentração</option>
                                         <option value="energia">Energia</option>
                                         <option value="relaxamento">Relaxamento</option>
                                         <option value="sono">Sono</option>
                                         <option value="cura">Cura</option>
-                                        <option value="vermifugacao">Vermifugação</option>
-                                        <option value="anti-inflamatorio">Anti-inflamatório</option>
-                                        <option value="meditacao">Meditação</option>
-                                        <option value="digestivo">Digestivo</option>
-                                        <option value="infeccao">Infecção</option>
-                                        <option value="metabolico">Metabólico</option>
-                                        <option value="dermatologico">Dermatológico</option>
-                                        <option value="respiratorio">Respiratório</option>
-                                        <option value="cardiovascular">Cardiovascular</option>
-                                        <option value="neurologico">Neurológico</option>
-                                        <option value="muscular">Muscular</option>
-                                        <option value="articular">Articular</option>
-                                        <option value="imunologico">Imunológico</option>
                                     </select>
                                 </div>
                                 <div class="filter-group">
                                     <label for="sortBy" class="filter-label">Ordenar por</label>
-                                    <select id="sortBy" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                                        <option value="relevance">Relevância</option>
+                                    <select id="sortBy" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="name">Nome</option>
                                         <option value="value">Frequência</option>
                                         <option value="category">Categoria</option>
-                                        <option value="popularity">Popularidade</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <!-- Filtros avançados -->
-                            <div class="mt-4 grid md:grid-cols-3 gap-4">
-                                <div class="filter-group">
-                                    <label for="minFrequency" class="filter-label">Frequência Mínima (Hz)</label>
-                                    <input type="number" id="minFrequency" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="0" min="0" max="20000">
-                                </div>
-                                <div class="filter-group">
-                                    <label for="maxFrequency" class="filter-label">Frequência Máxima (Hz)</label>
-                                    <input type="number" id="maxFrequency" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="20000" min="0" max="20000">
-                                </div>
-                                <div class="filter-group">
-                                    <label for="evidenceFilter" class="filter-label">Nível de Evidência</label>
-                                    <select id="evidenceFilter" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                                        <option value="">Todos</option>
-                                        <option value="high">Alta</option>
-                                        <option value="medium">Média</option>
-                                        <option value="low">Baixa</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <!-- Botões de ação -->
-                            <div class="mt-4 flex justify-between items-center">
-                                <div class="flex gap-2">
-                                    <button id="clearFiltersBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition">
-                                        <i class="fas fa-times mr-2"></i>Limpar Filtros
-                                    </button>
-                                    <button id="exportResultsBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition">
-                                        <i class="fas fa-download mr-2"></i>Exportar Resultados
-                                    </button>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <label for="itemsPerPage" class="text-sm">Itens por página:</label>
-                                    <select id="itemsPerPage" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm">
-                                        <option value="9">9</option>
-                                        <option value="18">18</option>
-                                        <option value="36">36</option>
-                                        <option value="72">72</option>
                                     </select>
                                 </div>
                             </div>
@@ -1629,7 +828,7 @@
 
                         <!-- Lista de Frequências -->
                         <div class="database-container">
-                            <div id="frequenciesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div id="frequenciesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Cards de frequência serão inseridos aqui dinamicamente -->
                             </div>
                             <div id="noResults" class="no-results hidden">
@@ -1638,91 +837,33 @@
                                 </div>
                                 <h3 class="text-xl font-semibold mb-2">Nenhum resultado encontrado</h3>
                                 <p>Tente ajustar seus filtros ou termos de busca</p>
-                                <button class="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition" onclick="clearFilters()">
-                                    <i class="fas fa-redo mr-2"></i>Limpar Filtros
-                                </button>
                             </div>
                         </div>
 
                         <!-- Paginação -->
                         <div class="pagination-container">
                             <button id="prevPageBtn" class="pagination-btn" disabled>
-                                <i class="fas fa-chevron-left mr-2" aria-hidden="true"></i>Anterior
+                                <i class="fas fa-chevron-left mr-2"></i>Anterior
                             </button>
                             <div id="pageInfo" class="pagination-info">Página 1 de 1</div>
                             <button id="nextPageBtn" class="pagination-btn" disabled>
-                                Próximo<i class="fas fa-chevron-right ml-2" aria-hidden="true"></i>
+                                Próximo<i class="fas fa-chevron-right ml-2"></i>
                             </button>
-                        </div>
-                    </section>
-
-                    <!-- Top 10 Frequências -->
-                    <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                        <h2 class="text-2xl font-semibold mb-4 text-blue-400"><i class="fas fa-trophy mr-2" aria-hidden="true"></i>Top 10 Frequências Mais Usadas</h2>
-                        <div id="top10List" class="top10-container space-y-3">
-                            <!-- Top 10 será inserido aqui dinamicamente -->
                         </div>
                     </section>
                 </div>
             </div>
-
-            <!-- Seção de Referências Científicas -->
-            <section class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-                <h2 class="text-2xl font-semibold mb-4 text-blue-400"><i class="fas fa-microscope mr-2" aria-hidden="true"></i>Referências Científicas</h2>
-                
-                <div class="editable-area">
-                    <div class="editable-label">ÁREA EDITAVEL - REFERÊNCIAS</div>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="text-xl font-semibold mb-3 text-purple-400">Referências Gerais</h3>
-                            <div class="space-y-3">
-                                <div class="reference-item">
-                                    <strong>Royal Rife (1930s)</strong> - Pesquisas pioneiras em terapia de frequência e ressonância.
-                                </div>
-                                <div class="reference-item">
-                                    <strong>Hulda Clark (1993)</strong> - Desenvolvimento de protocolos de frequência para parasitas e patógenos.
-                                </div>
-                                <div class="reference-item">
-                                    <strong>Nikola Tesla (1900s)</strong> - Experimentos com energia eletromagnética e seus efeitos biológicos.
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h3 class="text-xl font-semibold mb-3 text-purple-400">Frequências Solfeggio</h3>
-                            <div class="space-y-3">
-                                <div class="reference-item">
-                                    <strong>Journal of Music Therapy (2020)</strong> - Efeitos das frequências Solfeggio na redução do estresse e ansiedade.
-                                </div>
-                                <div class="reference-item">
-                                    <strong>Frontiers in Psychology (2019)</strong> - Impacto das frequências de 528Hz na reparação celular e bem-estar.
-                                </div>
-                                <div class="reference-item">
-                                    <strong>International Journal of Neuroscience (2018)</strong> - Estudo sobre os efeitos da frequência de 432Hz no sistema nervoso central.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </main>
 
         <!-- Rodapé -->
         <footer class="mt-12 pt-8 border-t border-gray-700 text-center text-gray-400">
             <p>&copy; 2023 Hertzf - Frequências Terapêuticas & Protocolos Personalizados. Todos os direitos reservados.</p>
             <p class="mt-2">Este aplicativo é para fins educacionais e de bem-estar. Consulte um profissional de saúde para condições médicas.</p>
-            <div class="mt-4 flex justify-center space-x-4">
-                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-youtube"></i></a>
-            </div>
         </footer>
     </div>
 
     <!-- Botão Voltar ao Topo -->
-    <button id="topBtn" aria-label="Voltar ao topo">
+    <button id="topBtn">
         <i class="fas fa-arrow-up"></i>
     </button>
 
@@ -1734,8 +875,8 @@
             </button>
             
             <div class="detail-header">
-                <h2 id="detailTitle" class="detail-title">Nome da Frequência</h2>
-                <p id="detailSubtitle" class="detail-subtitle">Valor Hz</p>
+                <h2 id="detailTitle" class="text-2xl font-bold mb-2">Nome da Frequência</h2>
+                <p id="detailSubtitle" class="text-blue-400">Valor Hz</p>
             </div>
             
             <div class="detail-tabs">
@@ -1752,70 +893,17 @@
                     </h3>
                     <p id="detailDescription" class="text-gray-300">Descrição da frequência</p>
                 </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-cogs mr-2"></i>Mecanismo de Ação
-                    </h3>
-                    <p id="detailMechanism" class="text-gray-300">Mecanismo de ação</p>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-link mr-2"></i>Sinergias
-                    </h3>
-                    <div id="detailSynergies" class="flex flex-wrap gap-2">
-                        <!-- Tags de sinergia serão inseridas aqui -->
-                    </div>
-                </div>
-            </div>
-            
-            <div id="evidenceTab" class="detail-tab-content">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-flask mr-2"></i>Evidências Científicas
-                    </h3>
-                    <div id="detailEvidence" class="space-y-3">
-                        <!-- Itens de evidência serão inseridos aqui -->
-                    </div>
-                </div>
-            </div>
-            
-            <div id="protocolsTab" class="detail-tab-content">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-clipboard-list mr-2"></i>Protocolos Recomendados
-                    </h3>
-                    <div id="detailProtocols" class="space-y-3">
-                        <!-- Itens de protocolo serão inseridos aqui -->
-                    </div>
-                </div>
-            </div>
-            
-            <div id="safetyTab" class="detail-tab-content">
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Contraindicações
-                    </h3>
-                    <div id="detailContraindications" class="space-y-2">
-                        <!-- Itens de contraindicação serão inseridos aqui -->
-                    </div>
-                </div>
-                
-                <div class="detail-section">
-                    <h3 class="detail-section-title">
-                        <i class="fas fa-pills mr-2"></i>Efeitos Colaterais
-                    </h3>
-                    <div id="detailSideEffects" class="space-y-2">
-                        <!-- Itens de efeitos colaterais serão inseridos aqui -->
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
+    <!-- Debug Panel -->
+    <div id="debugPanel" class="debug-panel">
+        <div><strong>Debug Panel</strong></div>
+        <div id="debugInfo"></div>
+    </div>
+
     <!-- Scripts -->
-    <script src="frequenciesData.js"></script>
     <script>
         // Variáveis globais
         let audioContext;
@@ -1824,22 +912,11 @@
         let isPlaying = false;
         let currentWaveType = 'sine';
         let animationId;
-        let timerInterval;
-        let timerSeconds = 0;
-        let timerDuration = 0;
-        let protocolInterval;
-        let currentProtocol = null;
-        let currentStep = 0;
         let allFrequencies = [];
         let filteredFrequencies = [];
         let currentPage = 1;
-        let itemsPerPage = 9;
+        const itemsPerPage = 9;
         let searchTimeout;
-        let selectedFrequency = null;
-
-        // Constantes para cache
-        const CACHE_KEY = 'frequenciesCache';
-        const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas
 
         // Elementos do DOM
         const frequencyInput = document.getElementById('frequency');
@@ -1849,75 +926,54 @@
         const volumeValue = document.getElementById('volumeValue');
         const waveCanvas = document.getElementById('waveCanvas');
         const ctx = waveCanvas.getContext('2d');
-        const timerMinutes = document.getElementById('timerMinutes');
-        const startTimerBtn = document.getElementById('startTimerBtn');
-        const stopTimerBtn = document.getElementById('stopTimerBtn');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const timerProgress = document.getElementById('timerProgress');
-        const historyList = document.getElementById('historyList');
-        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-        const protocolControls = document.getElementById('protocolControls');
-        const protocolName = document.getElementById('protocolName');
-        const exitProtocolBtn = document.getElementById('exitProtocolBtn');
-        const protocolProgressBar = document.getElementById('protocolProgressBar');
-        const protocolProgressText = document.getElementById('protocolProgressText');
-        const stepIndicators = document.getElementById('stepIndicators');
-        const prevStepBtn = document.getElementById('prevStepBtn');
-        const nextStepBtn = document.getElementById('nextStepBtn');
-        const currentStepName = document.getElementById('currentStepName');
         const frequenciesList = document.getElementById('frequenciesList');
         const searchInput = document.getElementById('searchInput');
         const categoryFilter = document.getElementById('categoryFilter');
         const sortBy = document.getElementById('sortBy');
-        const minFrequency = document.getElementById('minFrequency');
-        const maxFrequency = document.getElementById('maxFrequency');
-        const evidenceFilter = document.getElementById('evidenceFilter');
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageInfo = document.getElementById('pageInfo');
         const noResults = document.getElementById('noResults');
-        const top10List = document.getElementById('top10List');
         const headphoneModal = document.getElementById('headphoneModal');
         const closeHeadphoneModal = document.getElementById('closeHeadphoneModal');
         const dontShowAgain = document.getElementById('dontShowAgain');
         const topBtn = document.getElementById('topBtn');
         const detailModal = document.getElementById('detailModal');
         const closeDetailModal = document.getElementById('closeDetailModal');
-        const searchResultsCount = document.getElementById('searchResultsCount');
-        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-        const exportResultsBtn = document.getElementById('exportResultsBtn');
-        const itemsPerPageSelect = document.getElementById('itemsPerPage');
+        const debugPanel = document.getElementById('debugPanel');
+        const debugInfo = document.getElementById('debugInfo');
 
-        // Protocolos definidos
-        const protocols = {
-            energy: {
-                name: "Protocolo de Energia",
-                steps: [
-                    { frequency: 25, duration: 5, name: "Ativação Celular", description: "Estimula a produção de energia celular" },
-                    { frequency: 50, duration: 5, name: "Circulação Sanguínea", description: "Melhora a circulação e oxigenação" },
-                    { frequency: 150, duration: 5, name: "Vitalidade", description: "Aumenta os níveis gerais de energia" }
-                ]
-            },
-            focus: {
-                name: "Protocolo de Foco",
-                steps: [
-                    { frequency: 15, duration: 3, name: "Preparação", description: "Prepara o cérebro para concentração" },
-                    { frequency: 40, duration: 10, name: "Foco Intenso", description: "Estimula ondas gama para foco máximo" },
-                    { frequency: 852, duration: 2, name: "Integração", description: "Integra a experiência" }
-                ]
-            },
-            harmony: {
-                name: "Protocolo de Harmonia",
-                steps: [
-                    { frequency: 285, duration: 5, name: "Relaxamento", description: "Induz estado de relaxamento profundo" },
-                    { frequency: 432, duration: 5, name: "Equilíbrio", description: "Harmoniza o corpo e a mente" },
-                    { frequency: 639, duration: 5, name: "Conexão", description: "Promove conexão emocional" }
-                ]
+        // Função para log de debug
+        function debugLog(message) {
+            console.log(`[DEBUG] ${message}`);
+            if (debugPanel.classList.contains('show')) {
+                debugInfo.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
             }
-        };
+        }
+
+        // Função para mostrar erros
+        function showError(element, message, error = null) {
+            debugLog(`Erro: ${message}`);
+            if (error) {
+                debugLog(`Detalhes do erro: ${error.message || error}`);
+            }
+            
+            element.innerHTML = `
+                <div class="error-message">
+                    <div class="error-title">Erro ao carregar dados</div>
+                    <div>${message}</div>
+                    ${error ? `<div class="error-details">${error.message || error}</div>` : ''}
+                    <button class="mt-3 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg" onclick="loadFrequenciesData()">
+                        <i class="fas fa-redo mr-2"></i>Tentar Novamente
+                    </button>
+                </div>
+            `;
+        }
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
+            debugLog('DOM carregado, iniciando aplicação');
+            
             // Verificar se deve mostrar o modal de headphones
             if (!localStorage.getItem('dontShowHeadphoneModal')) {
                 headphoneModal.classList.remove('hidden');
@@ -1930,386 +986,233 @@
             setupEventListeners();
         });
 
-        // Função para obter dados do cache
-        function getCachedData() {
-            const cached = localStorage.getItem(CACHE_KEY);
-            if (cached) {
-                const { data, timestamp } = JSON.parse(cached);
-                if (Date.now() - timestamp < CACHE_EXPIRY) {
-                    return data;
-                }
-            }
-            return null;
-        }
-
-        // Função para salvar dados no cache
-        function cacheData(data) {
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
-                data: data,
-                timestamp: Date.now()
-            }));
-        }
-
-        // Função para mostrar indicador de carregamento
-        function showLoading() {
+        // Função para carregar os dados de frequências
+        function loadFrequenciesData() {
+            debugLog('Iniciando carregamento dos dados de frequências');
+            
+            // Mostrar indicador de carregamento
             frequenciesList.innerHTML = `
                 <div class="col-span-full flex justify-center items-center py-8">
                     <div class="loading-spinner"></div>
                     <span class="ml-3">Carregando frequências...</span>
                 </div>
             `;
-        }
 
-        // Função para mostrar mensagem de erro
-        function showError() {
-            frequenciesList.innerHTML = `
-                <div class="col-span-full text-center py-8">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Erro ao carregar dados</h3>
-                    <p class="text-gray-400">Não foi possível carregar o banco de dados de frequências. Por favor, tente novamente mais tarde.</p>
-                    <button class="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition" onclick="loadFrequenciesData()">
-                        <i class="fas fa-redo mr-2"></i>Tentar Novamente
-                    </button>
-                </div>
-            `;
-        }
+            // Tentar diferentes métodos de carregamento
+            try {
+                // Método 1: Verificar se os dados já estão disponíveis globalmente
+                if (typeof frequenciesData !== 'undefined') {
+                    debugLog('Dados encontrados globalmente');
+                    allFrequencies = frequenciesData;
+                    filteredFrequencies = [...allFrequencies];
+                    renderFrequencies();
+                    return;
+                }
 
-        // Função para carregar os dados de frequências
-        function loadFrequenciesData() {
-            // Mostrar indicador de carregamento
-            showLoading();
-            
-            // Tentar obter dados do cache
-            const cachedData = getCachedData();
-            if (cachedData) {
-                allFrequencies = cachedData;
-                filteredFrequencies = [...allFrequencies];
-                renderFrequencies();
-                renderTop10();
-                loadHistory();
-                return;
+                // Método 2: Tentar carregar do arquivo local
+                debugLog('Tentando carregar do arquivo local');
+                loadFromLocalFile();
+            } catch (error) {
+                debugLog(`Erro no carregamento: ${error.message}`);
+                showError(frequenciesList, 'Não foi possível carregar o banco de dados de frequências.', error);
             }
-            
-            // Se não estiver no cache, carregar do arquivo
-            if (typeof frequenciesData !== 'undefined') {
-                allFrequencies = frequenciesData;
-                filteredFrequencies = [...allFrequencies];
-                cacheData(allFrequencies);
-                renderFrequencies();
-                renderTop10();
-                loadHistory();
-            } else {
-                // Fazer requisição para carregar o arquivo
-                fetch('frequenciesData.js')
-                    .then(response => response.text())
-                    .then(data => {
-                        // Extrair o array do arquivo de texto
+        }
+
+        // Função para carregar do arquivo local
+        function loadFromLocalFile() {
+            fetch('frequenciesData.js')
+                .then(response => {
+                    debugLog(`Resposta do fetch: ${response.status} ${response.statusText}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    debugLog('Arquivo carregado, processando dados');
+                    
+                    // Tentar extrair o array do arquivo
+                    try {
+                        // Método 1: Procurar por const frequenciesData = [...]
                         const match = data.match(/const frequenciesData = (\[[\s\S]*?\]);/);
                         if (match) {
+                            debugLog('Dados extraídos usando regex');
                             allFrequencies = JSON.parse(match[1]);
                             filteredFrequencies = [...allFrequencies];
-                            cacheData(allFrequencies);
                             renderFrequencies();
-                            renderTop10();
-                            loadHistory();
-                        } else {
-                            showError();
+                            return;
                         }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar dados de frequências:', error);
-                        showError();
-                    });
-            }
+                        
+                        // Método 2: Procurar por window.frequenciesData = [...]
+                        const match2 = data.match(/window\.frequenciesData = (\[[\s\S]*?\]);/);
+                        if (match2) {
+                            debugLog('Dados extraídos usando regex (window)');
+                            allFrequencies = JSON.parse(match2[1]);
+                            filteredFrequencies = [...allFrequencies];
+                            renderFrequencies();
+                            return;
+                        }
+                        
+                        // Método 3: Tentar eval (apenas para desenvolvimento)
+                        try {
+                            debugLog('Tentando eval como último recurso');
+                            eval(data);
+                            if (typeof frequenciesData !== 'undefined') {
+                                allFrequencies = frequenciesData;
+                                filteredFrequencies = [...allFrequencies];
+                                renderFrequencies();
+                                return;
+                            }
+                        } catch (evalError) {
+                            debugLog(`Eval falhou: ${evalError.message}`);
+                        }
+                        
+                        throw new Error('Não foi possível extrair os dados do arquivo');
+                    } catch (parseError) {
+                        debugLog(`Erro ao processar dados: ${parseError.message}`);
+                        throw parseError;
+                    }
+                })
+                .catch(error => {
+                    debugLog(`Erro no fetch: ${error.message}`);
+                    showError(frequenciesList, 'Erro ao carregar o arquivo de dados.', error);
+                });
         }
 
         // Configurar event listeners
         function setupEventListeners() {
-            // Controles de áudio
-            playBtn.addEventListener('click', playFrequency);
-            stopBtn.addEventListener('click', stopFrequency);
-            volumeSlider.addEventListener('input', updateVolume);
-            frequencyInput.addEventListener('input', updateFrequency);
+            debugLog('Configurando event listeners');
+            
+            try {
+                // Controles de áudio
+                playBtn.addEventListener('click', playFrequency);
+                stopBtn.addEventListener('click', stopFrequency);
+                volumeSlider.addEventListener('input', updateVolume);
+                frequencyInput.addEventListener('input', updateFrequency);
 
-            // Controles de tipo de onda
-            document.querySelectorAll('.wave-type-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentWaveType = btn.dataset.type;
-                    document.querySelectorAll('.wave-type-btn').forEach(b => b.classList.remove('bg-blue-600'));
-                    btn.classList.add('bg-blue-600');
+                // Controles de tipo de onda
+                document.querySelectorAll('.wave-type-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        currentWaveType = btn.dataset.type;
+                        document.querySelectorAll('.wave-type-btn').forEach(b => b.classList.remove('bg-blue-600'));
+                        btn.classList.add('bg-blue-600');
+                    });
                 });
-            });
 
-            // Controles de timer
-            startTimerBtn.addEventListener('click', startTimer);
-            stopTimerBtn.addEventListener('click', stopTimer);
-
-            // Controles de preset
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    frequencyInput.value = btn.dataset.freq;
-                    updateFrequency();
+                // Controles de preset
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        frequencyInput.value = btn.dataset.freq;
+                        updateFrequency();
+                    });
                 });
-            });
 
-            // Controles de protocolo
-            document.querySelectorAll('.protocol-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    startProtocol(btn.dataset.protocol);
+                // Controles do banco de dados
+                searchInput.addEventListener('input', handleSearch);
+                categoryFilter.addEventListener('change', applyFilters);
+                sortBy.addEventListener('change', applyFilters);
+                prevPageBtn.addEventListener('click', () => changePage(-1));
+                nextPageBtn.addEventListener('click', () => changePage(1));
+
+                // Modal de headphones
+                closeHeadphoneModal.addEventListener('click', () => {
+                    if (dontShowAgain.checked) {
+                        localStorage.setItem('dontShowHeadphoneModal', 'true');
+                    }
+                    headphoneModal.classList.add('hidden');
                 });
-            });
 
-            exitProtocolBtn.addEventListener('click', exitProtocol);
-            prevStepBtn.addEventListener('click', () => changeProtocolStep(-1));
-            nextStepBtn.addEventListener('click', () => changeProtocolStep(1));
-
-            // Controles de histórico
-            clearHistoryBtn.addEventListener('click', clearHistory);
-
-            // Controles do banco de dados
-            searchInput.addEventListener('input', handleSearch);
-            categoryFilter.addEventListener('change', applyFilters);
-            sortBy.addEventListener('change', applyFilters);
-            minFrequency.addEventListener('input', applyFilters);
-            maxFrequency.addEventListener('input', applyFilters);
-            evidenceFilter.addEventListener('change', applyFilters);
-            itemsPerPageSelect.addEventListener('change', handleItemsPerPageChange);
-            clearFiltersBtn.addEventListener('click', clearFilters);
-            exportResultsBtn.addEventListener('click', exportResults);
-            prevPageBtn.addEventListener('click', () => changePage(-1));
-            nextPageBtn.addEventListener('click', () => changePage(1));
-
-            // Modal de headphones
-            closeHeadphoneModal.addEventListener('click', () => {
-                if (dontShowAgain.checked) {
-                    localStorage.setItem('dontShowHeadphoneModal', 'true');
-                }
-                headphoneModal.classList.add('hidden');
-            });
-
-            // Botão voltar ao topo
-            window.addEventListener('scroll', () => {
-                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                    topBtn.classList.add('show');
-                } else {
-                    topBtn.classList.remove('show');
-                }
-            });
-
-            topBtn.addEventListener('click', () => {
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
-            });
-
-            // Modal de detalhes
-            closeDetailModal.addEventListener('click', () => {
-                detailModal.classList.add('hidden');
-            });
-
-            // Tabs do modal de detalhes
-            document.querySelectorAll('.detail-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabName = tab.dataset.tab;
-                    document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
-                    tab.classList.add('active');
-                    document.getElementById(`${tabName}Tab`).classList.add('active');
+                // Botão voltar ao topo
+                window.addEventListener('scroll', () => {
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        topBtn.classList.add('show');
+                    } else {
+                        topBtn.classList.remove('show');
+                    }
                 });
-            });
+
+                topBtn.addEventListener('click', () => {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                });
+
+                // Modal de detalhes
+                closeDetailModal.addEventListener('click', () => {
+                    detailModal.classList.add('hidden');
+                });
+
+                // Debug panel
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                        debugPanel.classList.toggle('show');
+                        if (debugPanel.classList.contains('show')) {
+                            debugInfo.innerHTML = '';
+                        }
+                    }
+                });
+
+                debugLog('Event listeners configurados com sucesso');
+            } catch (error) {
+                debugLog(`Erro ao configurar event listeners: ${error.message}`);
+                console.error('Erro ao configurar event listeners:', error);
+            }
         }
 
         // Função de busca com debounce
         function handleSearch() {
             clearTimeout(searchTimeout);
             
-            // Mostrar indicador de carregamento
-            frequenciesList.innerHTML = `
-                <div class="col-span-full flex justify-center items-center py-8">
-                    <div class="loading-spinner"></div>
-                    <span class="ml-3">Buscando...</span>
-                </div>
-            `;
-            
             searchTimeout = setTimeout(() => {
                 applyFilters();
-            }, 300); // 300ms de debounce
+            }, 300);
         }
 
-        // Função para lidar com mudança de itens por página
-        function handleItemsPerPageChange() {
-            itemsPerPage = parseInt(itemsPerPageSelect.value);
-            currentPage = 1;
-            renderFrequencies();
-        }
-
-        // Função para limpar filtros
-        function clearFilters() {
-            searchInput.value = '';
-            categoryFilter.value = '';
-            sortBy.value = 'relevance';
-            minFrequency.value = '';
-            maxFrequency.value = '';
-            evidenceFilter.value = '';
-            itemsPerPageSelect.value = '9';
-            
-            itemsPerPage = 9;
-            currentPage = 1;
-            
-            applyFilters();
-        }
-
-        // Função para exportar resultados
-        function exportResults() {
-            if (filteredFrequencies.length === 0) {
-                alert('Nenhum resultado para exportar');
-                return;
-            }
-            
-            // Preparar dados para exportação
-            const exportData = filteredFrequencies.map(freq => ({
-                Nome: freq.name,
-                Frequência: freq.value,
-                Categoria: getCategoryName(freq.category),
-                Descrição: freq.description,
-                Usos: freq.statistics?.uses || 0,
-                TaxaSucesso: freq.statistics?.successRate || 0
-            }));
-            
-            // Converter para CSV
-            const csv = convertToCSV(exportData);
-            
-            // Criar blob e download
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `frequencias_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Função para converter para CSV
-        function convertToCSV(data) {
-            const headers = Object.keys(data[0]);
-            const csvContent = [
-                headers.join(','),
-                ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
-            ].join('\n');
-            
-            return '\ufeff' + csvContent; // Adicionar BOM para UTF-8
-        }
-
-        // Função de filtros otimizada
+        // Função de filtros
         function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const selectedCategory = categoryFilter.value;
-            const sortOption = sortBy.value;
-            const minFreq = parseFloat(minFrequency.value) || 0;
-            const maxFreq = parseFloat(maxFrequency.value) || 20000;
-            const evidenceLevel = evidenceFilter.value;
+            debugLog('Aplicando filtros');
             
-            // Filtrar frequências
-            filteredFrequencies = allFrequencies.filter(freq => {
-                // Filtro por termo de busca
-                const matchesSearch = !searchTerm || 
-                    freq.name.toLowerCase().includes(searchTerm) || 
-                    freq.description.toLowerCase().includes(searchTerm) ||
-                    freq.value.toString().includes(searchTerm) ||
-                    freq.category.toLowerCase().includes(searchTerm) ||
-                    (freq.subcategory && freq.subcategory.toLowerCase().includes(searchTerm));
+            try {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const selectedCategory = categoryFilter.value;
+                const sortOption = sortBy.value;
                 
-                // Filtro por categoria
-                const matchesCategory = !selectedCategory || freq.category === selectedCategory;
+                // Filtrar frequências
+                filteredFrequencies = allFrequencies.filter(freq => {
+                    const matchesSearch = !searchTerm || 
+                        freq.name.toLowerCase().includes(searchTerm) || 
+                        freq.description.toLowerCase().includes(searchTerm) ||
+                        freq.value.toString().includes(searchTerm);
+                    
+                    const matchesCategory = !selectedCategory || freq.category === selectedCategory;
+                    
+                    return matchesSearch && matchesCategory;
+                });
                 
-                // Filtro por faixa de frequência
-                const matchesFrequency = freq.value >= minFreq && freq.value <= maxFreq;
+                // Ordenar resultados
+                filteredFrequencies.sort((a, b) => {
+                    switch(sortOption) {
+                        case 'name':
+                            return a.name.localeCompare(b.name);
+                        case 'value':
+                            return a.value - b.value;
+                        case 'category':
+                            return a.category.localeCompare(b.category);
+                        default:
+                            return 0;
+                    }
+                });
                 
-                // Filtro por nível de evidência
-                let matchesEvidence = true;
-                if (evidenceLevel) {
-                    matchesEvidence = freq.scientificEvidence && 
-                        freq.scientificEvidence.some(e => e.reliability === evidenceLevel);
-                }
+                // Resetar para primeira página
+                currentPage = 1;
                 
-                return matchesSearch && matchesCategory && matchesFrequency && matchesEvidence;
-            });
-            
-            // Ordenar resultados
-            filteredFrequencies.sort((a, b) => {
-                switch(sortOption) {
-                    case 'name':
-                        return a.name.localeCompare(b.name);
-                    case 'value':
-                        return a.value - b.value;
-                    case 'category':
-                        return a.category.localeCompare(b.category);
-                    case 'popularity':
-                        return (b.statistics?.uses || 0) - (a.statistics?.uses || 0);
-                    case 'relevance':
-                        // Ordenar por relevância baseado no termo de busca
-                        if (searchTerm) {
-                            const aRelevance = calculateRelevance(a, searchTerm);
-                            const bRelevance = calculateRelevance(b, searchTerm);
-                            return bRelevance - aRelevance;
-                        }
-                        return 0;
-                    default:
-                        return 0;
-                }
-            });
-            
-            // Resetar para primeira página
-            currentPage = 1;
-            
-            // Atualizar contador de resultados
-            updateResultsCount();
-            
-            // Renderizar resultados
-            renderFrequencies();
-        }
-
-        // Função para calcular relevância
-        function calculateRelevance(freq, searchTerm) {
-            let score = 0;
-            
-            // Pontuação por correspondência exata no nome
-            if (freq.name.toLowerCase().includes(searchTerm)) {
-                score += 10;
+                // Renderizar resultados
+                renderFrequencies();
+                
+                debugLog(`Filtros aplicados: ${filteredFrequencies.length} resultados`);
+            } catch (error) {
+                debugLog(`Erro ao aplicar filtros: ${error.message}`);
+                console.error('Erro ao aplicar filtros:', error);
             }
-            
-            // Pontuação por correspondência exata na descrição
-            if (freq.description.toLowerCase().includes(searchTerm)) {
-                score += 5;
-            }
-            
-            // Pontuação por correspondência exata no valor
-            if (freq.value.toString().includes(searchTerm)) {
-                score += 8;
-            }
-            
-            // Pontuação por correspondência exata na categoria
-            if (freq.category.toLowerCase().includes(searchTerm)) {
-                score += 3;
-            }
-            
-            // Bônus para frequências populares
-            score += (freq.statistics?.uses || 0) / 1000;
-            
-            return score;
-        }
-
-        // Função para atualizar o contador de resultados
-        function updateResultsCount() {
-            const count = filteredFrequencies.length;
-            const total = allFrequencies.length;
-            const start = (currentPage - 1) * itemsPerPage + 1;
-            const end = Math.min(currentPage * itemsPerPage, count);
-            
-            searchResultsCount.textContent = count > 0 
-                ? `Mostrando ${start}-${end} de ${count} resultados (total: ${total} frequências)`
-                : `Nenhum resultado encontrado (total: ${total} frequências)`;
         }
 
         // Funções de áudio
@@ -2322,79 +1225,73 @@
                 return;
             }
 
-            // Inicializar AudioContext
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            oscillator = audioContext.createOscillator();
-            gainNode = audioContext.createGain();
+            try {
+                // Inicializar AudioContext
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                oscillator = audioContext.createOscillator();
+                gainNode = audioContext.createGain();
 
-            // Configurar oscilador
-            oscillator.type = currentWaveType;
-            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                // Configurar oscilador
+                oscillator.type = currentWaveType;
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
 
-            // Configurar ganho (volume)
-            const volume = volumeSlider.value / 100;
-            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+                // Configurar ganho (volume)
+                const volume = volumeSlider.value / 100;
+                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
 
-            // Conectar nós
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+                // Conectar nós
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
 
-            // Iniciar oscilador
-            oscillator.start();
-            isPlaying = true;
+                // Iniciar oscilador
+                oscillator.start();
+                isPlaying = true;
 
-            // Atualizar UI
-            playBtn.classList.add('hidden');
-            stopBtn.classList.remove('hidden');
+                // Atualizar UI
+                playBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
 
-            // Iniciar animação da onda
-            drawWave();
+                // Iniciar animação da onda
+                drawWave();
 
-            // Adicionar ao histórico
-            addToHistory(frequency);
-
-            // Se estiver em um protocolo, avançar para o próximo passo após o tempo definido
-            if (currentProtocol) {
-                const step = currentProtocol.steps[currentStep];
-                protocolInterval = setTimeout(() => {
-                    if (currentStep < currentProtocol.steps.length - 1) {
-                        changeProtocolStep(1);
-                    } else {
-                        exitProtocol();
-                    }
-                }, step.duration * 1000);
+                debugLog(`Reproduzindo frequência: ${frequency}Hz`);
+            } catch (error) {
+                debugLog(`Erro ao reproduzir frequência: ${error.message}`);
+                console.error('Erro ao reproduzir frequência:', error);
             }
         }
 
         function stopFrequency() {
             if (!isPlaying) return;
 
-            // Parar oscilador
-            oscillator.stop();
-            isPlaying = false;
+            try {
+                // Parar oscilador
+                oscillator.stop();
+                isPlaying = false;
 
-            // Fechar AudioContext
-            if (audioContext) {
-                audioContext.close();
-                audioContext = null;
+                // Fechar AudioContext
+                if (audioContext) {
+                    audioContext.close();
+                    audioContext = null;
+                }
+
+                // Parar animação
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+
+                // Atualizar UI
+                playBtn.classList.remove('hidden');
+                stopBtn.classList.add('hidden');
+
+                // Limpar canvas
+                ctx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+
+                debugLog('Frequência parada');
+            } catch (error) {
+                debugLog(`Erro ao parar frequência: ${error.message}`);
+                console.error('Erro ao parar frequência:', error);
             }
-
-            // Parar animação
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
-
-            // Limpar intervalo do protocolo
-            if (protocolInterval) {
-                clearTimeout(protocolInterval);
-            }
-
-            // Atualizar UI
-            playBtn.classList.remove('hidden');
-            stopBtn.classList.add('hidden');
-
-            // Limpar canvas
-            ctx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
         }
 
         function updateVolume() {
@@ -2413,7 +1310,7 @@
             }
         }
 
-        // Funções de visualização
+        // Função de visualização
         function drawWave() {
             if (!isPlaying) return;
 
@@ -2459,424 +1356,178 @@
             animationId = requestAnimationFrame(drawWave);
         }
 
-        // Funções de timer
-        function startTimer() {
-            const minutes = parseInt(timerMinutes.value);
-            if (isNaN(minutes) || minutes < 1) {
-                alert('Por favor, insira um tempo válido em minutos');
-                return;
-            }
-
-            timerDuration = minutes * 60;
-            timerSeconds = 0;
-
-            startTimerBtn.classList.add('hidden');
-            stopTimerBtn.classList.remove('hidden');
-            timerMinutes.disabled = true;
-
-            timerInterval = setInterval(() => {
-                timerSeconds++;
-                updateTimerDisplay();
-
-                if (timerSeconds >= timerDuration) {
-                    stopTimer();
-                    stopFrequency();
-                }
-            }, 1000);
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-            timerSeconds = 0;
-            updateTimerDisplay();
-
-            startTimerBtn.classList.remove('hidden');
-            stopTimerBtn.classList.add('hidden');
-            timerMinutes.disabled = false;
-        }
-
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timerSeconds / 60);
-            const seconds = timerSeconds % 60;
-            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-            const progress = (timerSeconds / timerDuration) * 100;
-            timerProgress.style.width = `${progress}%`;
-        }
-
-        // Funções de protocolo
-        function startProtocol(protocolName) {
-            currentProtocol = protocols[protocolName];
-            currentStep = 0;
-
-            // Mostrar controles do protocolo
-            protocolControls.classList.remove('hidden');
-            protocolName.textContent = currentProtocol.name;
-
-            // Configurar passo inicial
-            updateProtocolStep();
-
-            // Iniciar reprodução da primeira frequência
-            frequencyInput.value = currentProtocol.steps[0].frequency;
-            playFrequency();
-        }
-
-        function exitProtocol() {
-            stopFrequency();
-            currentProtocol = null;
-            currentStep = 0;
-            protocolControls.classList.add('hidden');
-        }
-
-        function changeProtocolStep(direction) {
-            const newStep = currentStep + direction;
-            if (newStep < 0 || newStep >= currentProtocol.steps.length) return;
-
-            currentStep = newStep;
-            updateProtocolStep();
-
-            // Parar frequência atual e iniciar a nova
-            stopFrequency();
-            frequencyInput.value = currentProtocol.steps[currentStep].frequency;
-            playFrequency();
-        }
-
-        function updateProtocolStep() {
-            const step = currentProtocol.steps[currentStep];
-            currentStepName.textContent = step.name;
-
-            // Atualizar barra de progresso
-            const progress = ((currentStep + 1) / currentProtocol.steps.length) * 100;
-            protocolProgressBar.style.width = `${progress}%`;
-            protocolProgressText.textContent = `${currentStep + 1}/${currentProtocol.steps.length}`;
-
-            // Atualizar indicadores de passo
-            stepIndicators.innerHTML = '';
-            currentProtocol.steps.forEach((s, i) => {
-                const indicator = document.createElement('button');
-                indicator.className = `px-3 py-1 rounded-full text-sm ${i === currentStep ? 'bg-purple-600' : 'bg-gray-700'}`;
-                indicator.textContent = i + 1;
-                indicator.addEventListener('click', () => {
-                    if (i !== currentStep) {
-                        stopFrequency();
-                        currentStep = i;
-                        updateProtocolStep();
-                        frequencyInput.value = s.frequency;
-                        playFrequency();
-                    }
-                });
-                stepIndicators.appendChild(indicator);
-            });
-
-            // Atualizar botões de navegação
-            prevStepBtn.disabled = currentStep === 0;
-            nextStepBtn.disabled = currentStep === currentProtocol.steps.length - 1;
-        }
-
-        // Funções de histórico
-        function addToHistory(frequency) {
-            const history = JSON.parse(localStorage.getItem('frequencyHistory') || '[]');
-            const timestamp = new Date().toLocaleString();
-            
-            // Adicionar ao início do array
-            history.unshift({ frequency, timestamp });
-            
-            // Limitar a 10 itens
-            if (history.length > 10) {
-                history.pop();
-            }
-            
-            localStorage.setItem('frequencyHistory', JSON.stringify(history));
-            loadHistory();
-        }
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('frequencyHistory') || '[]');
-            
-            if (history.length === 0) {
-                historyList.innerHTML = '<div class="text-gray-400 text-center py-4">Nenhum histórico disponível</div>';
-                return;
-            }
-            
-            historyList.innerHTML = history.map(item => `
-                <div class="flex justify-between items-center bg-gray-700 p-3 rounded-lg">
-                    <div>
-                        <span class="font-medium">${item.frequency} Hz</span>
-                        <span class="text-gray-400 text-sm block">${item.timestamp}</span>
-                    </div>
-                    <button class="text-blue-400 hover:text-blue-300" onclick="frequencyInput.value=${item.frequency}; updateFrequency();">
-                        <i class="fas fa-play"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function clearHistory() {
-            if (confirm('Tem certeza que deseja limpar o histórico?')) {
-                localStorage.removeItem('frequencyHistory');
-                loadHistory();
-            }
-        }
-
-        // Função renderFrequencies otimizada
+        // Função renderFrequencies
         function renderFrequencies() {
-            // Limpar lista atual
-            frequenciesList.innerHTML = '';
+            debugLog('Renderizando frequências');
             
-            // Calcular itens para página atual
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedItems = filteredFrequencies.slice(startIndex, endIndex);
-            
-            // Verificar se há resultados
-            if (paginatedItems.length === 0) {
-                frequenciesList.innerHTML = `
-                    <div class="col-span-full text-center py-8">
-                        <i class="fas fa-search text-gray-500 text-4xl mb-4"></i>
-                        <h3 class="text-xl font-semibold mb-2">Nenhum resultado encontrado</h3>
-                        <p class="text-gray-400">Tente ajustar seus filtros ou termos de busca</p>
-                        <button class="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition" onclick="clearFilters()">
-                            <i class="fas fa-redo mr-2"></i>Limpar Filtros
-                        </button>
-                    </div>
-                `;
-            } else {
-                // Renderizar cada frequência
-                paginatedItems.forEach(freq => {
-                    const card = createFrequencyCard(freq);
-                    frequenciesList.appendChild(card);
-                });
+            try {
+                // Limpar lista atual
+                frequenciesList.innerHTML = '';
+                
+                // Calcular itens para página atual
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedItems = filteredFrequencies.slice(startIndex, endIndex);
+                
+                // Verificar se há resultados
+                if (paginatedItems.length === 0) {
+                    frequenciesList.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <i class="fas fa-search text-gray-500 text-4xl mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-2">Nenhum resultado encontrado</h3>
+                            <p class="text-gray-400">Tente ajustar seus filtros ou termos de busca</p>
+                        </div>
+                    `;
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                    
+                    // Renderizar cada frequência
+                    paginatedItems.forEach(freq => {
+                        const card = createFrequencyCard(freq);
+                        frequenciesList.appendChild(card);
+                    });
+                }
+                
+                // Atualizar paginação
+                updatePagination();
+                
+                debugLog(`Renderizadas ${paginatedItems.length} frequências`);
+            } catch (error) {
+                debugLog(`Erro ao renderizar frequências: ${error.message}`);
+                console.error('Erro ao renderizar frequências:', error);
+                showError(frequenciesList, 'Erro ao renderizar as frequências.', error);
             }
-            
-            // Atualizar paginação
-            updatePagination();
         }
 
         function createFrequencyCard(freq) {
-            const card = document.createElement('div');
-            card.className = 'frequency-card bg-gray-700 rounded-lg p-4 border border-gray-600';
-            
-            // Determinar cor da categoria
-            const categoryColors = {
-                'concentracao': 'bg-blue-600',
-                'energia': 'bg-yellow-600',
-                'relaxamento': 'bg-green-600',
-                'sono': 'bg-indigo-600',
-                'cura': 'bg-red-600',
-                'vermifugacao': 'bg-purple-600',
-                'anti-inflamatorio': 'bg-pink-600',
-                'meditacao': 'bg-teal-600',
-                'digestivo': 'bg-orange-600',
-                'infeccao': 'bg-red-700',
-                'metabolico': 'bg-amber-600',
-                'dermatologico': 'bg-rose-600',
-                'respiratorio': 'bg-cyan-600',
-                'cardiovascular': 'bg-red-800',
-                'neurologico': 'bg-purple-700',
-                'muscular': 'bg-green-700',
-                'articular': 'bg-yellow-700',
-                'imunologico': 'bg-pink-700',
-                'geral': 'bg-gray-600'
-            };
-            
-            const categoryColor = categoryColors[freq.category] || 'bg-gray-600';
-            
-            // Determinar nível de evidência
-            let evidenceBadge = '';
-            if (freq.scientificEvidence && freq.scientificEvidence.length > 0) {
-                const evidence = freq.scientificEvidence[0];
-                const evidenceClass = `evidence-${evidence.reliability}`;
-                evidenceBadge = `<span class="evidence-badge ${evidenceClass}">${getReliabilityText(evidence.reliability)}</span>`;
+            try {
+                const card = document.createElement('div');
+                card.className = 'frequency-card bg-gray-700 rounded-lg p-4 border border-gray-600';
+                
+                // Determinar cor da categoria
+                const categoryColors = {
+                    'concentracao': 'bg-blue-600',
+                    'energia': 'bg-yellow-600',
+                    'relaxamento': 'bg-green-600',
+                    'sono': 'bg-indigo-600',
+                    'cura': 'bg-red-600'
+                };
+                
+                const categoryColor = categoryColors[freq.category] || 'bg-gray-600';
+                
+                // Conteúdo do card
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-semibold">${freq.name}</h3>
+                        <div>
+                            <span class="category-badge ${categoryColor}">${freq.category}</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-3">${freq.description}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-400 font-medium">${freq.value} Hz</span>
+                        <div class="flex gap-2">
+                            <button class="select-frequency-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded" data-id="${freq.id}">
+                                Selecionar
+                            </button>
+                            <button class="details-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded" data-id="${freq.id}">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Adicionar evento de clique para selecionar
+                const selectBtn = card.querySelector('.select-frequency-btn');
+                selectBtn.addEventListener('click', () => selectFrequency(freq));
+                
+                // Adicionar evento de clique para detalhes
+                const detailsBtn = card.querySelector('.details-btn');
+                detailsBtn.addEventListener('click', () => showFrequencyDetails(freq));
+                
+                return card;
+            } catch (error) {
+                debugLog(`Erro ao criar card de frequência: ${error.message}`);
+                console.error('Erro ao criar card de frequência:', error);
+                return document.createElement('div');
             }
-            
-            // Conteúdo do card
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-lg font-semibold">${freq.name}</h3>
-                    <div>
-                        <span class="category-badge ${categoryColor}">${getCategoryName(freq.category)}</span>
-                        ${evidenceBadge}
-                    </div>
-                </div>
-                <p class="text-gray-300 mb-3">${freq.description}</p>
-                <div class="flex justify-between items-center">
-                    <span class="text-blue-400 font-medium">${freq.value} Hz</span>
-                    <div class="flex gap-2">
-                        <button class="select-frequency-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded transition" data-id="${freq.id}">
-                            Selecionar
-                        </button>
-                        <button class="details-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded transition" data-id="${freq.id}">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            // Adicionar evento de clique para selecionar
-            const selectBtn = card.querySelector('.select-frequency-btn');
-            selectBtn.addEventListener('click', () => selectFrequency(freq));
-            
-            // Adicionar evento de clique para detalhes
-            const detailsBtn = card.querySelector('.details-btn');
-            detailsBtn.addEventListener('click', () => showFrequencyDetails(freq));
-            
-            return card;
         }
 
         function selectFrequency(freq) {
-            // Preencher campo de frequência
-            frequencyInput.value = freq.value;
-            updateFrequency();
-            
-            // Rolar até o gerador
-            document.getElementById('generatorSection').scrollIntoView({ behavior: 'smooth' });
-            
-            // Destacar card selecionado
-            document.querySelectorAll('.frequency-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            document.querySelector(`[data-id="${freq.id}"]`).classList.add('selected');
-        }
-
-        function showFrequencyDetails(freq) {
-            // Preencher dados do modal
-            document.getElementById('detailTitle').textContent = freq.name;
-            document.getElementById('detailSubtitle').textContent = `${freq.value} Hz`;
-            document.getElementById('detailDescription').textContent = freq.description;
-            document.getElementById('detailMechanism').textContent = freq.mechanism;
-            
-            // Preencher sinergias
-            const synergiesDiv = document.getElementById('detailSynergies');
-            synergiesDiv.innerHTML = freq.synergies.map(s => 
-                `<span class="synergy-tag">${s} Hz</span>`
-            ).join('');
-            
-            // Preencher evidências
-            const evidenceDiv = document.getElementById('detailEvidence');
-            evidenceDiv.innerHTML = freq.scientificEvidence.map(e => `
-                <div class="evidence-item">
-                    <div class="flex justify-between">
-                        <span class="evidence-study">${e.study}</span>
-                        <span class="evidence-year">${e.year}</span>
-                    </div>
-                    <p class="evidence-description">${e.description}</p>
-                </div>
-            `).join('');
-            
-            // Preencher protocolos
-            const protocolsDiv = document.getElementById('detailProtocols');
-            protocolsDiv.innerHTML = freq.protocols.map(p => `
-                <div class="protocol-item">
-                    <div class="protocol-name">${p.name}</div>
-                    <div class="protocol-details">
-                        <span><i class="fas fa-clock mr-1"></i> ${p.duration}</span>
-                    </div>
-                    <p class="mt-2 text-gray-300">${p.instructions}</p>
-                </div>
-            `).join('');
-            
-            // Preencher contraindicações
-            const contraindicationsDiv = document.getElementById('detailContraindications');
-            contraindicationsDiv.innerHTML = freq.safety.contraindications.map(c => `
-                <div class="safety-item">
-                    <i class="fas fa-exclamation-triangle safety-icon"></i>
-                    <span>${c}</span>
-                </div>
-            `).join('');
-            
-            // Preencher efeitos colaterais
-            const sideEffectsDiv = document.getElementById('detailSideEffects');
-            sideEffectsDiv.innerHTML = freq.safety.sideEffects.map(s => `
-                <div class="safety-item">
-                    <i class="fas fa-pills safety-icon"></i>
-                    <span>${s}</span>
-                </div>
-            `).join('');
-            
-            // Mostrar modal
-            detailModal.classList.remove('hidden');
-        }
-
-        function updatePagination() {
-            const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
-            
-            // Atualizar informação de página
-            pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
-            
-            // Habilitar/desabilitar botões
-            prevPageBtn.disabled = currentPage === 1;
-            nextPageBtn.disabled = currentPage === totalPages;
-        }
-
-        function changePage(direction) {
-            const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
-            const newPage = currentPage + direction;
-            
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                renderFrequencies();
+            try {
+                // Preencher campo de frequência
+                frequencyInput.value = freq.value;
+                updateFrequency();
+                
+                // Rolar até o gerador
+                document.getElementById('generatorSection').scrollIntoView({ behavior: 'smooth' });
+                
+                // Destacar card selecionado
+                document.querySelectorAll('.frequency-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.querySelector(`[data-id="${freq.id}"]`).classList.add('selected');
+                
+                debugLog(`Frequência selecionada: ${freq.name} (${freq.value}Hz)`);
+            } catch (error) {
+                debugLog(`Erro ao selecionar frequência: ${error.message}`);
+                console.error('Erro ao selecionar frequência:', error);
             }
         }
 
-        function renderTop10() {
-            // Ordenar por popularidade
-            const top10 = [...allFrequencies]
-                .sort((a, b) => (b.statistics?.uses || 0) - (a.statistics?.uses || 0))
-                .slice(0, 10);
-            
-            top10List.innerHTML = top10.map((freq, index) => `
-                <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
-                    <div class="flex items-center">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center mr-3">
-                            <span class="font-bold">${index + 1}</span>
-                        </div>
-                        <div>
-                            <div class="font-medium">${freq.name}</div>
-                            <div class="text-sm text-gray-400">${freq.value} Hz • ${getCategoryName(freq.category)}</div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-blue-400 font-medium">${freq.statistics?.uses || 0} usos</div>
-                        <div class="text-sm text-gray-400">${freq.statistics?.successRate || 0}% sucesso</div>
-                    </div>
-                </div>
-            `).join('');
+        function showFrequencyDetails(freq) {
+            try {
+                // Preencher dados do modal
+                document.getElementById('detailTitle').textContent = freq.name;
+                document.getElementById('detailSubtitle').textContent = `${freq.value} Hz`;
+                document.getElementById('detailDescription').textContent = freq.description;
+                
+                // Mostrar modal
+                detailModal.classList.remove('hidden');
+                
+                debugLog(`Detalhes da frequência exibidos: ${freq.name}`);
+            } catch (error) {
+                debugLog(`Erro ao mostrar detalhes da frequência: ${error.message}`);
+                console.error('Erro ao mostrar detalhes da frequência:', error);
+            }
         }
 
-        // Funções auxiliares
-        function getCategoryName(category) {
-            const categories = {
-                'concentracao': 'Concentração',
-                'energia': 'Energia',
-                'relaxamento': 'Relaxamento',
-                'sono': 'Sono',
-                'cura': 'Cura',
-                'vermifugacao': 'Vermifugação',
-                'anti-inflamatorio': 'Anti-inflamatório',
-                'meditacao': 'Meditação',
-                'digestivo': 'Digestivo',
-                'infeccao': 'Infecção',
-                'metabolico': 'Metabólico',
-                'dermatologico': 'Dermatológico',
-                'respiratorio': 'Respiratório',
-                'cardiovascular': 'Cardiovascular',
-                'neurologico': 'Neurológico',
-                'muscular': 'Muscular',
-                'articular': 'Articular',
-                'imunologico': 'Imunológico',
-                'geral': 'Geral'
-            };
-            return categories[category] || category;
+        function updatePagination() {
+            try {
+                const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
+                
+                // Atualizar informação de página
+                pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+                
+                // Habilitar/desabilitar botões
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages;
+            } catch (error) {
+                debugLog(`Erro ao atualizar paginação: ${error.message}`);
+                console.error('Erro ao atualizar paginação:', error);
+            }
         }
 
-        function getReliabilityText(reliability) {
-            const reliabilityMap = {
-                'high': 'Alta',
-                'medium': 'Média',
-                'low': 'Baixa'
-            };
-            return reliabilityMap[reliability] || reliability;
+        function changePage(direction) {
+            try {
+                const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
+                const newPage = currentPage + direction;
+                
+                if (newPage >= 1 && newPage <= totalPages) {
+                    currentPage = newPage;
+                    renderFrequencies();
+                }
+            } catch (error) {
+                debugLog(`Erro ao mudar de página: ${error.message}`);
+                console.error('Erro ao mudar de página:', error);
+            }
         }
+
+        // Inicializar o tipo de onda padrão
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('.wave-type-btn[data-type="sine"]').classList.add('bg-blue-600');
+        });
     </script>
 </body>
 </html>
