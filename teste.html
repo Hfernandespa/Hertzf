@@ -2607,38 +2607,45 @@ Este arquivo:
         let timerSeconds = 0;
         let isTimerActive = false;
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configuração do modal de headphones
-            const headphoneModal = document.getElementById('headphoneModal');
-            const closeHeadphoneModalBtn = document.getElementById('closeHeadphoneModal');
-            const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
-            const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
-            if (headphoneModalClosed === 'true') {
-                headphoneModal.style.display = 'none';
-            } else {
-                headphoneModal.style.display = 'flex';
-            }
-            if (closeHeadphoneModalBtn) {
-                closeHeadphoneModalBtn.addEventListener('click', function() {
-                    if (dontShowAgainCheckbox.checked) {
-                        localStorage.setItem('headphoneModalClosed', 'true');
-                    }
-                    headphoneModal.style.display = 'none';
-                });
-            }
-            headphoneModal.addEventListener('click', function(e) {
-                if (e.target === headphoneModal) {
-                    headphoneModal.style.display = 'none';
-                }
-            });
+     // CORREÇÃO: Configuração do modal de headphones
+const headphoneModal = document.getElementById('headphoneModal');
+const closeHeadphoneModalBtn = document.getElementById('closeHeadphoneModal'); // Certifique-se de que este ID corresponde ao botão no HTML
+const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
 
-            // Inicializar o contexto de áudio
-            function initAudioContext() {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
+// Verificar se o modal já foi fechado anteriormente
+const headphoneModalClosed = localStorage.getItem('headphoneModalClosed');
+if (headphoneModalClosed === 'true') {
+    headphoneModal.style.display = 'none';
+} else {
+    headphoneModal.style.display = 'flex'; // Mostra o modal
+}
+
+// CORREÇÃO: Adicionar evento de clique ao botão "Entendi"
+if (closeHeadphoneModalBtn) {
+    closeHeadphoneModalBtn.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevenir comportamento padrão
+
+        // Verificar se o checkbox "Não mostrar novamente" está marcado
+        if (dontShowAgainCheckbox && dontShowAgainCheckbox.checked) {
+            localStorage.setItem('headphoneModalClosed', 'true');
+        }
+
+        // Fechar o modal
+        headphoneModal.style.display = 'none';
+        console.log('Modal fechado'); // Para debug
+    });
+} else {
+    console.error('Botão "Entendi" não encontrado. Verifique o ID no HTML.');
+}
+
+// CORREÇÃO: Também adicionar evento para fechar ao clicar fora do modal
+headphoneModal.addEventListener('click', function(e) {
+    // Se o clique foi diretamente no fundo do modal (não no conteúdo)
+    if (e.target === headphoneModal) {
+        headphoneModal.style.display = 'none';
+        console.log('Modal fechado ao clicar fora'); // Para debug
+    }
+});
 
             // [TODO: Cole aqui TODO O SEU CÓDIGO DE LÓGICA EXISTENTE — 
             // playTone, stopTone, drawWave, renderFrequencies, applyFilters, startProtocol, etc.
