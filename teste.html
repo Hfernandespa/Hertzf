@@ -325,7 +325,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
+            display: none; /* Alterado para 'none' para controlar via JS */
             align-items: center;
             justify-content: center;
             z-index: 2000;
@@ -1498,8 +1498,11 @@
             const dontShow = localStorage.getItem('dontShowHeadphoneModal');
             if (dontShow === 'true') {
                 modal.style.display = 'none';
+            } else {
+                modal.style.display = 'flex';
             }
             
+            // Evento para fechar o modal
             closeBtn.addEventListener('click', function() {
                 if (dontShowAgain.checked) {
                     localStorage.setItem('dontShowHeadphoneModal', 'true');
