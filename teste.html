@@ -1999,6 +1999,42 @@
             
             return names[evidence] || 'Baixa';
         }
+
+        // Configuração do modal de headphones
+function setupHeadphoneModal() {
+    const modal = document.getElementById('headphoneModal');
+    const closeBtn = document.getElementById('closeHeadphoneModal');
+    const dontShowAgain = document.getElementById('dontShowAgain');
+    
+    // Verifica se o usuário já marcou "não mostrar novamente"
+    const dontShow = localStorage.getItem('dontShowHeadphoneModal');
+    if (dontShow === 'true') {
+        modal.style.display = 'none';
+    }
+    
+    // Função para fechar o modal
+    function closeModal() {
+        if (dontShowAgain.checked) {
+            localStorage.setItem('dontShowHeadphoneModal', 'true');
+        }
+        modal.style.display = 'none';
+    }
+    
+    // Evento de clique no botão de fechar
+    closeBtn.addEventListener('click', closeModal);
+    
+    // Fecha o modal se clicar fora dele
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Impede que o clique dentro do modal feche o modal
+    modal.querySelector('.headphone-content').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+}
     </script>
 </body>
 </html>
