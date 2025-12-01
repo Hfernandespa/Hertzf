@@ -2878,5 +2878,133 @@
         };
     });
 </script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Carregar as frequências do banco de dados
+    loadFrequencies();
+    
+    // Configurar eventos de busca e filtros
+    setupSearchAndFilters();
+});
+
+function loadFrequencies() {
+    const databaseContainer = document.getElementById('databaseContainer');
+    databaseContainer.innerHTML = ''; // Limpar o container
+    
+    // Se o array 'frequencies' estiver disponível (do arquivo frequencies.js)
+    if (typeof frequencies !== 'undefined') {
+        frequencies.forEach(freq => {
+            const card = createFrequencyCard(freq);
+            databaseContainer.appendChild(card);
+        });
+    } else {
+        databaseContainer.innerHTML = '<p class="text-center text-gray-400">Nenhuma frequência encontrada.</p>';
+    }
+}
+
+function createFrequencyCard(freq) {
+    const card = document.createElement('div');
+    card.className = 'frequency-card bg-gray-700 rounded-lg p-4 mb-4 cursor-pointer transition hover:bg-gray-600';
+    card.dataset.frequencyId = freq.id;
+    
+    // Definir a cor da categoria
+    let categoryColor = '';
+    switch(freq.category) {
+        case 'Foco': categoryColor = 'bg-blue-500'; break;
+        case 'Energia': categoryColor = 'bg-yellow-500'; break;
+        case 'Relaxamento': categoryColor = 'bg-green-500'; break;
+        case 'Sono': categoryColor = 'bg-purple-500'; break;
+        default: categoryColor = 'bg-gray-500';
+    }
+    
+    // Definir a cor da evidência
+    let evidenceBadge = '';
+    if (freq.evidence === 'high') {
+        evidenceBadge = '<span class="evidence-badge evidence-high">Alta</span>';
+    } else if (freq.evidence === 'medium') {
+        evidenceBadge = '<span class="evidence-badge evidence-medium">Média</span>';
+    } else {
+        evidenceBadge = '<span class="evidence-badge evidence-low">Baixa</span>';
+    }
+    
+    card.innerHTML = `
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-lg font-semibold">${freq.frequency} Hz - ${freq.name}</h3>
+                <p class="text-gray-300 text-sm mt-1">${freq.description}</p>
+            </div>
+            <div>
+                <span class="category-badge ${categoryColor} text-white">${freq.category}</span>
+                ${evidenceBadge}
+            </div>
+        </div>
+    `;
+    <SCRIPT>
+    // Adicionar evento de clique para selecionar a frequência
+    card.addEventListener('click', function() {
+        selectFrequency(freq.frequency);
+    });
+    
+    return card;
+}
+
+function selectFrequency(frequency) {
+    // Preencher o campo de frequência no gerador
+    document.getElementById('frequency').value = frequency;
+    
+    // Atualizar o visualizador de onda
+    updateWaveVisualizer(frequency);
+    
+    // Marcar o card como selecionado
+    document.querySelectorAll('.frequency-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.querySelector(`[data-frequency-id="${frequency}"]`).classList.add('selected');
+}
+
+function setupSearchAndFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const evidenceFilter = document.getElementById('evidenceFilter');
+    
+    // Evento de busca
+    searchInput.addEventListener('input', filterFrequencies);
+    
+    // Eventos de filtros
+    categoryFilter.addEventListener('change', filterFrequencies);
+    evidenceFilter.addEventListener('change', filterFrequencies);
+}
+
+function filterFrequencies() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const categoryValue = document.getElementById('categoryFilter').value;
+    const evidenceValue = document.getElementById('evidenceFilter').value;
+    
+    const databaseContainer = document.getElementById('databaseContainer');
+    databaseContainer.innerHTML = ''; // Limpar o container
+    
+    let filteredFrequencies = frequencies.filter(freq => {
+        // Filtro por termo de busca
+        const matchesSearch = freq.name.toLowerCase().includes(searchTerm) || 
+                             freq.description.toLowerCase().includes(searchTerm) ||
+                             freq.frequency.toString().includes(searchTerm);
+        
+        // Filtro por categoria
+        const matchesCategory = categoryValue === '' || freq.category === categoryValue;
+        
+        // Filtro por evidência
+        const matchesEvidence = evidenceValue === '' || freq.evidence === evidenceValue;
+        
+        return matchesSearch && matchesCategory && matchesEvidence;
+    });
+    
+    if (filteredFrequencies.length > 0) {
+        filteredFrequencies.forEach(freq => {
+            const card = createFrequencyCard(freq);
+            databaseContainer.appendChild(card);
+        });
+    } else {
+        databaseContainer.innerHTML = '<p class="text-center text-gray-400">Nenhuma frequência encontrada com os filtros atuais.</p>';
+    }
+} </SCRIPT>
       </body>
 </html>
