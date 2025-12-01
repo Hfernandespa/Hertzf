@@ -1338,39 +1338,6 @@
                     </div>
                 </section>
             </div>
-
-            <section id="databaseSection" class="bg-gray-800 rounded-xl p-6 shadow-2xl">
-    <h2 class="text-2xl font-semibold mb-6 text-blue-400"><i class="fas fa-database mr-2" aria-hidden="true"></i>Banco de Dados de Frequências</h2>
-    
-    <!-- Barra de busca e filtros -->
-    <div class="mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
-            <div class="flex-1">
-                <input type="text" id="searchInput" placeholder="Buscar frequências..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-            </div>
-            <div class="flex gap-4">
-                <select id="categoryFilter" class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="">Todas as categorias</option>
-                    <option value="Foco">Foco</option>
-                    <option value="Energia">Energia</option>
-                    <option value="Relaxamento">Relaxamento</option>
-                    <option value="Sono">Sono</option>
-                </select>
-                <select id="evidenceFilter" class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="">Todos os níveis de evidência</option>
-                    <option value="high">Alta</option>
-                    <option value="medium">Média</option>
-                    <option value="low">Baixa</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Container para as frequências -->
-    <div id="databaseContainer" class="database-container">
-        <!-- As frequências serão carregadas aqui via JavaScript -->
-    </div>
-</section>
             <!-- Coluna 2: Banco de Dados de Frequências -->
             <div class="lg:col-span-7 space-y-6">
                 <section class="bg-gray-800 rounded-xl p-6 shadow-2xl" aria-labelledby="database-heading">
@@ -2680,8 +2647,7 @@
             document.getElementById('closeDetailModal').onclick = function() {
                 modal.style.display = 'none';
             };
-    <script src="js/frequencies.js">
-            // Adicionar evento para as abas
+             // Adicionar evento para as abas
             document.querySelectorAll('.detail-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
                     // Remover classe ativa de todas as abas
@@ -2911,65 +2877,5 @@
         };
     });
 </script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Carregar as frequências do banco de dados
-    loadFrequencies();
-    
-    // Configurar eventos de busca e filtros
-    setupSearchAndFilters();
-});
-
-function loadFrequencies() {
-    const databaseContainer = document.getElementById('databaseContainer');
-    databaseContainer.innerHTML = ''; // Limpar o container
-    
-    // Se o array 'frequencies' estiver disponível (do arquivo frequencies.js)
-    if (typeof frequencies !== 'undefined') {
-        frequencies.forEach(freq => {
-            const card = createFrequencyCard(freq);
-            databaseContainer.appendChild(card);
-        });
-    } else {
-        databaseContainer.innerHTML = '<p class="text-center text-gray-400">Nenhuma frequência encontrada.</p>';
-    }
-}
-
-function createFrequencyCard(freq) {
-    const card = document.createElement('div');
-    card.className = 'frequency-card bg-gray-700 rounded-lg p-4 mb-4 cursor-pointer transition hover:bg-gray-600';
-    card.dataset.frequencyId = freq.id;
-    
-    // Definir a cor da categoria
-    let categoryColor = '';
-    switch(freq.category) {
-        case 'Foco': categoryColor = 'bg-blue-500'; break;
-        case 'Energia': categoryColor = 'bg-yellow-500'; break;
-        case 'Relaxamento': categoryColor = 'bg-green-500'; break;
-        case 'Sono': categoryColor = 'bg-purple-500'; break;
-        default: categoryColor = 'bg-gray-500';
-    }
-    
-    // Definir a cor da evidência
-    let evidenceBadge = '';
-    if (freq.evidence === 'high') {
-        evidenceBadge = '<span class="evidence-badge evidence-high">Alta</span>';
-    } else if (freq.evidence === 'medium') {
-        evidenceBadge = '<span class="evidence-badge evidence-medium">Média</span>';
-    } else {
-        evidenceBadge = '<span class="evidence-badge evidence-low">Baixa</span>';
-    }
-    
-    card.innerHTML = `
-        <div class="flex justify-between items-start">
-            <div>
-                <h3 class="text-lg font-semibold">${freq.frequency} Hz - ${freq.name}</h3>
-                <p class="text-gray-300 text-sm mt-1">${freq.description}</p>
-            </div>
-            <div>
-                <span class="category-badge ${categoryColor} text-white">${freq.category}</span>
-                ${evidenceBadge}
-            </div>
-        </div>
-
       </body>
 </html>
