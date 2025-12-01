@@ -3035,5 +3035,20 @@ function filterFrequencies() {
     
     ctx.stroke();
 }
+        document.getElementById('playBtn').addEventListener('click', function() {
+    const frequency = parseFloat(document.getElementById('frequency').value);
+    
+    if (isNaN(frequency) || frequency < 20 || frequency > 20000) {
+        alert('Por favor, insira uma frequência válida entre 20Hz e 20000Hz');
+        return;
+    }
+    
+    // Iniciar a reprodução da frequência
+    playFrequency(frequency);
+    
+    // Atualizar a interface
+    this.classList.add('hidden');
+    document.getElementById('stopBtn').classList.remove('hidden');
+});
       </body>
 </html>
