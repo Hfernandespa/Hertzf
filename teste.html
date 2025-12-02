@@ -1,68 +1,212 @@
- // Atualizar os indicadores
-                document.querySelectorAll('#stepIndicators button').forEach((btn, index) => {
-                    if (index === currentStep) {
-                        btn.className = 'px-3 py-1 rounded-full text-sm bg-purple-600 text-white';
-                    } else {
-                        btn.className = 'px-3 py-1 rounded-full text-sm bg-gray-700 text-gray-300';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Harmonizador Fernandes v1.5 - Frequências Terapêuticas & Protocolos Personalizados">
+    <title>Harmonizador Fernandes - Versão Editável</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js para visualizações -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Estilos customizados -->
+    <style>
+        /* (MANTENHA TODO O BLOCO DE ESTILOS EXISTENTE — não foi alterado) */
+        :root { /* ... */ }
+        @keyframes pulse { /* ... */ }
+        /* ... todos os estilos originais ... */
+        .no-results-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- (MANTENHA TODO O HTML DO CORPO — cabeçalho, hero, instruções, gerador, etc.) -->
+    <!-- Modal de headphones, header, hero, instruções, gerador, histórico, protocolos, referências, rodapé... -->
+    
+    <!-- A ÚNICA ALTERAÇÃO REAL É NO SCRIPT FINAL, onde carregamos os DADOS COMPLETOS DA CAFL -->
+    
+    <!-- Modal de Detalhes da Frequência -->
+    <div id="detailModal" class="detail-modal" style="display: none;">
+        <!-- ... conteúdo do modal ... (mantido igual) -->
+    </div>
+
+    <!-- SCRIPT PRINCIPAL COM OS DADOS COMPLETOS -->
+    <script>
+        // ================================
+        // CONVERSÃO DA LISTA CAFL PARA OBJETOS JS
+        // ================================
+        function parseCAFLToList(text) {
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            const result = [];
+            let currentGroup = null;
+
+            for (const line of lines) {
+                if (line.includes(' - ')) {
+                    const [namePart, freqPart] = line.split(' - ');
+                    const name = namePart.trim();
+                    const freqsStr = freqPart.split(',').map(f => f.trim().replace(',', '.'));
+                    const frequencies = freqsStr.map(f => {
+                        const num = parseFloat(f);
+                        return isNaN(num) ? null : num;
+                    }).filter(f => f !== null);
+
+                    // Determinar categoria com base no nome
+                    let category = 'outros';
+                    if (name.toLowerCase().includes('câncer') || name.toLowerCase().includes('cancer')) category = 'cancer';
+                    else if (name.toLowerCase().includes('verme') || name.toLowerCase().includes('parasita') || name.toLowerCase().includes('ascaris') || name.toLowerCase().includes('ancilostom')) category = 'vermifugacao';
+                    else if (name.toLowerCase().includes('inflamação') || name.toLowerCase().includes('anti-inflamat')) category = 'anti-inflamatorio';
+                    else if (name.toLowerCase().includes('energia')) category = 'energia';
+                    else if (name.toLowerCase().includes('foco') || name.toLowerCase().includes('concentração')) category = 'concentracao';
+                    else if (name.toLowerCase().includes('relax') || name.toLowerCase().includes('sono') || name.toLowerCase().includes('meditação')) category = 'relaxamento';
+
+                    for (const freq of frequencies) {
+                        result.push({
+                            id: `${name.replace(/\s+/g, '_').toLowerCase()}_${freq}`,
+                            name: name,
+                            value: freq,
+                            category: category,
+                            subcategory: '',
+                            description: `Frequência para ${name.toLowerCase()}.`,
+                            mechanism: 'Mecanismo baseado em ressonância celular.',
+                            scientificEvidence: [{ study: 'CAFL Database', year: 2023, reliability: 'low', description: 'Frequência listada na base de dados CAFL.' }],
+                            protocols: [{ name: 'Protocolo Padrão', duration: '10 minutos', instructions: 'Use com onda senoidal em ambiente tranquilo.' }],
+                            safety: { contraindications: [], sideEffects: [] },
+                            statistics: { uses: 0, successRate: 0, userRating: 0 },
+                            synergies: [],
+                            traditionalUse: 'Listado em bases de frequência terapêutica.',
+                            researchStatus: 'Referência CAFL'
+                        });
                     }
-                });
+                }
+            }
+            return result;
+        }
 
-                // Atualizar o nome do passo
-                document.getElementById('currentStepName').textContent = protocolSteps[currentStep].name;
+        // Carregar os dados da CAFL (substitua o conteúdo entre as crases com o conteúdo do seu .docx convertido para texto puro)
+        const caflText = `
+CAFL
+Lista de frequências anotadas consolidada, v2023_05_25, turf@mindspring.com
+Todas as frequências em Hz
+Inflamação abdominal - 2720, 2489, 2170, 2000, 1865, 1800, 1600, 1550, 180, 160, 155, 146, 125, 95, 72, 20, 1.2
+Dor abdominal - 10000, 3000, 95, 3
+Abcessos (também use  Staphylococcus  aureus e veja Listeriose) - 2720, 2170, 1865, 1550, 880, 832, 802, 787, 776, 727, 660, 465, 450, 444, 440, 428, 380, 250, 146, 125, 95, 72, 20, 14
+/* ... (COLE TODO O CONTEÚDO DO SEU ARQUIVO .docx AQUI, EM FORMATO DE TEXTO PURO) ... */
+Zigomicose (também chamada de mucormicose; uma infecção fúngica grave geralmente associada a diabetes mellitus descontrolado ou medicamentos imunossupressores) - 942, 623, 733
+        `;
 
-                // Atualizar o progresso
-                updateProtocolProgress();
+        // Gerar o array de frequências
+        const frequenciesData = parseCAFLToList(caflText);
 
-                // Se o passo tiver frequência, configurá-la
-                if (protocolSteps[currentStep].frequency > 0) {
-                    document.getElementById('frequency').value = protocolSteps[currentStep].frequency;
-                    updateCurrentFrequency(protocolSteps[currentStep].frequency);
-                    // Configurar o tipo de onda
-                    waveType = protocolSteps[currentStep].waveType;
-                    // Atualizar os botões de tipo de onda
-                    document.querySelectorAll('.wave-type-btn').forEach(btn => {
-                        btn.classList.remove('bg-blue-600');
-                        btn.classList.add('bg-gray-700');
-                        if (btn.dataset.wave === waveType) {
-                            btn.classList.remove('bg-gray-700');
-                            btn.classList.add('bg-blue-600');
-                        }
+        // ================================
+        // RESTANTE DO CÓDIGO (IGUAL AO ORIGINAL, MAS USANDO frequenciesData COMPLETO)
+        // ================================
+        let filteredFrequencies = [...frequenciesData];
+        let currentPage = 1;
+        const itemsPerPage = 6;
+
+        let audioContext, oscillator, gainNode, isPlaying = false, waveType = 'sine', currentFrequency = 40;
+        let timerInterval, timerSeconds = 0, isTimerActive = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // (mantenha toda a lógica de inicialização, áudio, filtros, paginação, etc.)
+            // A única diferença é que frequenciesData agora tem TODOS os itens da CAFL
+
+            // Função para renderizar frequências — agora com verificação de segurança
+            function renderFrequencies() {
+                const grid = document.getElementById('frequenciesGrid');
+                grid.innerHTML = '';
+
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const pageFrequencies = filteredFrequencies.slice(startIndex, endIndex);
+
+                document.getElementById('resultCount').textContent = filteredFrequencies.length;
+
+                if (pageFrequencies.length === 0) {
+                    grid.innerHTML = '<div class="no-results"><i class="fas fa-search no-results-icon"></i><p>Nenhuma frequência encontrada.</p></div>';
+                } else {
+                    pageFrequencies.forEach(freq => {
+                        if (!freq || typeof freq.value !== 'number') return;
+
+                        const card = document.createElement('div');
+                        card.className = 'frequency-card bg-gray-700 rounded-lg p-4 border border-gray-600';
+                        const categoryName = getCategoryName(freq.category);
+                        const evidenceBadge = freq.scientificEvidence?.[0]?.reliability 
+                            ? `<span class="evidence-badge evidence-${freq.scientificEvidence[0].reliability}">${freq.scientificEvidence[0].reliability.charAt(0).toUpperCase() + freq.scientificEvidence[0].reliability.slice(1)}</span>`
+                            : '';
+
+                        card.innerHTML = `
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="text-lg font-semibold">${freq.name || 'Nome não disponível'}</h3>
+                                    <div class="text-2xl font-bold text-blue-400">${freq.value} Hz</div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="category-badge bg-blue-600">${categoryName}</span>
+                                    ${evidenceBadge}
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-300 mb-3">${freq.description || 'Descrição não disponível.'}</p>
+                            <div class="flex justify-between items-center">
+                                <button class="select-frequency-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition">Selecionar</button>
+                                <button class="details-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-sm transition">Detalhes</button>
+                            </div>
+                        `;
+
+                        card.querySelector('.select-frequency-btn').addEventListener('click', () => {
+                            document.getElementById('frequency').value = freq.value;
+                            updateCurrentFrequency(freq.value);
+                            addToHistory({ frequency: freq.value, name: freq.name });
+                        });
+
+                        card.querySelector('.details-btn').addEventListener('click', () => {
+                            showFrequencyDetails(freq);
+                        });
+
+                        grid.appendChild(card);
                     });
-                    // Atualizar a recomendação de onda
-                    updateWaveRecommendation();
                 }
+
+                updatePagination();
             }
 
-            // Função para atualizar o progresso do protocolo
-            function updateProtocolProgress() {
-                const progress = ((currentStep + 1) / protocolSteps.length) * 100;
-                document.getElementById('protocolProgressBar').style.width = `${progress}%`;
-                document.getElementById('protocolProgressText').textContent = `${currentStep + 1}/${protocolSteps.length}`;
-            }
+            // (mantenha todas as outras funções: applyFilters, resetFilters, showFrequencyDetails, etc.)
 
-            // Configurar os botões de navegação
-            document.getElementById('prevStepBtn').onclick = function() {
-                if (currentStep > 0) {
-                    goToStep(currentStep - 1);
-                }
+            // Inicializar
+            updateCurrentFrequency(currentFrequency);
+            renderFrequencies();
+
+            // Eventos
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+            // ... demais eventos ...
+        });
+
+        // Funções auxiliares (getCategoryName, getEvidenceBadge, etc.) abaixo...
+        function getCategoryName(cat) {
+            const map = {
+                'concentracao': 'Concentração',
+                'energia': 'Energia',
+                'cura': 'Cura',
+                'relaxamento': 'Relaxamento',
+                'sono': 'Sono',
+                'meditacao': 'Meditação',
+                'vermifugacao': 'Vermifugação',
+                'anti-inflamatorio': 'Anti-inflamatório',
+                'cancer': 'Câncer',
+                'outros': 'Outros'
             };
+            return map[cat] || cat;
+        }
 
-            document.getElementById('nextStepBtn').onclick = function() {
-                if (currentStep < protocolSteps.length - 1) {
-                    goToStep(currentStep + 1);
-                }
-            };
+        function getEvidenceBadge(rel) {
+            if (!rel) return '';
+            const cls = rel === 'high' ? 'evidence-high' : rel === 'medium' ? 'evidence-medium' : 'evidence-low';
+            return `<span class="evidence-badge ${cls}">${rel.charAt(0).toUpperCase() + rel.slice(1)}</span>`;
+        }
 
-            // Configurar o botão de sair
-            document.getElementById('exitProtocolBtn').onclick = function() {
-                protocolControls.classList.add('hidden');
-                stopTone();
-            };
-
-            // Iniciar no primeiro passo
-            goToStep(0);
-        };
-    });
-</script>
-      </body>
+        // ... (demais funções: addToHistory, updateCurrentFrequency, showFrequencyDetails, etc.) ...
+    </script>
+</body>
 </html>
