@@ -9,16 +9,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-      <!-- Estilos customizados -->
+    <!-- Estilos customizados -->
     <style>
-   /* Adicione estes estilos à seção de estilos existente */
-
-/* Passos de protocolo - novos tipos */
-.protocol-step.sleep::before { background: #6366f1; } /* indigo */
-.protocol-step.relaxation::before { background: #10b981; } /* green */
-.protocol-step.meditation::before { background: #0d9488; } /* teal */
-.protocol-step.healing::before { background: #ef4444; } /* red */
-       
         /* Variáveis CSS para facilitar manutenção */
         :root {
             --primary-color: #3b82f6;
@@ -115,6 +107,10 @@
         .protocol-step.focus::before { background: var(--primary-color); }
         .protocol-step.anti-inflammatory::before { background: var(--success-color); }
         .protocol-step.harmony::before { background: var(--secondary-color); }
+        .protocol-step.sleep::before { background: #6366f1; } /* indigo */
+        .protocol-step.relaxation::before { background: #10b981; } /* green */
+        .protocol-step.meditation::before { background: #0d9488; } /* teal */
+        .protocol-step.healing::before { background: #ef4444; } /* red */
         /* Título estilizado */
         .harmonizador-title {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
@@ -1143,7 +1139,7 @@
                 <h3 class="instruction-title">5. Protocolos Avançados</h3>
                 <div class="instruction-steps">
                     <ol>
-                        <li>Explore os protocolos pré-definidos (Energia, Foco, Harmonia)</li>
+                        <li>Explore os protocolos pré-definidos (Energia, Foco, Harmonia, etc.)</li>
                         <li>Siga as instruções específicas de cada protocolo</li>
                         <li>Respeite os tempos recomendados</li>
                         <li>Mantenha hidratação adequada</li>
@@ -1393,14 +1389,6 @@
                                     levando-os à destruição.
                                 </p>
                                 
-                                <div class="bg-yellow-900/30 border-l-4 border-yellow-500 p-3 mb-3">
-                                    <p class="text-yellow-300 text-sm">
-                                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                                        <strong>Ressalto:</strong> As chamadas frequências "MOR" 
-                                        (Mortal Oscillatory Rate) de Rife carecem de validação por estudos clínicos.
-                                    </p>
-                                </div>
-                                
                                 <a href="https://hertzf.netlify.app/rife#mor-heading" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm">
                                     <i class="fas fa-external-link-alt mr-1"></i>Mais detalhes sobre as frequências MOR
                                 </a>
@@ -1430,10 +1418,6 @@
                                 <div>
                                     <p class="text-sm text-gray-400">
                                         Outras frequências de vermifugação também utilizam onda quadrada.
-                                    </p>
-                                    <p class="text-sm text-yellow-300 mt-2">
-                                        <i class="fas fa-info-circle mr-1"></i>
-                                        Estas referências são baseadas em interpretações não validadas das supostas descobertas de Rife.
                                     </p>
                                 </div>
                             </div>
@@ -1527,6 +1511,118 @@
                         </div>
                     </div>
                     <button class="protocol-btn w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-lg font-medium transition" data-protocol="harmony">
+                        Iniciar Protocolo
+                    </button>
+                </div>
+
+                <!-- Protocolo de Sono -->
+                <div class="bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-xl p-5 border border-indigo-700/30 hover:border-indigo-600/50 transition">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-indigo-600/20 flex items-center justify-center mr-3">
+                            <i class="fas fa-moon text-indigo-400 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Protocolo de Sono</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4">Frequências específicas para induzir sono profundo e reparador.</p>
+                    <div class="space-y-3 mb-4">
+                        <div class="protocol-step sleep">
+                            <div class="font-medium">Passo 1: 8Hz - 10 minutos</div>
+                            <div class="text-sm text-gray-400">Preparação para o sono</div>
+                        </div>
+                        <div class="protocol-step sleep">
+                            <div class="font-medium">Passo 2: 5Hz - 15 minutos</div>
+                            <div class="text-sm text-gray-400">Sono profundo</div>
+                        </div>
+                        <div class="protocol-step sleep">
+                            <div class="font-medium">Passo 3: 3Hz - 10 minutos</div>
+                            <div class="text-sm text-gray-400">Sono reparador</div>
+                        </div>
+                    </div>
+                    <button class="protocol-btn w-full bg-indigo-600 hover:bg-indigo-700 py-2 rounded-lg font-medium transition" data-protocol="sleep">
+                        Iniciar Protocolo
+                    </button>
+                </div>
+
+                <!-- Protocolo de Relaxamento -->
+                <div class="bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-xl p-5 border border-green-700/30 hover:border-green-600/50 transition">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-green-600/20 flex items-center justify-center mr-3">
+                            <i class="fas fa-spa text-green-400 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Protocolo de Relaxamento</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4">Sequência para aliviar o estresse e promover relaxamento profundo.</p>
+                    <div class="space-y-3 mb-4">
+                        <div class="protocol-step relaxation">
+                            <div class="font-medium">Passo 1: 12Hz - 8 minutos</div>
+                            <div class="text-sm text-gray-400">Redução do estresse</div>
+                        </div>
+                        <div class="protocol-step relaxation">
+                            <div class="font-medium">Passo 2: 10Hz - 12 minutos</div>
+                            <div class="text-sm text-gray-400">Relaxamento muscular</div>
+                        </div>
+                        <div class="protocol-step relaxation">
+                            <div class="font-medium">Passo 3: 7Hz - 10 minutos</div>
+                            <div class="text-sm text-gray-400">Equilíbrio emocional</div>
+                        </div>
+                    </div>
+                    <button class="protocol-btn w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg font-medium transition" data-protocol="relaxation">
+                        Iniciar Protocolo
+                    </button>
+                </div>
+
+                <!-- Protocolo de Meditação -->
+                <div class="bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-xl p-5 border border-teal-700/30 hover:border-teal-600/50 transition">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-teal-600/20 flex items-center justify-center mr-3">
+                            <i class="fas fa-om text-teal-400 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Protocolo de Meditação</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4">Frequências para aprofundar estados meditativos e expandir a consciência.</p>
+                    <div class="space-y-3 mb-4">
+                        <div class="protocol-step meditation">
+                            <div class="font-medium">Passo 1: 14Hz - 5 minutos</div>
+                            <div class="text-sm text-gray-400">Foco inicial</div>
+                        </div>
+                        <div class="protocol-step meditation">
+                            <div class="font-medium">Passo 2: 7.83Hz - 15 minutos</div>
+                            <div class="text-sm text-gray-400">Conexão com a terra</div>
+                        </div>
+                        <div class="protocol-step meditation">
+                            <div class="font-medium">Passo 3: 4Hz - 10 minutos</div>
+                            <div class="text-sm text-gray-400">Expansão da consciência</div>
+                        </div>
+                    </div>
+                    <button class="protocol-btn w-full bg-teal-600 hover:bg-teal-700 py-2 rounded-lg font-medium transition" data-protocol="meditation">
+                        Iniciar Protocolo
+                    </button>
+                </div>
+
+                <!-- Protocolo de Cura -->
+                <div class="bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-xl p-5 border border-red-700/30 hover:border-red-600/50 transition">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-red-600/20 flex items-center justify-center mr-3">
+                            <i class="fas fa-heartbeat text-red-400 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Protocolo de Cura</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4">Frequências para apoiar processos de cura física e emocional.</p>
+                    <div class="space-y-3 mb-4">
+                        <div class="protocol-step healing">
+                            <div class="font-medium">Passo 1: 396Hz - 10 minutos</div>
+                            <div class="text-sm text-gray-400">Liberação de medos</div>
+                        </div>
+                        <div class="protocol-step healing">
+                            <div class="font-medium">Passo 2: 528Hz - 12 minutos</div>
+                            <div class="text-sm text-gray-400">Transformação e milagres</div>
+                        </div>
+                        <div class="protocol-step healing">
+                            <div class="font-medium">Passo 3: 639Hz - 8 minutos</div>
+                            <div class="text-sm text-gray-400">Reconexão e equilíbrio</div>
+                        </div>
+                    </div>
+                    <button class="protocol-btn w-full bg-red-600 hover:bg-red-700 py-2 rounded-lg font-medium transition" data-protocol="healing">
                         Iniciar Protocolo
                     </button>
                 </div>
@@ -1706,98 +1802,7 @@
             // Carregar histórico
             loadHistory();
         });
-// Obter nome de exibição do protocolo
-function getProtocolDisplayName(protocolName) {
-    switch(protocolName) {
-        case 'energy': return 'Protocolo de Energia';
-        case 'focus': return 'Protocolo de Foco';
-        case 'harmony': return 'Protocolo de Harmonia';
-        case 'sleep': return 'Protocolo de Sono';
-        case 'relaxation': return 'Protocolo de Relaxamento';
-        case 'meditation': return 'Protocolo de Meditação';
-        case 'healing': return 'Protocolo de Cura';
-        default: return 'Protocolo';
-    }
-} 
-        // Configurar passos do protocolo
-function setupProtocolSteps(protocolName) {
-    const stepIndicators = document.getElementById('stepIndicators');
-    stepIndicators.innerHTML = '';
-    
-    let steps = [];
-    
-    switch(protocolName) {
-        case 'energy':
-            steps = [
-                { frequency: 25, duration: 5, name: 'Ativação' },
-                { frequency: 40, duration: 10, name: 'Estimulação' },
-                { frequency: 15, duration: 5, name: 'Estabilização' }
-            ];
-            break;
-        case 'focus':
-            steps = [
-                { frequency: 14, duration: 5, name: 'Preparação' },
-                { frequency: 40, duration: 15, name: 'Foco Intenso' },
-                { frequency: 12, duration: 5, name: 'Consolidação' }
-            ];
-            break;
-        case 'harmony':
-            steps = [
-                { frequency: 10, duration: 8, name: 'Relaxamento' },
-                { frequency: 7.83, duration: 12, name: 'Ressonância' },
-                { frequency: 5, duration: 5, name: 'Harmonização' }
-            ];
-            break;
-        case 'sleep':
-            steps = [
-                { frequency: 8, duration: 10, name: 'Preparação' },
-                { frequency: 5, duration: 15, name: 'Sono Profundo' },
-                { frequency: 3, duration: 10, name: 'Sono Reparador' }
-            ];
-            break;
-        case 'relaxation':
-            steps = [
-                { frequency: 12, duration: 8, name: 'Redução do Estresse' },
-                { frequency: 10, duration: 12, name: 'Relaxamento Muscular' },
-                { frequency: 7, duration: 10, name: 'Equilíbrio Emocional' }
-            ];
-            break;
-        case 'meditation':
-            steps = [
-                { frequency: 14, duration: 5, name: 'Foco Inicial' },
-                { frequency: 7.83, duration: 15, name: 'Conexão com a Terra' },
-                { frequency: 4, duration: 10, name: 'Expansão da Consciência' }
-            ];
-            break;
-        case 'healing':
-            steps = [
-                { frequency: 396, duration: 10, name: 'Liberação de Medos' },
-                { frequency: 528, duration: 12, name: 'Transformação' },
-                { frequency: 639, duration: 8, name: 'Reconexão' }
-            ];
-            break;
-    }
-    
-    // Criar indicadores de passo
-    steps.forEach((step, index) => {
-        const indicator = document.createElement('button');
-        indicator.className = 'px-3 py-1 rounded-lg text-sm font-medium transition';
-        indicator.textContent = `${index + 1}. ${step.name}`;
-        indicator.dataset.stepIndex = index;
-        
-        if (index === 0) {
-            indicator.classList.add('bg-purple-600');
-        } else {
-            indicator.classList.add('bg-gray-700');
-        }
-        
-        indicator.addEventListener('click', () => startProtocolStep(index));
-        stepIndicators.appendChild(indicator);
-    });
-    
-    // Atualizar progresso
-    updateProtocolProgress();
-}
+
         // Configurar eventos
         function setupEventListeners() {
             // Modal de headphones
@@ -2192,269 +2197,12 @@ function setupProtocolSteps(protocolName) {
                 case 'energy': return 'Protocolo de Energia';
                 case 'focus': return 'Protocolo de Foco';
                 case 'harmony': return 'Protocolo de Harmonia';
+                case 'sleep': return 'Protocolo de Sono';
+                case 'relaxation': return 'Protocolo de Relaxamento';
+                case 'meditation': return 'Protocolo de Meditação';
+                case 'healing': return 'Protocolo de Cura';
                 default: return 'Protocolo';
             }
         }
 
-        // Configurar passos do protocolo
-        function setupProtocolSteps(protocolName) {
-            const stepIndicators = document.getElementById('stepIndicators');
-            stepIndicators.innerHTML = '';
-            
-            let steps = [];
-            
-            switch(protocolName) {
-                case 'energy':
-                    steps = [
-                        { frequency: 25, duration: 5, name: 'Ativação' },
-                        { frequency: 40, duration: 10, name: 'Estimulação' },
-                        { frequency: 15, duration: 5, name: 'Estabilização' }
-                    ];
-                    break;
-                case 'focus':
-                    steps = [
-                        { frequency: 14, duration: 5, name: 'Preparação' },
-                        { frequency: 40, duration: 15, name: 'Foco Intenso' },
-                        { frequency: 12, duration: 5, name: 'Consolidação' }
-                    ];
-                    break;
-                case 'harmony':
-                    steps = [
-                        { frequency: 10, duration: 8, name: 'Relaxamento' },
-                        { frequency: 7.83, duration: 12, name: 'Ressonância' },
-                        { frequency: 5, duration: 5, name: 'Harmonização' }
-                    ];
-                    break;
-            }
-            
-            // Criar indicadores de passo
-            steps.forEach((step, index) => {
-                const indicator = document.createElement('button');
-                indicator.className = 'px-3 py-1 rounded-lg text-sm font-medium transition';
-                indicator.textContent = `${index + 1}. ${step.name}`;
-                indicator.dataset.stepIndex = index;
-                
-                if (index === 0) {
-                    indicator.classList.add('bg-purple-600');
-                } else {
-                    indicator.classList.add('bg-gray-700');
-                }
-                
-                indicator.addEventListener('click', () => startProtocolStep(index));
-                stepIndicators.appendChild(indicator);
-            });
-            
-            // Atualizar progresso
-            updateProtocolProgress();
-        }
-
-        // Iniciar passo do protocolo
-        function startProtocolStep(stepIndex) {
-            currentStepIndex = stepIndex;
-            
-            // Obter informações do passo
-            let steps = [];
-            switch(currentProtocol) {
-                case 'energy':
-                    steps = [
-                        { frequency: 25, duration: 5, name: 'Ativação' },
-                        { frequency: 40, duration: 10, name: 'Estimulação' },
-                        { frequency: 15, duration: 5, name: 'Estabilização' }
-                    ];
-                    break;
-                case 'focus':
-                    steps = [
-                        { frequency: 14, duration: 5, name: 'Preparação' },
-                        { frequency: 40, duration: 15, name: 'Foco Intenso' },
-                        { frequency: 12, duration: 5, name: 'Consolidação' }
-                    ];
-                    break;
-                case 'harmony':
-                    steps = [
-                        { frequency: 10, duration: 8, name: 'Relaxamento' },
-                        { frequency: 7.83, duration: 12, name: 'Ressonância' },
-                        { frequency: 5, duration: 5, name: 'Harmonização' }
-                    ];
-                    break;
-            }
-            
-            const step = steps[stepIndex];
-            
-            // Atualizar interface
-            document.getElementById('currentStepName').textContent = step.name;
-            
-            // Atualizar indicadores
-            document.querySelectorAll('#stepIndicators button').forEach((btn, index) => {
-                if (index === stepIndex) {
-                    btn.classList.remove('bg-gray-700');
-                    btn.classList.add('bg-purple-600');
-                } else {
-                    btn.classList.remove('bg-purple-600');
-                    btn.classList.add('bg-gray-700');
-                }
-            });
-            
-            // Configurar frequência
-            document.getElementById('frequency').value = step.frequency;
-            currentFrequency = step.frequency;
-            updateWaveVisualizer(step.frequency);
-            
-            // Iniciar reprodução
-            if (isPlaying) {
-                stopFrequency();
-            }
-            playFrequency();
-            
-            // Configurar timer
-            timerSeconds = step.duration * 60;
-            startTimer();
-            
-            // Atualizar progresso
-            updateProtocolProgress();
-            
-            // Configurar navegação
-            document.getElementById('prevStepBtn').disabled = stepIndex === 0;
-            document.getElementById('nextStepBtn').disabled = stepIndex === steps.length - 1;
-        }
-
-        // Próximo passo do protocolo
-        function nextProtocolStep() {
-            let steps = [];
-            switch(currentProtocol) {
-                case 'energy':
-                case 'focus':
-                case 'harmony':
-                    steps = [0, 1, 2];
-                    break;
-            }
-            
-            if (currentStepIndex < steps.length - 1) {
-                startProtocolStep(currentStepIndex + 1);
-            }
-        }
-
-        // Passo anterior do protocolo
-        function prevProtocolStep() {
-            if (currentStepIndex > 0) {
-                startProtocolStep(currentStepIndex - 1);
-            }
-        }
-
-        // Atualizar progresso do protocolo
-        function updateProtocolProgress() {
-            let steps = [];
-            switch(currentProtocol) {
-                case 'energy':
-                case 'focus':
-                case 'harmony':
-                    steps = [0, 1, 2];
-                    break;
-            }
-            
-            const progress = ((currentStepIndex + 1) / steps.length) * 100;
-            document.getElementById('protocolProgressBar').style.width = `${progress}%`;
-            document.getElementById('protocolProgressText').textContent = `${currentStepIndex + 1}/${steps.length}`;
-        }
-
-        // Sair do protocolo
-        function exitProtocol() {
-            protocolActive = false;
-            currentProtocol = null;
-            currentStepIndex = 0;
-            
-            // Ocultar controles do protocolo
-            document.getElementById('protocolControls').classList.add('hidden');
-            
-            // Parar reprodução
-            if (isPlaying) {
-                stopFrequency();
-            }
-            
-            // Parar timer
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                document.getElementById('timerBtn').innerHTML = `<i class="fas fa-clock mr-2" aria-hidden="true"></i>Programar Timer`;
-            }
-        }
-
-        // Adicionar ao histórico
-        function addToHistory(frequency) {
-            // Verificar se já existe no histórico
-            const existingIndex = history.findIndex(item => item.frequency === frequency);
-            
-            if (existingIndex !== -1) {
-                // Mover para o início
-                const item = history.splice(existingIndex, 1)[0];
-                history.unshift(item);
-            } else {
-                // Adicionar novo item
-                history.unshift({
-                    frequency: frequency,
-                    timestamp: new Date()
-                });
-                
-                // Limitar a 10 itens
-                if (history.length > 10) {
-                    history.pop();
-                }
-            }
-            
-            // Salvar no localStorage
-            localStorage.setItem('frequencyHistory', JSON.stringify(history));
-            
-            // Atualizar interface
-            updateHistoryDisplay();
-        }
-
-        // Carregar histórico
-        function loadHistory() {
-            const savedHistory = localStorage.getItem('frequencyHistory');
-            if (savedHistory) {
-                history = JSON.parse(savedHistory);
-                updateHistoryDisplay();
-            }
-        }
-
-        // Atualizar exibição do histórico
-        function updateHistoryDisplay() {
-            const historyContainer = document.getElementById('historyContainer');
-            
-            if (history.length === 0) {
-                historyContainer.innerHTML = '<p class="text-gray-400 text-center py-4">Nenhuma frequência utilizada recentemente</p>';
-                return;
-            }
-            
-            historyContainer.innerHTML = '';
-            
-            history.forEach(item => {
-                const date = new Date(item.timestamp);
-                const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-                
-                const historyItem = document.createElement('div');
-                historyItem.className = 'flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition cursor-pointer';
-                historyItem.innerHTML = `
-                    <div>
-                        <div class="font-medium">${item.frequency} Hz</div>
-                        <div class="text-sm text-gray-400">${formattedDate}</div>
-                    </div>
-                    <button class="text-blue-400 hover:text-blue-300">
-                        <i class="fas fa-play-circle text-xl"></i>
-                    </button>
-                `;
-                
-                historyItem.addEventListener('click', function() {
-                    selectFrequency(item.frequency);
-                });
-                
-                historyContainer.appendChild(historyItem);
-            });
-        }
-
-        // Solicitar permissão para notificações
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
-    </script>
-</body>
-</html>
+        // Configurar
