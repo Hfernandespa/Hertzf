@@ -1706,7 +1706,19 @@
             // Carregar histórico
             loadHistory();
         });
-
+// Obter nome de exibição do protocolo
+function getProtocolDisplayName(protocolName) {
+    switch(protocolName) {
+        case 'energy': return 'Protocolo de Energia';
+        case 'focus': return 'Protocolo de Foco';
+        case 'harmony': return 'Protocolo de Harmonia';
+        case 'sleep': return 'Protocolo de Sono';
+        case 'relaxation': return 'Protocolo de Relaxamento';
+        case 'meditation': return 'Protocolo de Meditação';
+        case 'healing': return 'Protocolo de Cura';
+        default: return 'Protocolo';
+    }
+}
         // Configurar eventos
         function setupEventListeners() {
             // Modal de headphones
