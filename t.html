@@ -2274,5 +2274,152 @@
             setTimeout(updateWaveVisualizer, 100);
         });
     </script>
+    <script>
+  // Dados das frequências completas (pode ser movido para um arquivo JSON depois)
+  const fullProtocols = {
+    "Guindaste_inicial_completo": {
+      title: "Guindaste Inicial Completo",
+      description: "Conjunto completo de frequências para protocolos gerais",
+      frequencies: [34750, 31750, 31000, 10000, 5000, 3500, 2720, 2489, 2452, 2250, 2200, 2180, 2130, 2127.5, 2120, 2100, 2093, 2050, 2008, 2000, 1998, 1865, 1862, 1850, 1840, 1800, 1600, 1570, 1560, 1552, 1550, 1500, 1100, 1050, 1027, 1000, 885, 880, 875, 864, 804, 803, 802, 800, 799, 787, 784, 781, 780, 776, 775, 770, 764, 740, 730, 727.5, 725, 712, 700, 690, 676, 666, 664, 660, 650, 625, 622, 600, 500, 465, 450, 440, 432, 428, 423, 400, 304, 250, 240, 162, 160, 125, 121, 120, 100, 95, 82, 81, 80, 78, 72, 70, 60, 41, 36, 30, 28, 26, 22, 20, 18, 15, 14, 13, 10, 9, 8, 7, 5.5, 5, 4, 3.5, 1.8, 1]
+    },
+    "ALS_2": {
+      title: "ALS_2 - Potenciais Vírus Causadores",
+      description: "Esclerose Lateral Amiotrófica tipo 2 - Frequências para potenciais vírus causadores",
+      frequencies: [5000, 3636, 2632, 1850, 1500, 1488, 1422, 1189, 1044, 922, 868, 845, 822, 788, 776, 766, 742, 733, 721, 676, 654, 625, 620, 607, 608, 609, 610, 611, 612, 613, 595, 515, 487, 461, 435, 423, 380, 322, 283, 232, 144, 136, 20]
+    },
+    "Câncer": {
+      title: "Câncer - Conjunto Básico Abrangente",
+      description: "Conjunto básico abrangente para tratamento de câncer",
+      frequencies: [10000, 11780, 21275, 17034, 11430, 10025, 6766, 6064, 5000, 3713, 3176, 3040, 2950, 2876, 2790, 2720, 2452, 2189, 2182, 2128, 2127, 2084, 2048, 2008, 1604, 1552, 1489, 880, 854, 800, 784, 776, 766, 728, 690, 683, 676, 666, 524, 464, 333, 120, 20]
+    }
+  };
+
+  // Função para mostrar protocolo completo em modal
+  function showFullProtocol(protocolName) {
+    const protocol = fullProtocols[protocolName];
+    if (!protocol) return;
+
+    // Criar modal
+    const modal = document.createElement('div');
+    modal.className = 'protocol-modal';
+    modal.innerHTML = `
+      <div class="protocol-content">
+        <button class="protocol-close" onclick="this.closest('.protocol-modal').remove()">
+          <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="protocol-header">
+          <h2 class="protocol-title">${protocol.title}</h2>
+          <p class="protocol-subtitle">${protocol.description}</p>
+          <p class="text-gray-400"><i class="fas fa-wave-square mr-2"></i>${protocol.frequencies.length} frequências</p>
+        </div>
+        
+        <div class="protocol-section">
+          <h3 class="detail-section-title">
+            <i class="fas fa-list mr-2"></i>Todas as Frequências
+          </h3>
+          <div class="frequency-list">
+            ${protocol.frequencies.map(freq => `
+              <div class="frequency-item" onclick="selectFrequencyFromModal(${freq})">
+                <div class="frequency-value">${freq}</div>
+                <div class="frequency-unit">Hz</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end gap-3">
+          <button class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition" onclick="this.closest('.protocol-modal').remove()">
+            Fechar
+          </button>
+          <button class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg transition" onclick="startProtocol('${protocolName}')">
+            <i class="fas fa-play mr-2"></i>Iniciar Protocolo
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Fechar modal ao clicar fora
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+
+  // Função para selecionar frequência do modal
+  function selectFrequencyFromModal(freq) {
+    document.getElementById('frequency').value = freq;
+    updateFrequencyInfo(freq);
+    document.querySelector('.protocol-modal').remove();
+    document.getElementById('generatorSection').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Função para iniciar protocolo (placeholder)
+  function startProtocol(protocolName) {
+    alert(`Iniciando protocolo: ${protocolName}\n\nEsta funcionalidade será implementada em breve!`);
+    document.querySelector('.protocol-modal').remove();
+  }
+
+  // Adicionar evento de clique aos botões de frequência
+  document.addEventListener('DOMContentLoaded', function() {
+    const frequencyButtons = document.querySelectorAll('.frequency-btn');
+    
+    frequencyButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const freq = this.getAttribute('data-freq');
+        
+        // Preencher o campo de frequência
+        document.getElementById('frequency').value = freq;
+        
+        // Atualizar as informações de frequência
+        updateFrequencyInfo(freq);
+        
+        // Adicionar ao histórico
+        addToHistory(freq, 'Frequência em Destaque');
+        
+        // Rolar até o gerador de frequências
+        document.getElementById('generatorSection').scrollIntoView({ 
+          behavior: 'smooth' 
+        });
+      });
+    });
+  });
+
+  // Função para atualizar informações da frequência (mantida do original)
+  function updateFrequencyInfo(freq) {
+    document.getElementById('currentInfo').innerHTML = `
+      <div class="text-xl font-bold text-blue-400">${freq} Hz</div>
+      <div class="text-lg font-medium">Frequência em Destaque</div>
+    `;
+    
+    document.getElementById('currentDetails').innerHTML = `
+      <div><strong>Categoria:</strong> <span class="category-badge bg-yellow-600">Destaque</span></div>
+      <div><strong>Descrição:</strong> Frequência selecionada da base de dados em destaque.</div>
+    `;
+  }
+
+  // Função para adicionar ao histórico (adaptada do original)
+  function addToHistory(freq, source) {
+    const historyList = document.getElementById('historyList');
+    const historyItem = document.createElement('div');
+    historyItem.className = 'flex justify-between items-center p-2 bg-gray-900 rounded-lg';
+    historyItem.innerHTML = `
+      <span class="text-sm">${freq} Hz - ${source}</span>
+      <button class="text-gray-400 hover:text-white" onclick="document.getElementById('frequency').value=${freq}; updateFrequencyInfo(${freq});">
+        <i class="fas fa-redo text-xs"></i>
+      </button>
+    `;
+    
+    historyList.insertBefore(historyItem, historyList.firstChild);
+    
+    // Manter apenas os últimos 10 itens
+    while (historyList.children.length > 10) {
+      historyList.removeChild(historyList.lastChild);
+    }
+  }
+</script>
 </body>
 </html>
