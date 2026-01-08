@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banco de Dados CAFL - Harmonizador Fernandes</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+:root {
+--primary-color: #3b82f6;
+--secondary-color: #8b5cf6;
+--accent-color: #f59e0b;
+--success-color: #10b981;
+--warning-color: #fbbf24;
+--danger-color: #ef4444;
+--dark-bg: #1e293b;
+--darker-bg: #0f172a;
+--card-bg: #1f2937;
+--text-primary: #ffffff;
+--text-secondary: #9ca3af;
+}
+body {
+background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+min-height: 100vh;
+margin: 0;
+padding: 0;
+}
+.database-container {
+background: rgba(30, 41, 59, 0.8);
+backdrop-filter: blur(10px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
+/* === Estilos do Gerador (sempre visível) === */
+.generator-panel {
+background: rgba(30, 41, 59, 0.95);
+border-radius: 16px;
+padding: 24px;
+margin-bottom: 24px;
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.generator-title {
+font-size: 1.5rem;
+font-weight: bold;
+margin-bottom: 16px;
+color: #3b82f6;
+}
+.frequency-input-group {
+display: flex;
+gap: 1rem;
+align-items: flex-end;
+margin-bottom: 16px;
+}
+.wave-visualizer-small {
+width: 120px;
+height: 80px;
+flex-shrink: 0;
+background: linear-gradient(to bottom, var(--dark-bg), var(--darker-bg));
+border-radius: 8px;
+}
+.wave-visualizer-small canvas {
+width: 100%;
+height: 100%;
+display: block;
+}
+.timer-container {
+display: none;
+margin-top: 16px;
+padding: 12px;
+background: rgba(30, 41, 59, 0.8);
+border-radius: 8px;
+}
+.timer-display {
+font-family: 'Courier New', monospace;
+font-size: 1.25rem;
+font-weight: bold;
+color: #fbbf24;
+text-align: center;
+margin-bottom: 8px;
+}
+.timer-progress {
+height: 6px;
+background: rgba(255, 255, 255, 0.1);
+border-radius: 3px;
+overflow: hidden;
+}
+.timer-progress-bar {
+height: 100%;
+background: #8b5cf6;
+width: 0%;
+transition: width 1s linear;
+}
+@media (max-width: 768px) {
+.frequency-input-group { flex-direction: column; }
+.wave-visualizer-small { width: 100%; height: 100px; }
+}
+</style>
+</head>
+<body>
+<!-- Header -->
+<header class="bg-gradient-to-r from-blue-900 to-purple-900 text-white shadow-xl">
+<div class="container mx-auto px-4 py-6">
+<h1 class="text-3xl font-bold">Harmonizador Fernandes – Banco de Dados CAFL</h1>
+<p class="opacity-80">Fonte: turf@mindspring.com</p>
+</div>
+</header>
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+<!-- === GERADOR DE FREQUÊNCIAS (SEMPRE VISÍVEL) === -->
+<div id="generatorPanel" class="generator-panel">
+<h2 class="generator-title"><i class="fas fa-wave-square mr-2"></i>Gerador de Frequências</h2>
+<div class="space-y-4">
+<!-- Frequency Input e Visualizer -->
+<div class="frequency-input-group">
+<div class="frequency-controls">
+<label for="frequency" class="block text-sm font-medium mb-2 text-white">Frequência (Hz)</label>
+<div class="flex gap-2">
+<input type="number" id="frequency" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite a frequência" value="40" min="20" max="20000" step="1">
+<button id="playBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium text-white transition">Tocar</button>
+<button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium text-white transition hidden">Parar</button>
+</div>
+</div>
+<div class="wave-visualizer-small">
+<h3 class="text-xs font-medium mb-1 text-gray-400 text-center">Onda em Tempo Real</h3>
+<canvas id="waveCanvas" width="120" height="80"></canvas>
+</div>
+</div>
+
+<!-- Volume -->
+<div>
+<label for="volume" class="block text-sm font-medium mb-2 text-white">Volume: <span id="volumeValue">50</span>%</label>
+<input type="range" id="volume" class="w-full h-2 bg-gray-700 rounded-lg" min="0" max="100" value="50">
+</div>
+
+<!-- Tipo de Onda -->
+<div>
+<label class="block text-sm font-medium mb-2 text-white">Tipo de Onda</label>
+<div class="grid grid-cols-4 gap-2">
+<button class="wave-type-btn bg-blue-600 hover:bg-blue-700 px-2 py-1.5 rounded text-xs text-white transition" data-wave="sine">Senoidal</button>
+<button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-2 py-1.5 rounded text-xs text-white transition" data-wave="square">Quadrada</button>
+<button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-2 py-1.5 rounded text-xs text-white transition" data-wave="sawtooth">Serra</button>
+<button class="wave-type-btn bg-gray-700 hover:bg-gray-600 px-2 py-1.5 rounded text-xs text-white transition" data-wave="triangle">Triangular</button>
+</div>
+</div>
+
+<!-- Timer -->
+<div>
+<button id="timerBtn" class="bg-purple-600 hover:bg-purple-700 w-full py-2 rounded-lg font-medium text-white transition">Programar Timer</button>
+</div>
+
+<div id="timerContainer" class="timer-container">
+<div id="timerDisplay">00:00:00</div>
+<div class="timer-progress">
+<div id="timerProgressBar" class="timer-progress-bar"></div>
+</div>
+</div>
+
+<!-- Informações da Frequência -->
+<div id="currentInfo" class="bg-gray-800 rounded p-3 mt-4 text-white">
+<div class="text-xl font-bold text-blue-400">40 Hz</div>
+<div class="text-lg font-medium">Foco e Concentração</div>
+</div>
+<div id="currentDetails" class="bg-gray-800 rounded p-3 text-sm mt-2 text-white">
+<div><strong>Categoria:</strong> <span class="bg-blue-600 px-2 py-1 rounded">Concentração</span></div>
+<div><strong>Descrição:</strong> Frequência para melhorar foco cognitivo e clareza mental.</div>
+</div>
+<div id="waveRecommendation" class="bg-gray-800 rounded p-3 text-sm mt-2 text-white">
+<div class="flex items-center gap-2">
+<i class="fas fa-lightbulb text-yellow-500"></i>
+<span><strong>Onda recomendada:</strong> Senoidal</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Título do Banco de Dados -->
+<div class="text-center mb-8">
+<h2 class="text-3xl font-bold text-white">Banco de Dados CAFL Completo</h2>
+<p class="text-gray-400">Mais de 2500 entradas com frequências terapêuticas</p>
+</div>
+
+<!-- Restante da interface do banco de dados (filtros, resultados, etc.) -->
+<div class="database-container rounded-xl p-6 shadow-2xl">
+<div id="loading" class="text-center py-10 text-white">Carregando banco de dados...</div>
+<div id="resultsContainer" class="space-y-4"></div>
+</div>
+
+<script>
+// === AUDIO ENGINE ===
+let audioContext;
+let oscillator;
+let gainNode;
+let isPlaying = false;
+let currentWaveType = 'sine';
+let currentFreq = 40;
+let timerInterval = null;
+let isTimerActive = false;
+let timerSeconds = 0;
+
+function initAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function drawWave() {
+  const canvas = document.getElementById('waveCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  ctx.clearRect(0, 0, width, height);
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2;
+  const amplitude = height / 3;
+  const centerY = height / 2;
+  const freq = currentFreq / 100;
+  for (let x = 0; x < width; x++) {
+    let y;
+    switch (currentWaveType) {
+      case 'sine': y = centerY + amplitude * Math.sin(x * freq * 0.1); break;
+      case 'square': y = centerY + amplitude * (Math.sin(x * freq * 0.1) > 0 ? 1 : -1); break;
+      case 'sawtooth': y = centerY + amplitude * (2 * (x * freq * 0.1 / (2 * Math.PI) - Math.floor(0.5 + x * freq * 0.1 / (2 * Math.PI)))); break;
+      case 'triangle': 
+        const t = (x * freq * 0.1) % (2 * Math.PI);
+        y = centerY + amplitude * (2 * Math.abs(2 * (t / (2 * Math.PI) - Math.floor(t / (2 * Math.PI) + 0.5))) - 1);
+        break;
+      default: y = centerY;
+    }
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  if (isPlaying) requestAnimationFrame(drawWave);
+}
+
+function playTone() {
+  if (isPlaying) return;
+  initAudioContext();
+  currentFreq = parseFloat(document.getElementById('frequency').value) || 40;
+  oscillator = audioContext.createOscillator();
+  gainNode = audioContext.createGain();
+  oscillator.type = currentWaveType;
+  oscillator.frequency.setValueAtTime(currentFreq, audioContext.currentTime);
+  const vol = document.getElementById('volume').value / 100;
+  gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  oscillator.start();
+  isPlaying = true;
+  document.getElementById('playBtn').classList.add('hidden');
+  document.getElementById('stopBtn').classList.remove('hidden');
+  drawWave();
+}
+
+function stopTone() {
+  if (!isPlaying) return;
+  if (oscillator) { oscillator.stop(); oscillator.disconnect(); oscillator = null; }
+  if (gainNode) { gainNode.disconnect(); gainNode = null; }
+  isPlaying = false;
+  document.getElementById('playBtn').classList.remove('hidden');
+  document.getElementById('stopBtn').classList.add('hidden');
+  if (isTimerActive) stopTimer();
+}
+
+function startTimer() {
+  const mins = prompt("Minutos:", "5");
+  if (!mins || isNaN(mins)) return;
+  timerSeconds = parseInt(mins) * 60;
+  isTimerActive = true;
+  document.getElementById('timerContainer').style.display = 'block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    updateTimerDisplay();
+    const total = parseInt(mins) * 60;
+    document.getElementById('timerProgressBar').style.width = `${((total - timerSeconds) / total) * 100}%`;
+    if (timerSeconds <= 0) {
+      stopTimer();
+      stopTone();
+      alert("Timer concluído!");
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  isTimerActive = false;
+  document.getElementById('timerContainer').style.display = 'none';
+}
+
+function updateTimerDisplay() {
+  const h = Math.floor(timerSeconds / 3600);
+  const m = Math.floor((timerSeconds % 3600) / 60);
+  const s = timerSeconds % 60;
+  document.getElementById('timerDisplay').textContent =
+    `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+// Event listeners do gerador
+document.getElementById('playBtn').addEventListener('click', playTone);
+document.getElementById('stopBtn').addEventListener('click', stopTone);
+document.getElementById('timerBtn').addEventListener('click', startTimer);
+document.getElementById('volume').addEventListener('input', () => {
+  document.getElementById('volumeValue').textContent = document.getElementById('volume').value;
+  if (gainNode) gainNode.gain.setValueAtTime(document.getElementById('volume').value / 100, audioContext.currentTime);
+});
+document.querySelectorAll('.wave-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentWaveType = btn.dataset.wave;
+    document.querySelectorAll('.wave-type-btn').forEach(b => {
+      b.classList.remove('bg-blue-600');
+      b.classList.add('bg-gray-700');
+    });
+    btn.classList.remove('bg-gray-700');
+    btn.classList.add('bg-blue-600');
+    if (isPlaying && oscillator) oscillator.type = currentWaveType;
+  });
+});
+
+// === INTEGRAÇÃO COM BANCO DE DADOS ===
+function updateGeneratorFromFreq(freqObj) {
+  document.getElementById('frequency').value = freqObj.frequency.split(',')[0];
+  document.getElementById('currentInfo').innerHTML = `
+    <div class="text-xl font-bold text-blue-400">${freqObj.frequency.split(',')[0]} Hz</div>
+    <div class="text-lg font-medium">${freqObj.name}</div>
+  `;
+  const catNames = {
+    'inflamacao': 'Inflamação',
+    'dor': 'Dor',
+    'bacteria': 'Bactéria',
+    'virus': 'Vírus',
+    'fungo': 'Fungo',
+    'cancer': 'Câncer',
+    'parasita': 'Parasita',
+    'respiratorio': 'Respiratório',
+    'pele': 'Pele',
+    'mental': 'Mental/Emocional',
+    'sistema-nervoso': 'Sistema Nervoso',
+    'sistema-digestivo': 'Sistema Digestivo',
+    'geral': 'Geral'
+  };
+  document.getElementById('currentDetails').innerHTML = `
+    <div><strong>Categoria:</strong> <span class="bg-blue-600 px-2 py-1 rounded">${catNames[freqObj.category] || freqObj.category}</span></div>
+    <div><strong>Descrição:</strong> ${freqObj.description}</div>
+  `;
+  let rec = 'Senoidal';
+  if (['bacteria', 'virus', 'parasita'].includes(freqObj.category)) rec = 'Quadrada';
+  document.getElementById('waveRecommendation').innerHTML = `
+    <div class="flex items-center gap-2">
+      <i class="fas fa-lightbulb text-yellow-500"></i>
+      <span><strong>Onda recomendada:</strong> ${rec}</span>
+    </div>
+  `;
+}
+
+function useFrequencyEnhanced(id) {
+  const freq = database.frequencies.find(f => f.id === id);
+  if (freq) {
+    updateGeneratorFromFreq(freq);
+    if (!isPlaying) setTimeout(playTone, 300);
+  }
+}
+// ... (continuação do <script> após a PARTE 1)
+// Função para usar uma frequência diretamente do banco de dados
+useFrequency(id) {
+  const freq = this.frequencies.find(f => f.id === id);
+  if (freq) {
+    // Carregar no gerador
+    updateGeneratorFromFreq(freq);
+    // Tocar automaticamente
+    if (!isPlaying) {
+      setTimeout(playTone, 300);
+    }
+  }
+}
+showDetails(id) {
+  const freq = this.frequencies.find(f => f.id === id);
+  if (freq) {
+    const modal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    modalTitle.textContent = freq.name;
+    modalContent.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4 class="font-semibold text-blue-400 mb-2">Frequências</h4>
+          <div class="bg-gray-800 p-3 rounded-lg">
+            <code class="text-sm text-green-400">${freq.frequency}</code>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-semibold text-blue-400 mb-2">Informações</h4>
+          <div class="space-y-2 text-sm">
+            <div><span class="text-gray-400">Categoria:</span> ${this.getCategoryName(freq.category)}</div>
+            <div><span class="text-gray-400">Tipo de Onda:</span> ${freq.waveType}</div>
+            <div><span class="text-gray-400">Duração:</span> ${freq.duration}</div>
+            <div><span class="text-gray-400">Fonte:</span> ${freq.source}</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <h4 class="font-semibold text-blue-400 mb-2">Descrição</h4>
+        <p class="text-gray-300">${freq.description}</p>
+      </div>
+      <div class="mt-6 flex justify-end space-x-3">
+        <button onclick="useFrequencyFromModal(${freq.id})" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+          <i class="fas fa-play mr-2"></i>Usar Frequência
+        </button>
+        <button onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg">
+          Fechar
+        </button>
+      </div>
+    `;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+}
+}
+
+// Função global para uso a partir do modal
+function useFrequencyFromModal(id) {
+  database.useFrequency(id);
+  closeModal();
+}
+
+// Atualizar gerador com dados da frequência
+function updateGeneratorFromFreq(freqObj) {
+  document.getElementById('frequency').value = freqObj.frequency.split(',')[0];
+  document.getElementById('currentInfo').innerHTML = `
+    <div class="text-xl font-bold text-blue-400">${freqObj.frequency.split(',')[0]} Hz</div>
+    <div class="text-lg font-medium">${freqObj.name}</div>
+  `;
+  const catNames = {
+    'inflamacao': 'Inflamação',
+    'dor': 'Dor',
+    'bacteria': 'Bactéria',
+    'virus': 'Vírus',
+    'fungo': 'Fungo',
+    'cancer': 'Câncer',
+    'parasita': 'Parasita',
+    'respiratorio': 'Respiratório',
+    'pele': 'Pele',
+    'mental': 'Mental/Emocional',
+    'sistema-nervoso': 'Sistema Nervoso',
+    'sistema-digestivo': 'Sistema Digestivo',
+    'geral': 'Geral'
+  };
+  document.getElementById('currentDetails').innerHTML = `
+    <div><strong>Categoria:</strong> <span class="bg-blue-600 px-2 py-1 rounded">${catNames[freqObj.category] || freqObj.category}</span></div>
+    <div><strong>Descrição:</strong> ${freqObj.description}</div>
+  `;
+  let rec = 'Senoidal';
+  if (['bacteria', 'virus', 'parasita'].includes(freqObj.category)) rec = 'Quadrada';
+  document.getElementById('waveRecommendation').innerHTML = `
+    <div class="flex items-center gap-2">
+      <i class="fas fa-lightbulb text-yellow-500"></i>
+      <span><strong>Onda recomendada:</strong> ${rec}</span>
+    </div>
+  `;
+}
+
+// Inicializar o banco de dados com todos os dados do CAFL
+const caflData = `CAFL
+Lista de frequências anotadas consolidada, v2023_05_25, turf@mindspring.com
+Todas as frequências em Hz
+Inflamação abdominal - 2720, 2489, 2170, 2000, 1865, 1800, 1600, 1550, 880, 832, 802, 787, 776, 727, 660, 465, 450, 444, 440, 428, 380, 250, 146, 125, 95, 72, 20, 1,2
+Dor abdominal - 10000, 3000, 95, 3
+Abcessos (também use Staphylococcus aureus e veja Listeriose) - 2720, 2170, 1865, 1550, 880, 802, 787, 727, 500, 444, 190
+Abcessos_1 - 2720, 2170, 1865, 1550, 880, 802, 787, 760, 727, 690, 660, 500, 465, 450, 444, 428, 190
+Abcessos_secundários - 1550, 802, 760, 660, 465, 450, 444, 428
+Acidose (hiperacidez. Também use um suplemento de cálcio e magnésio a longo prazo) - 10000, 880, 802, 787, 776, 727, 146, 20
+Acne (execute 564 por 6 min) - 2720, 2170, 1800, 1600, 1550, 1552, 1500, 802, 880, 778, 787, 760, 741, 727, 660, 564, 465, 450, 444, 428
+Acônito (usado para estimular a produção de linfócitos) - 3347, 5611, 2791
+Actinobacillus (uma bactéria potencialmente patogênica encontrada em mamíferos, 773*, 776*, 778*, 822*) - 488, 565, 672, 674, 678, 773, 766, 768, 776, 777, 778, 822, 885, 887, 7877, 9687, 42664, 42666, 46668, 46787
+Actinomyces_israelii (uma bactéria normalmente encontrada no intestino e na garganta que pode causar buracos profundos e cheios de pus no tecido. Veja também Streptothrix, 222*, 262*, 488*, 567*, 7880*) - 23, 222, 262, 2154, 465, 488, 567, 7880, 10000, 787, 747, 727, 20, 660, 690, 160, 73, 1.1
+Actinomicose (usar Streptothrix)
+Campo_de_perturbação_de_acupuntura (foco na cicatriz) - 5.9
+Dor aguda - 3000, 95, 10000, 1550, 802, 880, 787, 727, 690, 666
+Adenóides - 1550, 802, 880, 787, 776, 727, 444, 20, 428, 660, 2720, 2170, 14, 333, 523, 768, 786, 428, 1865, 590, 690, 780, 807, 810, 1570, 2000
+Adenoma_cervical (tumor epitelial do colo do útero que pode ser benigno ou maligno. Veja também Câncer.) - 433
+Adenovírus (um vírus que pode causar resfriados/gripes e infecções nos pulmões, estômago e intestinos) - 333, 523, 666, 786, 768, 959, 962
+Adenovirus_36 (AD-36 pode estar relacionado ao ganho de peso em alguns casos) - 8875, 6140, 5859, 5797, 5219
+Adenovirus_comp - 10000, 7767, 7762, 7702, 7009, 7001, 6989, 5000, 4868, 2720, 2050, 1500, 1395, 1062, 1060, 1034, 1009, 969, 968, 962, 959, 960, 952, 951, 942, 880, 1550, 802, 787, 768, 728, 690, 660, 555, 523, 522, 1865, 444, 333, 300, 180, 160, 125, 95, 72, 60, 48, 26, 20
+Adenovírus_HC - 28729,05, 16628,88, 18471,00, 18670,15, 19566,32, 1407,93, 827,90, 919,62, 929,53, 974,15
+Aderências - 2720, 2170, 1550, 802, 880, 787, 776, 760, 727, 660, 190
+Anexite (inchaço dos ovários ou trompas de Falópio) - 440, 441, 522, 572, 3343, 3833, 5312
+Estimulante_adrenal - 10, 20, 2250
+Adynamia_geriatric (fadiga da idade) - 410, 220, 100, 60, 27,5
+Aflatoxina (uma toxina prejudicial ao fígado produzida por certos fungos alimentares) - 344, 510, 943, 474, 476, 568
+Aflatoxina_HC - 438,74, 466,01, 9359,97, 8812,31
+Tripanossomíase africana - 656, 988, 780
+Agyfla_HC - 3534,88, 175,99
+AIDS_1 (não para uso nos EUA, veja HIV) - 2489, 465, 727, 787, 880, 1550, 1500, 1,2, 31000, 31750, 34750
+AIDS_2 - 1,44, 1550, 1500, 249, 418, 727, 787, 880, 2489, 3100, 3175, 3475
+AIDS_Kaposis_sarcoma (use Cancer_Kaposis_sarcoma)
+AIDS_secundário (use 1113 por 12 min, 2128 por 16 min, 6121 por 21 min, 33 por 1 min) - 1113, 2128, 6121, 33
+Acatisia - 230, 7,83, 3
+Alcoolismo - 10000
+Alergia (ver também Coqueluche) - 10000, 7344, 5000, 1550, 1234, 740, 880, 835, 787, 727, 500, 330, 160, 30, 3
+Alergia_1 - 10000, 1865, 880, 787, 727, 690, 660, 555, 522, 473, 444, 330, 290, 146, 125, 95, 72, 33, 20, 3
+Allergy_pollen_TR (pulso 64 75, convergência 2 0,03125, permanência 500) - 116113, 119061,03, 119441,8
+Alopecia (perda de cabelo) - 10000, 30000, 5000, 2720, 2170, 1552, 880, 800, 787, 727, 465, 330, 146, 95, 28, 20, 3
+Estreptococo alfa HC - 18919,09, 18670,15, 941,93, 929,53
+ALS_1 (esclerose lateral amiotrópica, possivelmente causada por micoplasma fermentans. Use também MS e veja Echo virus, Coxsackie, Herpes 6, Bartonella e frequências de Lyme. Use 2900 por 30 min) - 2900, 864, 790, 690, 610, 470, 484, 986, 644, 254
+ALS_2 (Potenciais vírus causadores) - 5000, 3636, 2632, 1850, 1500, 1488, 1422, 1189, 1044, 922, 868, 845, 822, 788, 776, 766, 742, 733, 721, 676, 654, 625, 620, 607, 608, 609, 610, 611, 612, 613, 595, 515, 487, 461, 435, 423, 380, 322, 283, 232, 144, 136, 20
+ALS_3 (use 2900 por 60 min) - 2900
+ALS_4 (também usado para MS) - 10000, 5000, 2900, 2750, 2700, 2145, 938, 862, 841, 777, 766, 741, 739, 688, 682, 660, 572, 532, 520, 477, 442, 433, 344, 343, 342, 338, 324, 322, 253, 242, 112
+ALS_5 (use 2900 por 20 min) - 2900, 986, 864, 790, 728, 690, 660, 644, 980, 692, 610, 484, 254
+Alternaria_tenuis (um fungo associado a doenças pulmonares) - 853, 304
+Alzheimers_1 (veja também conjuntos de ELA) - 430, 620, 624, 840, 866, 5148, 2213, 19180,5, 742,4, 303, 23,2, 3773,3, 943,3, 471,66, 470,9, 941,8, 3767,3
+Alzheimer_2 - 19180,5, 2213, 5148, 866, 840, 624, 620, 430
+Alzheimer_TR - 430, 620, 624, 866, 5148, 2213, 1918, 742,4, 303, 23,2, 2900, 864, 790, 690, 610, 470, 484, 986, 644, 254, 30, 33, 6
+Amenorréia (ausência de menstruação) - 10000, 880, 1550, 802, 787, 760, 727, 465, 20
+Ameba (um microrganismo unicelular, às vezes infeccioso) - 310, 333, 532, 732, 769, 827, 1522
+Amoeba_hepar_abcess (abcesso hepático causado por infecção amebiana) - 344, 605, 510, 943
+Disenteria amebiana (use Entamoeba histolytica)
+Esclerose lateral amiotrópica (usar ELA)
+Anal_itching (também use Parasitas enterobíase e veja Conjunto geral de parasitas) - 10000, 880, 787, 760, 727, 465, 125, 120, 95, 72, 444, 1865, 20, 773, 826, 827, 835, 4152
+Anafilaxia - 10000
+Anaplasma_marginale_HC - 19267,60, 959,28, 21010,14, 1046,03
+Aneurisma - 880, 787, 760, 727, 465, 125, 95, 72, 444, 1865, 20, 727
+Angina_angustia (inflamação do gânglio linfático da garganta) - 787, 776, 727, 690, 465, 428, 660
+Angina_pectoris - 3, 230, 2720, 2170, 1800, 1600, 1500, 880, 832, 787, 776, 727, 465, 444, 1865, 125, 95, 72, 20, 660, 7,83
+Espondilite anquilosante (artrite da coluna. Use 326 períodos mais longos após o acúmulo) - 3000, 95, 1550, 802, 880, 787, 776, 727, 650, 625, 600, 28, 10, 35, 28, 7,69, 1,2, 110, 100, 60, 428, 680, 326
+Anosmia (perda do olfato) - 20, 10000
+Antraz (veja também Bacillus_anthracis_HC) - 4000, 16655, 1370, 1365, 930, 900, 768, 633, 500, 420, 414, 400, 273, 224, 129
+Antraz_1 - 644, 643, 642, 639, 638, 637, 634, 633, 632, 629, 628, 627, 624, 623, 622
+Antisséptico (use antisséptico geral)
+Ansiedade_1 (Transtorno de ansiedade geral. Use 1,5 por 3 min, 6,8, 7,8 por 5 min, 95 por 3 min, 10000 por 5 min) - 1,5, 6,8, 7,8, 95, 10000
+Apoplexia_derrame_paralisia - 40, 1800, 880, 787, 727, 650, 625, 600, 125, 95, 72, 20, 1865, 522, 428
+Apendicite (Procure ajuda médica! Se ocorrer microperfuração, a infecção deve ser eliminada antes de beber água ou comer. Mesmo algumas gotas de água podem ser fatais) - 1550, 802, 880, 787, 727, 444, 380, 190, 10, 650, 444, 522, 125, 95, 72, 20, 522, 146, 440, 450
+Apendicite_1 - 1770, 1570, 880, 807, 804, 1550, 802, 787, 728, 690, 660, 622, 650, 625, 600, 450, 1865, 444, 440, 380, 190, 146, 125, 522, 95, 72, 20, 10
+Falta_de_apetite_de - 465, 444, 1865, 125, 95, 72, 20, 10000, 880, 787, 727
+Arenas_tennus - 667
+Arnica (uma erva de cura tópica) - 1042, 1032
+Arryhthmia_heart_TR (também use magnésio, CoQ10 e óleo de peixe) - 696, 7,83
+Arsenic_alb (sal celular homeopático) - 562
+Arteriosclerose (endurecimento das artérias; a regeneração leva tempo. Experimente também nanobactérias, coxsackie e frequências de CMV) - 10000, 2720, 2170, 1800, 1600, 1500, 880, 787, 776, 727, 20
+Artrite_A - 1500, 727, 784, 880
+Artrite_artralgia_devido_à_gota - 9.39
+Artrite (artrose e distúrbios da paratireoide que afetam o metabolismo do cálcio) - 9,6
+Artrite (origem focal gastrogênica tonsiltogênica e paresia) - 9,39
+Artrite_geral (use Strep pneumonia e Mycoplasma geral se necessário) - 10000, 5000, 2720, 1664, 1550, 1500, 962, 880, 802, 800, 787, 776, 766, 727, 688, 683, 650, 625, 600, 120, 20
+Artrite_1 (use 1,5 por 10 min, 120 por 20 min) - 10000, 5000, 3176, 3000, 2720, 1664, 1550, 1500, 880, 802, 787, 770, 728, 690, 660, 512, 250, 230, 120, 100, 80, 60, 40, 30, 28, 26, 25, 20, 10, 9,4, 9,39, 7,7, 7,69, 3, 1,5, 1,2
+Artrite_reumatoide (A causa pode ser bactérias como estreptococos pneumoniae, clamídia pneumonia, micoplasma fermentans ou bactérias dentárias que também devem ser tratadas. Tente também antisséptico geral e parasitas lombrigas em geral se não houver resposta. Use 766 períodos mais longos após a acumulação.) - 250, 1,2, 650, 625, 600, 787, 727, 262, 776, 766
+Artrite_secundária - 2720, 1000, 1500, 770
+Gripe_asiática_A - 516, 656, 434
+Aspergillus_flavus (mofo encontrado em milho, amendoim e grãos que produz aflatoxina) - 1823, 247, 1972
+Aspergillus_geral - 1972, 1823, 758, 743, 697, 524, 374, 339, 247
+Aspergillus_glaucus (mofo azul que ocorre em alguns processos infecciosos humanos) - 524, 758
+Aspergillus_niger (mofo comum que pode produzir infecção grave e persistente) - 374, 697
+Aspergillus_terreus (mofo ocasionalmente associado à infecção dos brônquios e pulmões) - 743, 339
+Asma (veja também Suporte ao fígado e Parasitas ascaris e use Mycoplasma geral se necessário) - 7344, 3702, 3672, 2720, 2170, 1800, 1600, 1500, 1283, 1234, 1233, 880, 787, 727, 522, 444, 146, 125, 95, 72, 20, 0,5
+Asma_1 - 1283, 1233, 4.7
+Asma_2 (todas as frequências por 5 min) - 1234, 3672, 7346, 727, 787, 880, 10000, 47, 120
+Asma_v - 3125, 3124, 890, 886, 871, 822, 782, 756, 712, 665, 633, 521, 515, 487, 434, 411, 322, 263, 172, 128
+Astrocitoma (use Câncer, astrocitoma)
+Ataxia (incoordenação dos músculos. Resultados lentos em alguns casos) - 2720, 2170, 1800, 1600, 1500, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20
+Ataxia_espástica - 9,19, 8,25, 7,69
+Aterosclerose (os micróbios comumente presentes na placa são herpes zoster e pneumonia por clamídia, este conjunto combina os dois. Use também magnésio e vitamina C para ajudar a reduzir depósitos minerais) - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471,66, 470,9, 941,8, 3767,3, 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
+Pé de atleta (veja também as frequências de Epidermophyton floccinum, Tinea e Trichophyton rubrum. Use todas as frequências por 5 min) - 20, 379, 727, 787, 880, 5000, 644, 766, 464, 802, 1552, 9999, 752, 923, 3176, 304
+Atmênico_Alb - 562
+Distúrbio_do_déficit_de_atenção (Provavelmente é importante evitar conservantes, aspartame, corantes, MSG e outras toxinas potenciais, além de limitar açúcar e amidos, mas garantir proteína adequada e bons óleos na dieta. Experimente Shigella, Chlamydia pneum. e antisséptico geral)
+Autismo (é necessário fazer desintoxicação de mercúrio e alumínio se for um problema. Tente Measles_w_vaccine.)
+Autointoxicação - 522, 146, 1550, 10000, 800, 880, 787, 727, 20
+Babesia - 76, 570, 1583, 1584, 432, 753, 5776
+Bacillinum (nosódio homeopático) - 132, 423, 432, 785, 853, 854, 921, 1027, 1042, 1932
+Bacillus_anthracis_HC - 19665,89, 18122,49, 18321,64, 19317,38, 961,76, 912,18, 902,27, 979,11
+Baccilus_cereus - 18645,26, 928,29
+Bacillus_Coli_Rod_Form - 8020, 800, 683, 417, 318
+Bacillus_Coli_Vírus - 17220, 11103, 8581, 2872, 1722, 1552, 770
+Infecções por Bacillus (B. coli, B. coli bacilo) - 787, 880, 802, 727, 1552, 800
+Bacillus_lichenoformis - 2655, 21554
+Bacillus_subtilis (pode causar conjuntivite) - 432, 722, 822, 1246
+Bacillus_subtilis_niger_HC - 19168.02, 18919.09, 18670,15, 954.32, 941.93, 929,53
+Bacilo_thuringiensis - 520, 2551, 902, 1405
+Dor nas costas_1 (se não houver alívio com estes, use frequências de estimulação renal, magnésio e B6, e beba bastante água. Use 212 e 305 por 6 min e 33 por 5 min) - 10000, 1550, 880, 802, 787, 760, 727, 305, 212, 41,2, 33
+Dor nas costas_2 - 787, 784, 776, 728, 727, 465, 432, 9,6, 9,4, 9,3, 7,7, 7,6, 3, 0,5
+Dor nas costas e espasmos_1 - 120, 212, 240, 424, 465, 528, 760, 727, 787, 880, 1550, 2112, 5000, 10000
+Dor nas costas_crônica_inferior_1 (use com as costas voltadas para o tubo. Use 728 por 30min) - 728
+Bactéria_lactis_nosode - 512, 526, 798, 951, 5412
+Cápsulas bacterianas_HC - 20786.10, 17923.34, 1034.88, 892,35
+Bacterial_infections_general (se a infecção bacteriana for crônica e o tipo for diagnosticado com precisão e nem as frequências nem os antibióticos forem eficazes a longo prazo, use também os conjuntos Parasitas gerais e lombrigas. Veja também Antissépticos gerais e tipos específicos.) - 20, 465, 866, 664, 690, 727, 787, 832, 800, 880, 1550, 784
+Bacterium_coli (um tipo de E. coli normalmente encontrado nos intestinos, água, leite e solo, que é a causa mais frequente de infecções do trato urinário e uma causa comum de infecção de feridas) - 642, 358, 539
+Bactéria_coli_comuna_combinação - 282, 333, 413, 957, 1320, 1722
+Bacteroides_fragilis (usar com conjunto Parasitas ascaris) - 633, 634, 635, 636, 637
+Bacteroides_fragilis_HC - 16180,80, 16230,58, 808,07, 805,59
+Mau hálito (use Halitose)
+Bakers_Yeast_allergy (preparação homeopática) - 775, 843, 1000
+Balantidium_coli_HC (cistos. B. coli é o maior protozoário ciliado encontrado em humanos e pode causar colite grave com ulcerações) - 22902.05, 1140.23
+Síndrome de Bantis (Doença na qual os vasos sanguíneos entre os intestinos e o fígado ficam bloqueados, levando à congestão das veias, aumento do baço, sangramento do estômago e intestinos, cirrose hepática e destruição das células sanguíneas.) - 1778
+Carvão de cevada (preparação homeopática para um alérgeno) - 377, 224, 1447
+Barretts_esophagus_1 (alterações nas células esofágicas geralmente causadas por refluxo ácido. use 2127,5 por 6 min) - 10000, 880, 802, 787, 776, 676, 727, 20, 146, 2127,5
+Bartonella_henslae (vírus que causa a febre da arranhadura do gato) - 364, 379, 645, 654, 786, 840, 842, 844, 846, 848, 850, 857, 967, 6878, 634, 696, 716, 1518
+Basidiomicetos - 751
+BC_G_Vacina - 277, 768, 832, 725
+Enurese (ver também Parasita geral, oxiúros e frequências de ascaris) - 1550, 880, 802, 787, 727, 465, 120, 112, 7,83
+Escaras - 880, 1550, 802, 787, 784, 728, 727, 465, 20, 1,2, 73
+Bells_Palsy_1 (veja também Herpes_general) - 2,4, 3, 3,9, 7,83, 20, 27,57, 33, 35, 40, 47,5, 57,5, 72, 90,88, 110, 125, 194, 222, 304, 393,5, 464, 565,5, 600, 625, 650, 727, 776, 787, 833, 880, 932,5, 1250
+Bermuda_smut (preparação homeopática para um alérgeno) - 422, 767, 847, 971, 644, 780
+Besnoitia_HC (protozoário retirado da seção pulmonar) - 17823,77, 887,39
+Beta_estreptococo_HC - 19168.02, 954,32
+Ducto biliar_1 (espasmos e dor) - 2, 2.2, 2.5, 2.7, 3.2, 3.5
+Cirrose biliar (uma condição inflamatória na qual o fluxo de bile através do fígado é obstruído) - 381, 514, 677, 2271, 1250, 170, 715, 774, 776
+Dor de cabeça biliar - 8,5, 3,5
+Biliousness - 1550, 802, 10000, 880, 832, 787, 727, 465
+Bilirrubina (um pigmento biliar que pode resultar em icterícia em altas concentrações. Veja também Suporte ao fígado) - 717, 726, 731, 863, 9305, 649, 734
+Aranha_viúva_negra - 376, 728
+Queixas_da_bexiga_e_da_próstata - 2050, 880, 1550, 802, 787, 727, 465, 20, 9,39
+Bexiga_TBC - 642, 771, 360, 726, 724
+Blastocystis_hominis (595*, 13469*) - 365, 595, 844, 848, 1201, 1243, 5777, 11425, 11841, 11967, 13145, 13469, 21776
+Blefarisma - 3120
+Blefarisma_HC - 20238.44, 1007.61
+Doenças do sangue - 880, 787, 727
+Pressão_sanguínea_alta (use Hipertensão)
+Pressão_sanguínea_baixa (use Hipotensão)
+Blue_cohosh (uma erva curativa) - 364
+Furúnculos (use Furunkulose)
+Doença_óssea_e_doença_periodontal (veja Osteo freq. Use 728 por 15min. combine com nutrição adequada, especialmente proteínas e ácidos graxos essenciais, e minerais, especialmente cálcio e magnésio) - 47,5, 1800, 1600, 650, 625, 600, 880, 787, 776, 728
+Regeneração óssea (combinar com nutrição adequada, especialmente proteínas, e minerais, especialmente cálcio e magnésio) - 2720, 10000
+Bone_spurs (também use suplemento mineral mais bromelina em altas doses e água) - 1,2, 120, 250
+Trauma ósseo (cortes, fraturas) - 380, 1550, 802, 10000, 880, 787, 727, 2720
+Bordetella_pertussis_HC - 16479,52, 820,47
+Borrelia (use doença de Lyme)
+Borrelia_burgdorferi_HC (causa doença de Lyme, veja também Lyme_disease) - 18919.09, 941,93
+Botrítis - 1545
+Botrytis_cinereas - 1132, 212
+Botulinum (um bacilo que causa uma forma frequentemente fatal de intoxicação alimentar) - 518, 533, 639, 172, 1372, 691, 683, 253, 435, 668, 775, 2688, 660, 690, 727, 802, 1550, 831, 1552, 10000
+Neuralgia_braquial - 0,5
+Brain_beta_stim_TR (7,83 executado em serviço 5, 22 e 19,5 executado em serviço 30 e pulso 7,83 50) - 7,83, 22, 19,5
+Tumor cerebral (use tipo específico: câncer, droglioma, astrocitoma e/ou glioma)
+Branhamella_Moraxella_catarrhalis - 2013, 579, 581, 687, 770, 772, 775, 778, 2013
+Branhamella_Neisseria_catarrhalis_HC - 19715.68, 981,59
+Cistos de miomas mamários (use também cápsulas de casca de noz preta e tocoferóis mistos, se possível) - 1550, 1384, 880, 802, 787, 776, 727, 690, 666, 267
+Breast_tumor_benign_TR (também inclui varredura de 19351,563 a 10406,25 por .03125 de permanência 1) - 174, 482, 785, 1132, 5311, 3965, 405, 633, 191, 178, 731, 6646, 178, 739,8, 2959,4, 1234, 3702, 3672, 7344, 7760, 10357, 10380
+Respiração_profunda - 1234, 3702, 3672, 7344, 7760
+Brights_syndrome (use Nefrite)
+Asma brônquica (use Asma)
+Pneumonia brônquica (use Pneumonia, brônquica)
+Bronquiectasia (dilatação crônica dos brônquios) - 342, 510, 778
+Bronquite - 7344, 3672, 1234, 880, 743, 727, 683, 464, 452, 333, 72, 20, 9,39, 9,35
+Bronquite_secundária - 776, 766, 688
+Broncopneumonia_borinum (use Pneumonia, brônquica)
+Picada de aranha marrom reclusa (também use bastante equinácea e vitamina C) - 724, 884, 1830, 3260, 30008
+Brucella_abortus (febre ondulante ou bacilo de Bang, encontrado em bovinos) - 1423
+Brucella_melitensis (forma de Brucella encontrada em cabras e ovelhas) - 748, 643, 695
+Contusões - 9.1, 110, 10000
+Praga_bubônica (use Versenia pestis)
+Infecções secundárias da peste bubônica - 880, 787, 727, 20
+Joanete_dor - 20
+Queimaduras - 190, 10000, 880, 787, 727, 465, 200
+Bursite (pode ser causada por vários organismos e vírus; experimente também com frequências de artrite.) - 880, 787, 727
+BX_Virus (use Cancer_BX_virus)
+BY_Virus (use Cancer_BY_virus)
+Celiácia - 674
+Calcificações - 326
+Calmante - 6000
+Campylobacter (bactéria que causa diarreia infecciosa súbita em recém-nascidos, 732*, 1633*, 333*) - 732, 733, 1633, 1834, 2222, 786, 768, 523, 333, 378, 705,86, 2823,5
+Campylobacter_fetus_HC (esfregaço) - 18321.64, 912,18
+Campylobacter_pyloridid_HC - 17674,41, 879,96
+Câncer (Conjunto básico abrangente. Um conjunto completo como este, ou rotação dos conjuntos gerais de câncer, ou bancos intensivos de carcinoma e sarcoma da Rife Technology são usados ​​ como conjuntos b á sicos. Os conjuntos listados abaixo para tipos espec í ficos devem ser usados ​​ al é m dos conjuntos b á sicos. Adicione tamb é m frequ ê ncias determinadas como ben é ficas a partir de exames. Aumente os tempos de execu çã o em frequ ê ncias consideradas mais eficazes, conforme a desintoxica çã o permitir. Don Tunney agora inclui frequências E_coli_1 com regimes intensivos da Resonant Light. Use também 11.780.000 Hz se o dispositivo for capaz. James Bare afirma que 10025 pode ser a frequência principal para câncer em geral, 10026 para sarcoma. Use varredura de + e - 3 Hz em torno de 10025, aumentando para períodos mais longos, como 5 min por frequência, 2128*) - 10000, 11780, 21275, 17034, 11430, 10025, 6766, 6064, 5000, 3713, 3176, 3040, 2950, ​​ 2876, 2790, 2720, 2452, 2189, 2182, 2128, 2127, 2084, 2048, 2008, 1604, 1552, 1489, 880, 854, 800, 784, 776, 766, 728, 690, 683, 676, 666, 524, 464, 333, 120, 20
+Câncer_adenocarcinoma - 47, 2182, 2219, 832, 2084, 2127, 2160, 2452, 2876
+Câncer_adenoma - 433
+Câncer_astrocitoma (tumor comum do cérebro e do sistema nervoso central) - 857, 9,19, 8,25, 7,69, 2170, 543, 641, 2127, 880, 690, 666
+Cancer_bladder_secondary (use Parasitas, esquistossoma)
+Câncer_bexiga_TBC (carcinoma transicional da bexiga) - 642, 771, 360, 726, 724
+Câncer_de_mama - 3072, 2950, ​​ 2876, 2191, 2189, 2187, 2184, 2182, 2152, 2128, 2127, 2120, 2116, 2112, 2104, 2100, 2008, 1550, 866, 802, 732, 676, 666, 166, 120
+Câncer_de_mama_1 - 3672, 2008, 2063, 2103, 2128, 2146, 2133, 2162, 2173, 2180, 2189, 2208, 2263, 2289, 2333, 1865, 444, 125, 95, 72, 48
+Câncer_de_mama_2 - 656, 127, 1582, 478, 982, 2134, 2120, 9000, 9999, 304
+Cancer_breast_3 (use 2128 por 56min) - 2128, 33, 1131
+Câncer_de_mama_secundário - 422, 942, 4412, 1862, 808, 1552, 728, 2720, 1234, 690, 2160, 2136, 477, 28, 317, 96, 3176, 3040, 2145, 2048, 1830, 2112
+Cancer_BX_virus (vírus do carcinoma. Varredura para cima e para baixo de 1000hz em frequências de MHz e use varredura de 0,01Hz em 2876 e 2790, 2128*, 11780000*) - 11780000, 17033662, 1604368, 21275, 17034, 46015,6, 23007,8, 11503,9, 10025, 3713, 2876, 2790, 2128, 2008, 1604
+Cancer_BX2_TR (use também 21275, 20080, 17220, 1604000, 11780000 se o dispositivo for compatível) - 5318,8, 8610, 8020, 5278,3, 1675, 5020, 2128, 2127,5, 2127, 2663, 334, 2655, 5388,5, 2385, 6687,3, 3324, 8836,9, 2521, 7356, 2787,5, 5575, 8368,2, 1566,4, 2008, 5013, 5013,5, 10025, 10026, 10027, 7037,5, 263,11
+Cancer_BY_virus (vírus do sarcoma, também use Cancer_sarcoma) - 11430000, 20080, 17034, 11780, 11430, 3524, 2128, 2008
+Cancer_carcinoma_basal_cell_skin (use 2116 por 30 min, outros por 5 min, 2116*) - 2116, 760, 2128, 2280, 2876
+Cancer_carcinoma_basal_cell_skin_1 (usar com fuzz de 5 Hz) - 11546700, 11546730, 11546750, 11546760, 11546870, 11546900
+Câncer_carcinoma_brônquico - 462, 776, 852, 1582, 2104, 2144, 2184, 3672
+Câncer_carcinoma_cólon (656*) - 656
+Câncer_carcinoma_geral - 2128, 1820
+Câncer_carcinoma_laringe - 327, 524, 731, 1133
+Câncer_carcinoma_fígado_1 - 393, 479, 520, 734, 3130
+Câncer_carcinoma_fígado_fermentativo - 214
+Cancer_carcinoma_liver_secondary (use Hepatite B e Parasitas, trematódeo, fígado)
+Câncer_carcinoma_original_crane - 21275, 2127.5
+Câncer_carcinoma_varredura - 728, 690, 2008, 2104, 2112, 2120, 2128, 2136, 2144, 2152, 2160, 2168, 2176, 2184, 2192, 2200, 2217, 5000, 9999, 304
+Câncer_carcinoma_uterino_fermentativo - 127
+Células cancerígenas_conídio_cabeça - 728
+Cancer_cervical_secondary (use vírus do papiloma e herpes)
+Câncer_droglioma (ver também Câncer, glioma, astrocitoma) - 853
+Frequências adicionais experimentais de câncer - 55,56, 6,8, 66,5, 440, 778, 1050, 1550, 2180, 663, 3672
+Câncer_fibrossarcoma (malignidade que contém tecido conjuntivo e se desenvolve rapidamente a partir de pequenas saliências na pele) - 1744
+Câncer_tumor_fibroso_secundário - 1340
+Câncer_adenocarcinoma_gástrico - 676
+Câncer_geral_1 - 10000, 5000, 3176, 2720, 2489, 2189, 2184, 2128, 2084, 2050, 2008, 880, 854, 800, 784, 728, 666, 524, 464, 333, 304, 120
+Câncer_geral_2 - 10000, 3176, 3040, 2720, 2489, 2182, 2127, 2048, 2008, 1862, 1552, 880, 802, 786, 727, 665, 664, 465, 304, 125, 96, 72, 64, 20
+Câncer_geral_3 - 10000, 3176, 2950, ​​ 2180, 2128, 2049, 2008, 1865, 1488, 943, 886, 866, 776, 732, 728, 690, 676, 650, 523, 442, 414, 304, 240, 128
+Câncer_glioblastoma - 720, 2008, 2128, 2180, 2182, 728, 832, 800, 664, 20, 855, 543, 641, 857
+Câncer_glioblastoma_tremor - 463, 466, 470
+Cancer_gliomas (maior grupo de cânceres cerebrais) - 543, 641, 857
+Cancer_harmonic_series (pode ser baseado nas frequências originais de câncer de Rife/ Hoyland . Estenda a série harmônica com 66,5 como base, até 10.000 Hz, desta maneira: Base*1, 2, 3, 4, 5, 6, 7, 8, 9, 10, etc.) - 66,5, 133, 199,5, 266, 332,5, 399, 465,5, 532, 598,5, 665
+Doença de Hodgkin (uma forma de malignidade caracterizada pelo aumento dos gânglios linfáticos, baço e tecido linfático e frequentemente inclui perda de peso, febre, suores noturnos e anemia. Também chamado de linfogranuloma . Veja também Chlamydia pneumoniae , Pseudomonas, Penicillium , Aspergillus e Rhizopus .) - 552, 1522
+Câncer_hodgkins_TR - 1552, 552, 5318,8, 8610, 8020, 5278,3, 1675, 5020, 2127, 2663, 334, 2655, 5388,5, 2385, 6687,3, 3324, 8836,9, 2521, 7356, 2787,5, 5575, 8368,2, 1566,4, 2008, 5013, 5013,5, 10025, 10026, 10027, 7037,5, 263,11
+Cancer_Kaposis_sarcoma (também use Herpes tipo 8) - 249, 418, 647
+Câncer_leucemia (também use Leukose) - 2127, 2008, 880, 787, 727, 690, 666, 2217
+Câncer_leucemia_felino (gato) - 258, 332, 414, 424, 535, 536, 544, 830, 901, 918, 997, 741, 743, 1071.5
+Leucemia cancerosa de células pilosas (tipificada por células sanguíneas anormais e escassez de outras) - 122, 622, 932, 5122, 488, 781
+Câncer_leucemia_linfática - 478, 833
+Câncer_leucemia_mieloide (caracterizada pelo rápido crescimento de glóbulos brancos incompletamente formados) - 422, 822
+Câncer_leucemia_célula_T - 222, 262, 822, 3042, 3734
+Câncer_leucemia_TR - 2127, 2008, 880, 822, 787, 727, 690, 666, 590, 10000, 2008, 1850, 450, 440, 422, 428, 2030, 2030, 2030, 465, 15, 14, 6,8
+Cancer_liver (use Câncer, carcinoma, fígado)
+Cancer_liver_secondary (use Hepatite B e Parasitas, verme, fígado)
+Cancer_lung (use Câncer, carcinoma, brônquico)
+Câncer_linfogranuloma_linfoma (use doença de Hodgkin)
+Câncer_linfogranuloma_venéreo_secundário (use Chlamydia trachomatis )
+Câncer_linfossarcoma - 482
+Câncer_manutenção_secundária - 120, 250, 428, 465, 600, 626, 650, 661, 664, 667, 690, 728, 776, 784, 800, 802, 832, 880, 1489, 1550, 1600, 1865, 2000, 2012, 2100, 2170, 2490, 2730
+Câncer_melanoma_1 - 10000, 2217, 2128, 2127, 2050, 2008, 1050, 1000, 880, 787, 728, 666, 495, 465, 450, 125, 100, 95, 80, 60, 45, 20, 10, 7,5
+Câncer_melanoma_2 - 2217, 2128, 2050, 2008, 1552, 1102, 1050, 1000, 979, 907, 880, 802, 787, 728, 666, 495, 466, 465, 450, 125, 110, 100, 95, 80, 60, 45, 20, 10, 7,5
+Câncer_melanoma_metástase - 979
+Câncer_mieloma_múltiplo - 21275, 11780, 5122, 4750, 4213, 2950, ​​ 2145, 2128, 2107, 2008, 1488, 822, 781, 647, 526, 475, 422, 418, 263, 249
+Cancer_mycosis_fungoides (uma forma de câncer de pele semelhante ao eczema) - 852
+Câncer_nasofaríngeo_secundário (usar EBV)
+Câncer_neuroblastoma ( exp ) - 7027, 6148, 5270, 4392, 3513, 2635, 1757, 878
+Cancer_non_Hodgkins_1 (também use Cancer , Melanoma) - 574, 588, 666, 778, 1078, 1120, 1340, 1744, 3524, 3713
+Cancer_non_Hodgkins_2 (também use Simian_virus_40) - 2008, 2004, 2012, 2116, 2128, 3672, 7760
+Câncer_não_morto_até_2008_2128 - 2180, 2182, 2184
+Dor_do_câncer - 3000, 95, 2127, 2008, 727, 690, 666
+Câncer_pancreático (use Câncer_adenocarcinoma )
+Câncer_plasmocitoma (um tumor com células plasmáticas que ocorre na medula óssea, como no mieloma múltiplo, ou fora da medula óssea, como em tumores dos órgãos internos e revestimento do nariz, boca e garganta) - 475
+Câncer_de_próstata (veja também Adenoma da próstata e Hiperplasia da próstata) - 20, 60, 72, 95, 125, 666, 727, 787, 790, 766, 800, 920, 1998, 1875, 442, 2008, 2127, 2128, 2217, 2720, 2050, 2250, 5000, 2130, 2120, 690, 304
+Cancer_prostate_1 (usar todas as frequências por 6 min após avaliar a desintoxicação) - 2128, 2125, 2131, 2140, 2145, 666, 3672
+Câncer_de_próstata_Vega_1 - 854, 1840, 2145, 2288
+Câncer_rabdomiossarcoma_1 - 2000, 2005, 2008, 2016, 2048, 2084, 2093, 6024, 2100, 2128, 2127, 2184, 2217, 6384, 728, 784, 880, 464
+Câncer_rabdomiossarcoma_embrionário (2586*) - 6384, 6024, 2586, 2217, 2184, 2128, 2127, 2100, 2093, 2084, 2060, 2048, 2040, 2032, 2016, 2008, 2005, 2000, 880, 784, 728, 464
+Câncer_rabdomiossarcoma_embrionário_v - 2586, 5476, 4445
+Câncer_sarcoma_geral (BY) - 1755, 3524, 2007.5, 2005, 2015.9, 2083.8, 728, 880, 802, 785
+Cancer_skin (use Câncer, carcinoma, pele de células basais e formas específicas)
+Câncer_estômago_secundário (use Helicobacter pylori )
+Câncer_terciário - 20, 421, 965, 50, 383
+Cancrum_oris (úlcera oral ou nasal de crescimento rápido) - 20, 727, 787, 802, 880
+Candida (veja também Parasita geral, lombriga e ascaris se estes não funcionarem a longo prazo. Alguns acham que a cândida crônica não pode ser curada a menos que o acúmulo de metais tóxicos seja reduzido ou eliminado usando uma limpeza de metais. 464*) - 3176, 2644, 1403, 1151, 943, 886, 877, 866, 762, 742, 661, 465, 464, 450, 414, 412, 386, 381, 254,2, 120, 95, 64, 20
+Candida_1 - 10000, 5000, 3176, 2489, 1395, 1276, 1160, 1044, 928, 877, 812, 728, 696, 580, 465, 464, 381, 348, 232, 116, 58, 20
+Candida_2 (inclui carcinomas de cândida e tropicalis ) - 1403, 675, 709, 2167, 2128, 2182, 465, 20, 60, 95, 125, 225, 427, 464, 727
+Candida_albicans_HC - 19217,81, 956,80
+Candida_carcinomas - 2167, 2128, 2182, 465
+Candida_secondary (use também outros conjuntos de parasitas, especialmente frequências de lombrigas, se necessário) - 72, 422, 582, 727, 787, 802, 1016, 1134, 1153, 1550, 2222, 412, 543, 2128
+Candida_sweep_TR (varredura de 12006,25 a 12137,5 por 0,03125 permanência 0,5 pulso 64 75)
+Candida_tertiary (alguns fatores causais) - 880, 95, 125, 20, 60, 225, 427, 240, 650, 688, 152, 442, 8146, 751, 1146
+Candida_tropicalis - 1403, 675, 709
+Parvovírus canino - 185, 188, 323, 428, 433, 562, 613, 622, 1000, 4027
+Cepa mutante do parvovírus canino - 323, 514
+Parvovírus canino tipo B - 323, 535, 613, 755, 761, 764, 766, 768
+Canker_sore (use estomatite aftosa)
+Carbo_animalis (remédio homeopático feito de carvão de osso animal) - 444
+Carbúnculos (use Staphylococcus aureus)
+Cardiocedema - 9.19
+Carpal_tunnel_secondary (também use Arthritis ) - 2008, 666
+Carvularia_spiratera - 879
+Febre da arranhadura do gato (use Bartonella henslae )
+Catarata (use também o suplemento antioxidante Eye Formula para todos os problemas de degeneração macular, use 1830 por 10 min, 1830*) - 1830, 728, 784, 787, 800, 880, 10000
+Catarata_1 - 1830, 1600, 9999, 1552, 2110, 1335, 1654, 2187, 2195, 2211
+Catarata_2 - 292, 30, 9,1, 0,3
+Catarata_brunescente (opacidade marrom na vida adulta, 1830*) - 2010, 1335, 1830
+Catarata_complicada (tipo secundário causado por doença, degeneração ou cirurgia, 1830*) - 1830, 496, 325, 774
+Cataract_general (executar 1830 período estendido, 1830*) - 10000, 2211, 2195, 2187, 2110, 2010, 1830, 1654, 1600, 1552, 1335, 1335, 880, 800, 787, 784, 774, 728, 496, 325
+Catarro - 1800, 1713, 1550, 802, 800, 880, 787, 727, 444, 20
+Causticum - 540, 1013
+Doença celíaca_1 - 39, 2, 3, 4.18, 5.13
+Células_de_Leudig (tônico de cólon) - 2500
+Cephalosporium (fungos que são a fonte de alguns antibióticos de amplo espectro) - 481, 3966, 544
+Cefalotécio - 371, 574, 6933
+Paralisia cerebral - 880, 787, 727, 522, 146
+Problemas_cerebraispinais - 10000
+Cerúmen (cera de ouvido) - 311, 320, 750, 984, 720
+Pólipo cervical - 277, 288, 867, 687, 744
+Cervicite (inflamações do colo do útero) - 20, 727, 787, 880
+Adenoma do colo do útero (tumor epitelial do colo do útero) - 433
+Chaetomium_globosum (867*) - 221, 867, 102
+Chakra_base_root (pulso a 4Hz) - 20
+Cancro (use Sífilis)
+Quelidônio - 162
+Sensibilidade química (ver também Suporte hepático) - 727
+Chemtrail_detox (também pode ser útil para problemas de pulmão e sinusite. Todas as frequências por 5 min) - 664, 7344, 2842, 1147, 686,6, 684,1, 1113, 779,9, 829,3, 679,2, 865, 969,9, 1067, 783,6, 800,4, 1045, 1062, 673,9, 690,7
+Infecção_peito_secundária - 72, 333, 452, 683
+Varicela (quando as marcas de varíola aparecem, a doença já está resolvida e as toxinas estão sendo expelidas pela pele, então deve ser usado nos estágios iniciais de sintomas semelhantes aos da gripe após a exposição. Use herpes zoster.)
+Chillbains (use Perniosis )
+Chilomastix_HC (cistos de ameba) - 19367.17, 964.23, 21209.29, 1055.95
+Chilomonas_HC - 19815.25, 986.54
+Clamídia_geral - 3773, 3768, 2223, 2218, 2213, 942, 866, 840, 622, 555, 470, 430
+Chlamydia_pneumoniae - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471,66, 470,9, 941,8, 3767,3
+Chlamydia_trachomatis (uma infecção bacteriana geralmente transmitida sexualmente que causa tracoma, conjuntivite de inclusão, linfogranuloma venéreo, uretrite e proctite.) - 430, 620, 624, 840, 1111,4, 2213, 866, 555,7, 2222,8
+Chlamydia_trachomatis_HC - 18968,87, 944,40
+Colecistite aguda (crise dolorosa de cálculos biliares) - 481, 743, 865, 928
+Colecistite crônica (inflamação prolongada da vesícula biliar) - 432, 1551, 801
+Cólera (uma infecção bacteriana extremamente contagiosa e grave do intestino delgado) - 1035, 968, 961, 851, 844, 843, 691, 591, 556, 330
+Cólera_secundária - 880, 802, 450, 832, 787, 727
+Colesteatoma (tumor benigno geralmente encontrado no ouvido médio e na região mastoide) - 453, 618, 793, 5058
+Colesterol - 1386, 173, 620, 635, 780
+Síndrome_de_fadiga_crônica (use com conjuntos gerais de parasitas, lombrigas e vermes, se necessário. Veja também conjuntos gerais de EBV e fadiga. Se não houver resposta a estes, tente leucemia de células pilosas do câncer) - 10000, 660, 2127, 787, 465, 424, 664, 120, 880, 1550
+Fadiga_crônica_v - 1902, 1000, 959, 649, 568, 243, 922, 2422, 730, 1522, 116, 1489, 962, 172, 1333
+Cimicifuga (família de plantas que inclui raiz de cobra preta e cimicifuga preta) - 334, 594
+Perturbações_de_circulação - 40, 9.39
+Estase circulatória (estimula a circulação sanguínea. Veja também Distúrbios da circulação) - 40, 2112, 2145, 2720, 2489
+Cirrose biliar (uma condição inflamatória na qual o fluxo de bile através do fígado é obstruído) - 381, 514, 677, 2271
+Cirrose_hepatite - 291
+Cladosporium_fulvum (um fungo patogênico) - 438, 233, 776, 510
+Clostridium_acetobutylicum_HC - 19118.23, 951.84
+Clostridium_botulinum_HC (produz toxina botulínica que causa botulismo, um tipo de intoxicação alimentar) - 18022.92, 897.31
+Clostridium_difficile (pode causar diarreia após tratamento com antibióticos) - 387, 635, 673
+Clostridium_perringens_HC (esporos) - 19715.68, 981.59
+Clostridium_septicum_HC - 18122,49, 902,27
+CMV (use Citomegalovírus)
+Celiácia - 154, 594, 656, 586, 668, 787, 7958, 665, 674
+Cold_1 (use 800 e 880 por 10 min, outros por 5 min) - 5500, 4400, 802, 787, 727, 720, 552, 440, 400, 125, 72, 800, 880
+Frio_2 - 652, 725, 746, 751, 768, 1110, 333, 666, 542, 522
+Cold_3 (queda, 99. Use todas as frequências 5 min) - 20, 120, 146, 440, 444, 465, 727, 776, 787, 880, 1500, 1550, 5000, 1000
+Cold_4 (use 880 e 800 por 10 min, 728 por 5 min) - 3176, 2489, 880, 800, 728
+Cold_5 (use 7728 e 4888 por 10 min) - 7728, 4888, 8238, 2413, 880, 787, 776, 727, 440, 746, 567, 7880, 787, 300, 310, 1234, 9999
+Frio_6 - 7660, 7344, 5000, 3702, 3672, 2688, 2400, 1862, 1550, 1238, 1234, 1200, 975, 880, 802, 787, 780, 778, 776, 774, 772, 770, 768, 766, 727, 688, 683, 660, 450, 412, 352
+Resfriado_e_Gripe (outono, 98. Use 8700 e 7760 por 15 min, outros por 5 min) - 250, 465, 8210, 8700, 7760
+Resfriado_e_gripe_inverno_01 - 959, 962
+Cold_in_head_chest (Muta constantemente; muitas cepas para incluir a lista completa de frequências. Veja também os conjuntos Strep Pneumonia, Adenovirus , Rhinitis , Coronavirus , Sinusite, Pneumonia, Infecção torácica e Rhino pneumonitis . Use bastante equinácea no início para evitar danos celulares que prolongam a cura, mesmo se as frequências corretas forem encontradas.) - 10000, 7344, 4412, 3176, 2489, 1550, 880, 802, 787, 776, 766, 728, 712, 688, 683, 665, 660, 600, 444, 333, 20
+Frio_2005_TR - 10000, 7344, 5000, 2950, ​​ 2900, 2650, 2600, 1550, 1234, 740, 880, 787, 727, 330, 165, 82,6, 41,75, 20,87, 30
+Herpes labial (use Herpes Simplex I)
+Cólica - 1550, 832, 802, 787, 727, 20
+Colite_e_Diarreia (inflamação do cólon) - 10000, 5000, 1550, 880, 832, 802, 787, 727, 621, 465, 454, 440, 433, 344, 152
+Coletotrichum - 1482
+Problemas_de_cólon_geral - 20, 440, 880, 1552, 802, 832
+Cores (decodificação de cores da Jade Machine) - 2155, 2055, 960, 920, 858, 815, 800, 745, 677, 640, 624, 470
+Comedões (cravos) - 778
+Guindaste_inicial_completo - 34750, 31750, 31000, 10000, 5000, 3500, 2720, 2489, 2452, 2250, 2200, 2180, 2130, 2127,5, 2120, 2100, 2093, 2050, 2008, 2000, 1998, 1865, 1862, 1850, 1840, 1800, 1600, 1570, 1560, 1552, 1550, 1500, 1100, 1050, 1027, 1000, 885, 880, 875, 864, 804, 803, 802, 800, 799, 787, 784, 781, 780, 776, 775, 770, 764, 740, 730, 727,5, 725, 712, 700, 690, 676, 666, 664, 660, 650, 625, 622, 600, 500, 465, 450, 440, 432, 428, 423, 400, 304, 250, 240, 162, 160, 125, 121, 120, 100, 95, 82, 81, 80, 78, 72, 70, 60, 41, 36, 30, 28, 26, 22, 20, 18, 15, 14, 13, 10, 9, 8, 7, 5,5, 5, 4, 3,5, 1,8, 1
+Rife_inicial_completo - 10000, 5000, 3500, 2489, 2250, 2127,5, 2093, 2008, 2000, 1865, 1850, 1800, 1600, 1570, 1560, 1550, 1500, 880, 802, 800, 787, 784, 776, 740, 727,5, 660, 650, 625, 622, 600, 500, 465, 450, 400, 250, 125, 120, 100, 80, 60, 20
+Condiloma (geralmente verrugas venéreas, causadas pelo vírus do papiloma. Ocorrem perto da intersecção das membranas mucosas e da pele. Use também Papiloma.) - 466
+Conjuntivite (também conhecida como olho rosa. Use também Chlamydia trachomatis e veja Bacillus subtilis se necessário) - 2025, 1830, 1552, 1550, 1246, 1206, 880, 822, 802, 787, 727, 722, 489, 432, 80, 20
+Constipação (use também os conjuntos Parasitas gerais e lombrigas, se necessário) - 3176, 1550, 880, 832, 802, 787, 776, 727, 444, 440, 422, 20
+Contusão (hematoma) - 9.1, 110, 2720
+Convoforce - 774
+Convulsões_1 - 10000, 880, 787, 727
+Convulsões_espasticidade - 9,19, 8,25, 7,69
+Coraforce - 774
+Coralino - 533
+Carvão de milho - 546, 1642, 289
+Coronavírus_SARS - 9918, 9740, 4959, 4870, 2479,5, 2435, 1394,7, 1369,6, 1239,7, 1217,5, 774,8, 760,9, 619,9, 608,7, 464,9, 456,5, 309,9, 304,4, 155, 152,2
+CoronaCOV19_1 - 10.000, 5.000, 1.048, 1.000, 937, 774, 720, 795, 651, 597, 563, 524, 499, 120, 13
+CoronaCOV19_2 - 9918,0, 4870,0, 2435,0, 1239,7, 774,8, 619,9, 608,7, 369,9, 153,2
+CoronaCOV19_3 (algumas frequências se repetem e a ordem pode ser importante) - 10000, 9918, 9740, 5000, 4959, 4870, 2479, 2435, 1369, 1304, 1239, 1217, 774, 760, 619, 608, 464, 309, 155, 120, 10000, 9335, 5301, 5000, 4667, 2651, 2333, 1491, 1325, 1312, 1167, 627, 583, 497, 437, 331, 291, 165, 145
+CoronaCOV19_4 - 902,27, 899,79, 901,03, 903,51, 904,74, 1022,49
+Corynebacterium_diptheriae (use Diptheria )
+Corynebacterium_diptheriae_HC - 17027.18, 847.73
+Corynebacterium_xerose_HC - 15732,71, 783,29
+Costalgia (dor nas costelas) - 10000, 880, 787, 727
+Tosse - 7760, 7344, 3702, 3672, 1550, 1500, 1234, 776, 766, 728, 720, 688, 683, 530, 525, 524, 522, 514, 444, 440, 432, 146, 125, 95, 72, 20, 7,7, 0,5
+Tosse_persistente_TR - 4664,45, 3444,55, 2543,35, 1666,35, 3665,65
+Tosse_da_vacina_contra_gripe_1 - 453, 550, 674, 728, 1109, 7160, 634, 639, 1089, 522, 524, 525, 146, 1500, 1550, 0,5, 514, 530, 432, 440, 444, 720, 1234, 3702, 20, 125, 72, 95, 7,7
+Coxsackie_B1 - 353, 384, 834, 587, 723
+Coxsackie_B1_HC - 18122,49, 902,27
+Coxsackie_B2 - 705, 534, 867
+Coxsackie_B3 - 612, 487, 868, 653, 654
+Coxsackie_B4 - 421, 353, 540, 8632
+Coxsackie_B4_HC - 18047,81, 898,55
+Coxsackie_B5 - 462, 1043, 1083, 569, 647, 708, 774
+Coxsackie_B6 - 488, 736, 814, 343, 551, 657, 668, 669
+Coxsackie_General (ver também Caxumba) - 612, 136, 144, 232, 380, 422, 424, 435, 921, 923, 769, 1189, 595, 676
+Cólicas e náuseas - 72, 95, 190, 880, 832, 787, 727, 20, 4,9
+Cãibras - 10000, 880, 787, 727, 26
+Cólicas menstruais - 26
+Crinis_humansis - 646
+Crocus_sotillus - 710
+Doença_de_Crohn_e_outros_problemas_intestinais_v - 141, 488, 866, 468, 782, 664, 604, 187, 543, 1423, 972, 110, 133, 979, 173, 233, 672, 510, 447, 350
+Doença de Crohn (também use colite, cólon e frequências de parasitas) - 10000, 727, 786, 440, 832, 880, 1550, 20
+Doença de Crohn protozoários 1 - 200, 206, 249, 298
+Doença de Crohn - Viroid 1 - 585, 593, 600
+Crupe (caracterizado por uma tosse alta que lembra o latido de uma foca, dificuldade para respirar e um ruído de grunhido ou chiado durante a respiração) - 10000, 7344, 3702, 3672, 1234, 1165, 580, 290, 870, 333, 666, 523, 786, 728, 880, 1550, 960, 712, 278, 683, 688, 776, 766, 444, 95, 72, 20
+Cryptococcus_neoformans (levedura que causa infecção respiratória que pode se transformar em meningite. Também conhecida como torulose .) - 367, 428, 444, 476, 478, 522, 579, 594, 785, 792, 872, 2121, 5880, 5884, 597, 613, 624
+Cryptosporidium (protozoário parasita que às vezes causa diarreia em humanos) - 220, 482, 575, 4122, 698, 711, 893, 895, 1276, 5690
+Cunninghamella - 311, 323
+Curva_spic - 435
+Ciclospora - 543, 316, 992, 751, 268, 2144
+Cisto_ovariano - 982
+Cisto_sebáceo_TR ( streptothrox mais nocardia e actinomyces israelense) - 694, 719, 784, 228, 231, 237, 887, 2890, 222, 262, 2154, 465, 488, 567, 7880, 10000, 787, 747, 727, 20
+Cisto_solitário - 75, 76, 543
+Fibrose cística (também chamada de mucoviscidose , um distúrbio das glândulas exócrinas que faz com que elas liberem muco muito espesso. Use Pseudomonas_aeruginosa , Respiração profunda e Antisséptico geral e veja Parasitas gerais e frequências de lombrigas) - 523, 557, 478, 776, 660, 727, 778, 787, 802, 880
+Cistite crônica (inflamação prolongada da bexiga urinária e dos ureteres) - 246, 1550, 880, 802, 787, 727, 465, 20
+Cystopyelo_nefrite (inflamação da bexiga ao rim) - 1385
+Cistos_hidáticos (use Parasitas tênia)
+Citocalasina_HC - 4530,62, 3833,60, 225,57, 190,86
+Citomegalovírus (CMV, conhecido como vírus da glândula salivar ou herpes humano tipo 5, 2145*) - 126, 597, 629, 682, 1045, 2146, 2144, 2145, 8848, 8856
+Citomegalovírus_HC - 20362.91, 1013.81
+Cytophaga_rubra_HC - 21408,44, 1065,86
+Surdez (parcial a completa) - 10000, 1550, 880, 802, 787, 727, 20
+Carrapato_de_veado_1 - 7989, 289, 737, 738, 271, 671, 773
+Dematium_nigrum (fungos do solo encontrados em lesões humanas) - 243, 738
+Dengue_fever_TR - 160, 500, 1600, 5000, 7344, 4412, 1550, 1234, 740, 880, 787, 727, 330, 10000, 5000, 30, 10551,5, 5275,8, 2627,9
+Infecções_dentárias_e_mandíbulares_1 (use converge 1 1 em todos, exceto use converge 1 0,1 em 728) - 7270, 2720, 2489, 880, 787, 727, 500, 190, 728
+Infecções_dentárias_e_maxilares_2 - 15, 326, 465, 727, 787, 880
+Dental_foci (Negligenciar isso pode impedir a recuperação de qualquer doença se a infecção for um problema) - 5170, 3000, 2720, 2489, 1800, 1600, 1550, 1500, 880, 832, 802, 787, 776, 727, 666, 650, 646, 600, 465, 190, 95, 47,5
+Dental_general (veja também Dor de dente) - 728, 784, 635, 640, 1036, 1043, 1094, 685, 60, 48, 465
+Infecção dentária (raízes e gengivas) - 960, 660, 666, 690, 727, 784, 787, 800, 880, 1560, 1840, 1998, 2489
+Infecção_dentária_1 - 5170, 3000, 2720, 2489, 1800, 1600, 1550, 1500, 1094, 1043, 1036, 880, 832, 802, 787, 776, 727, 685, 666, 650, 646, 640, 635, 600, 465, 190, 95, 60, 48, 47,5
+Infecção_dentária_2 - 10000, 5000, 1562, 1552, 1550, 880, 800, 799, 787, 784, 776, 774, 728, 727, 664, 620, 464, 254,2, 120, 64, 20
+Infecção_dentária_e_dor_de_ouvido_1 - 960, 930, 900, 880, 832, 802, 800, 787, 776, 775, 768, 760, 750, 727, 685, 680, 666, 650, 646,3, 646, 640, 635, 622,3, 547, 521, 518
+Infecções_dentárias_TR - 3400, 2489, 1700, 1560
+Infecções_dentárias_v - 981, 138, 142, 177, 183, 210, 222, 233, 436, 534, 626, 723, 835, 875, 5227, 7059
+Depressão_ansiedade_tremor_fraqueza - 3,5, 800
+Depressão_drogas_ou_toxinas - 1.1, 73
+Depressão_geral (evite amidos na dieta, use um multivitamínico e multimineral e beba bastante água) - 10000, 5000, 3176, 800, 787, 73, 35, 7,83, 3,5, 1,1
+Desintoxicação e linfas - 10000, 3176, 3040, 880, 787, 751, 727, 676, 635, 625, 522, 465, 444, 440, 304, 306, 148, 146, 15,2, 15,05, 10,36, 10, 7,83, 6,3, 2,5, 3176
+Desintoxicação_assist - 10000, 3176
+Desintoxicação_1 - 10000, 3176, 522, 164, 89, 24
+Diabetes_1 (Aviso; pode causar grande queda no nível de açúcar no sangue. Use 5000 por 15 min) - 5000, 2127, 2080, 2050, 2013, 2008, 2003, 2000, 1850, 880, 803, 800, 787, 727, 660, 484, 465, 440, 35, 20, 6,8
+Diabetes_2 - 4200, 2128, 1865, 1850, 1550, 787, 465, 444, 125, 95, 72, 48, 302
+Infecção_associada_ao_diabetes - 2020, 800, 727, 786, 190, 80, 20
+Diabetes_secundário - 10000, 2720, 2170, 1800, 1550, 880, 802, 727, 465, 20
+Diabetes_terciário - 1850, 32000, 4000, 500
+Carga_diabética - 35.700
+Úlcera_diabética_no_dedo_do_pé_1 (use também as frequências de Staph aureus e veja Staph geral, Antisséptico geral e Estimulação da circulação conforme necessário) - 786, 2112, 1050, 1,2, 5000, 832, 20
+Diarreia (veja também Colite, Clostridium difficile , E. coli, e para problemas crônicos, giárdia e frequências de SII. Veja também Conjunto geral de parasitas se não houver alívio.) - 1550, 880, 832, 802, 786, 727, 465
+Dientamoeba_fragilis_HC - 20113,98, 1001,42
+Difteria (infecção bacteriana que causa dor de garganta, febre, taquicardia, náusea, calafrios, dor de cabeça e pode progredir para danos ao coração e nervos devido a toxinas bacterianas. Rara nos EUA.) - 10000, 1000, 925, 800, 788, 776, 624, 590, 432, 340, 151
+Diplococcus_diptheriae_HC - 17973,13, 894,83
+Diplococcus_pneumoniae_HC - 17923,34, 18172,28, 892,35, 904,74
+Dirofilaria_immitis (use dirofilariose parasitas)
+Hérnia de disco - 727, 787, 2720, 10000
+Cinomose - 242, 253, 254, 255, 312, 442, 551, 573, 624, 671, 712, 760, 940, 950, 1269, 1950, 8567, 660
+Distorção (torção dos músculos, coluna) - 9.1, 110
+Diverticulite aguda (ver Intestinos, inflamação. Todas as frequências por 10 min) - 120, 500
+Diverticulose (caracterizada por pequenas hérnias de tecido intestinal que se projetam através da parede muscular do cólon) - 154, 934
+Tontura (use Vertigo )
+DNA_reparação ( exp ) - 528, 731, 732
+Hostilidade_de_cachorros_e_gatos_1 - 3.6
+Síndrome de Down paliativa - 20
+Droglioma (use Câncer, droglioma )
+Dependência de drogas - 20
+Úlcera_duodenal (use Úlcera, duodenal)
+Duodenite - 223
+Contratura de Dupuytrens (4º e 5º dedos curvados para dentro da mão, incapaz de endireitar) - 1,2, 250
+Disenteria (diarreia aguda com sangue e muco. Use também Entamoeba histolytica , Salmonella e Shigella ) - 1552, 802, 832
+Dismenorreia (menstruação dolorosa. Use com ducha de água pura) - 26, 4.9, 1550, 880, 802, 787, 727, 465
+Dispepsia (indigestão. Se crônica ou com inchaço, veja também Parasitas em geral) - 10000, 880, 1550, 832, 800, 787, 727, 465, 444, 20, 125, 95, 72, 4,9
+E_coli (Escherichia coli; pode causar infecções em feridas e no trato urinário. Se o uso destes levar a sintomas de resfriado comum, siga com frequências de adenovírus, 800/802*, 1550/1552*) - 7849, 7847, 1730, 1722, 1552, 1550, 1320, 1244, 1000, 957, 934, 856, 840, 832, 804, 802, 800, 799, 776, 642, 634, 556, 548, 413, 333, 330, 327, 289, 282
+E_coli_1 (recomendado como adjuvante para câncer) - 7847, 1730, 1712, 1244, 1000, 934, 856, 840, 800, 776, 642, 634, 556, 539, 358, 330
+E_coli_comp - 7849, 7847, 1730, 1722, 1712, 1703, 1552, 1550, 1320, 1244, 1242, 1000, 957, 934, 856, 840, 832, 804, 802, 800, 799, 776, 642, 634, 632, 556, 548, 539, 413, 358, 333, 330, 327, 289, 282
+E_coli_HC - 17724,20, 19566,32, 974,15, 882,44
+Cepa mutante E_coli - 556, 934, 1242, 1244, 1703, 632, 634, 776
+Condições do ouvido_várias (secreções, zumbido, coceira, perda auditiva. Veja também Otite.) - 10000, 880, 787, 727, 776, 766, 688, 683, 652, 645, 542, 535, 440, 410, 340, 201, 158, 20, 9,19
+Fungo_de_orelha_1 - 854
+Cera de ouvido (use cerume)
+EBV (use o vírus Epstein-Barr)
+Echinococcinum (use Parasitas, tênias, echinococcinum )
+Echo_Virus (Endometriose Tuberilosa , pode causar um tipo de meningite viral) - 922, 788, 765, 722, 625, 620, 614, 613, 612, 611, 610, 609, 608, 607, 606, 605, 604, 603, 514, 461
+Eczema - 9,19, 707, 1550, 802, 787, 727, 10000, 5000, 2720, 2008, 2180, 2128, 664, 120, 20
+Eczema_1 - 770, 916, 415
+Eczema_2 - 730,2, 1550, 802, 787, 690
+Eczema_distúrbios_vasculares_e_pulmonares - 9.39
+Edema (ver também Estimulação renal e linfática) - 40, 522, 146, 6,3, 148, 444, 440, 880, 787, 727, 465, 20, 5000, 10000
+Eikenella_corrodens_HC - 19018.66, 946.88
+Níveis de eletrólitos (para melhorar) - 8.1, 20, 10000
+Eletrosmog_1 - 99,5
+Elefantíase (uso com parasitas, especialmente lombrigas e nematóides ) - 623, 824, 865, 710
+Laços emocionais com doenças - 764, 664
+Enfisema (uso com mycoplasma pulmonis , mycoplasma pneumonia e parasitas frequentes, especialmente lombrigas) - 1234, 3672, 7344, 880, 787, 727, 120, 20, 80
+Enfisema_comp - 7344, 3672, 2838,5, 2688, 2404,2, 1234, 975, 880, 787, 777, 766, 727, 709,2, 688, 683, 660, 650, 601, 422, 300,5, 240, 150,3, 128, 120, 80, 75,1, 20
+Encefalite (inflamação dos tecidos do cérebro e da medula espinhal) - 841
+Endocardite (use Listeriose)
+Endocrine_RX_TR (inclui frequências estimulantes para glândulas pineal, hipotálamo, hipófise, tireoide, adrenal e timo) - 662, 1725, 1342, 1534, 1413, 1351, 635, 763, 1335, 645, 10000
+Endolimax_nana_HC (trofozoítos e cistos) - 19715,68, 981,59, 21508,01, 1070,82
+Endometriose_1 (use 246, 800 e 1550 por 5 min) - 6766, 6672, 6641, 6578, 2150, 2128, 2082, 2013, 2008, 2003, 2000, 1850, 1550, 945, 854, 846, 830, 800, 763, 676, 651, 524, 435, 275, 246, 142
+Endometriose crônica (crescimento de tecido uterino fora do útero que pode causar dor, infertilidade e sangramento uterino anormal. Use com parasitas, vermes, geral) - 246, 800, 1550
+Endometriose_tuberculosa (use vírus Echo)
+Energia_vitalidade - 9999
+Entamoeba_coil_HC (trofozoíto) - 19715.68, 981.59
+Entamoeba_gingivalis_HC (trofozoíto) - 21806,74, 1085,69
+Entamoeba_histolytica (protozoários altamente prejudiciais que causam disenteria e infecção hepática) - 148, 166, 308, 393, 631, 778
+Entamoeba_histolytica_HC - 19168.02, 954.32
+Entamoeba_histolytica_secundária - 1552, 880, 802, 1550, 832, 787, 727, 690, 660, 465, 786, 768, 523, 333
+Enterobacter_aerogenes_HC (causa problemas intestinais) - 18620.36, 927.05
+Enterobíase - (oxiúros. Use Parasitas, enterobíase )
+Enterococcinum ( nosódio homeopático para organismos da família Strep encontrados nos tratos digestivo e urinário) - 686, 409
+Enterohepatite (inflamação do intestino e do fígado) - 552, 932, 953
+Enterovirus_General (termo genérico que significa vírus pequeno, inclui Echo, Coxsackie e Polio ) - 5000, 3636, 2632, 1850, 1500, 1488, 1422, 1189, 1044, 922, 868, 845, 822, 788, 776, 766, 742, 733, 721, 676, 654, 625, 620, 612, 610, 608, 595, 515, 487, 461, 435, 423, 380, 322, 283, 232, 144, 136, 20
+Enurese (molhar a cama. Usar com conjuntos de parasitas) - 10000, 880, 787, 727
+Epicócumo - 734, 778
+Epicondilite (cotovelo de tenista, lateral ou vertical) - 1,2, 250, 728, 766, 776, 880
+Epidermophyton_floccinum (fungo que ataca a pele e as unhas, incluindo alguns pé de atleta e micoses de micose de virilha. Use também Microsporum freqs e Fungal general se necessário.) - 22107, 465, 784, 644, 766, 345
+Epididimite (inflamação da área dos testículos, ductos. Veja também Orquite.) - 2250, 1500, 880, 787, 727, 20
+Epilepsia (tente também Shigella ) - 10000, 880, 802, 787, 727, 700, 650, 600, 210, 633, 125, 20
+Epstein_Barr_HC - 18919,09, 18670,15, 941,93, 929,53
+Epstein_Barr_virus (o vírus do herpes que causa mononucleose) - 8768, 6618, 1920, 1013, 825, 738, 669, 667, 663, 660, 274, 253, 172, 105
+Epstein_Barr_virus_secondary (tente também frequências gerais de parasitas e lombrigas) - 744, 776, 778, 465, 880, 787, 727, 1032, 1920
+Ergot_HC - 14687,19, 731,23
+Erwinia_amylovora_HC - 17425,47, 867,56
+Erwinia_carotovora_HC - 18570.58, 924.57
+Erisipela (infecção bacteriana que se manifesta na inflamação da pele causada por estreptococos pirógenos ou outros patógenos e possivelmente relacionada à forma suína da doença) - 616, 776, 735, 845, 660, 10000, 880, 787, 727, 465, 20
+Eritema infeccioso ( parvovírus humano B19, às vezes conhecido como Quinta doença, uma infecção viral contagiosa que causa erupção cutânea vermelha manchada ou elevada com doença leve. exp ) - 809, 1618, 3236
+Eritema_nosodum - 9,39
+Escherichia_coli (use E. coli)
+Esôfago (constrição. Veja também Frequências gerais antissépticas e odontológicas) - 880, 787, 727
+Euglena - 432, 3215, 3225, 3325, 6448
+Eustachian_tube_inflammation (também use General_Antiseptic ) - 1550, 880, 802, 787, 776, 727, 465
+Distúrbios oculares (visão turva, catarata, estrabismo, diplopia, infecções, etc.) - 10000, 2010, 1831, 1830, 1829, 1600, 1552, 1335, 880, 787, 727, 496, 400, 360, 350, 160, 20
+Inflamação ocular (ver também Antisséptico geral) - 1.2, 80
+Pálpebra caída (use Ptose)
+Olhos_glaucoma - 1600, 1830, 880, 787, 727
+Visão_afiada - 350, 360, 1830
+Cãibras faciais - 10000, 6000, 304, 1131, 33
+Paralisia facial - 10000, 880, 787, 727
+Tonificação facial - 1.2
+Desmaio - 20
+Fáscia (tecido fibroso sob a pele. Veja também frequências de miomas) - 20
+Fadiga_geral - 428, 424, 664, 660, 464, 125, 120, 95, 72, 20, 444, 1865, 10000, 5000
+Febris_wolhynia (uma doença de Rickettsia, transmitida por piolhos, que é debilitante e propícia à recaída) - 547, 356
+Fel_tauri (preparação homeopática de bílis de boi) - 672
+Feli - 435, 742
+Felis - 430, 834, 2232, 3233
+Felon_1 (pus, infecção nas pontas dos dedos) - 657, 659, 738, 751
+Criminoso_2 - 663, 665, 720, 722
+Feloris_Wolyhnica - 547
+Febre (algumas causas) - 1552, 880, 800, 832, 422, 2112, 787, 727, 20
+Febre_insolação - 20, 440, 880
+Fibroadenoma_mamae (nódulos fibrosos não cancerosos nas mamas. Use cápsulas de algas também) - 1384, 2128, 2189
+Miomas_geral (ver Parasitas, vermes, geral) - 2950, ​​ 2189, 2128, 2127, 2008, 1744, 1552, 1550, 1488, 1384, 1234, 880, 802, 787, 776, 727, 690, 666, 465, 267
+Fibroma - 2127, 2008, 727, 690, 666, 1550, 802, 465
+Fibromialgia (faça desintoxicação depois, se necessário) - 328, 880, 800, 728, 5000, 2720, 2180, 2128, 664, 464, 304, 120, 20
+Fibromialgia_1 - 120, 140, 304, 464, 728, 800, 880, 2489, 3176, 5000, 6000, 9000
+Fibromialgia_2 - 2008, 2050, 2080, 2127, 880, 800, 787, 728, 600, 420, 320, 120, 3790, 3792, 3794, 3796, 3798, 3800, 3802, 3804, 3806, 3808, 3810
+Fibromialgia_TR (inclui frequências de relaxamento muscular. Corra 321, 384 e 40 por 12 min cada) - 321, 384, 40, 965, 200, 120, 240, 760, 68, 6000, 304
+Fibropêndulo - 661, 7465, 211, 233, 766
+Fibrossarcoma - 1744
+Fibrose_pulmão (use Fibrose pulmonar)
+Quinta_doença (use Eritema infeccioso)
+Peixe pirogênio - 832
+Fissuras - 787, 20, 10000
+Fístula_dentalis (727*, 878*, 1122*) - 550, 727, 844, 878, 1122, 786
+Fístula_úlcera (use também frequências de estafilococos) - 880, 832, 787, 727
+FIV - 262, 323, 372, 404, 567, 712, 742, 760, 773, 916, 1103, 1132, 3701
+Flatulência - 1550, 880, 832, 802, 787, 727, 465
+Gripe (use Influenza)
+Flukes (use Parasitas, flukes )
+Fluor_Alb (sal celular homeopático) - 110, 342, 420, 423, 688, 757
+Sarna_folicular (dermatite contagiosa encontrada em muitos animais, causada por ácaros e cuja atividade principal é nos folículos capilares. Também molhe com óleo vegetal, deixe descansar por pelo menos 15 minutos e enxágue com chá de tomilho.) - 253, 693, 701, 774
+Foliculite_hot_tub (pequenas espinhas) - 174, 482, 5311
+Intoxicação alimentar (algumas classes. Use também Salmonella typhimurium e veja Antisséptico geral, Dor abdominal e Inflamação abdominal.) - 1552, 802, 832
+Síndrome de pé e boca (uma infecção viral leve encontrada em crianças pequenas, mas também pode ser um fator na ELA) - 232, 237, 1214, 1243, 1244, 1271, 5411
+Fraturas_cicatrização - 220, 230, 10000, 880, 787, 727
+Frequency_fatigue (cansaço que não é desintoxicado pelo uso do gerador de frequência por muito tempo) - 10,55, 7,83
+Frigidez_feminina - 10000, 20
+Queimadura por frio - 880, 787, 727
+Ombro congelado (use também pneumonia estreptocócica se necessário) - 10000, 880, 802, 787, 766, 727
+Mosca da fruta - 2167
+Fungo_e_mofo_v - 4442, 2411, 1833, 1823, 1333, 1155, 1130, 1016, 942, 933, 886, 880, 866, 784, 774, 766, 745, 743, 728, 623, 623, 594, 592, 565, 555, 524, 512, 464, 414, 374, 344, 337, 321, 254, 242, 222, 158, 132
+Faixa de EW do fungo - 823, 824, 825, 826, 827, 828, 829
+Flora_fungo_1 - 331, 336, 555, 587, 632, 688, 757, 882, 884, 887
+Fungus_foot_and_general_1(use 1550 por 30min) - 1550
+Fungus_general (veja também candida , levedura e outros tipos específicos) - 2222, 1552, 1550, 1153, 1134, 1016, 880, 802, 787, 784, 727, 582, 465, 422, 254, 72, 20
+Furunculose (furúnculos na pele. Também use Staph aureus freqs ) - 1550, 1000, 880, 802, 787, 784, 770, 728, 727, 660, 465, 200, 116, 20
+Furunkulosis_herpes (ver também Herpes geral e Furunkulosis ) - 200, 1000, 1550, 802, 787, 727
+Furunkulosis_TR (também use Staph aureus) - 1550, 1000, 880, 802, 787, 784, 770, 728, 727, 660, 465, 200, 116, 20
+Fusarium_geral - 768, 625, 746
+Fusarium_oxysporum (um fungo que causa inflamação da córnea do olho) - 102, 332, 705, 795, 780
+Gaffkya_tetragena_HC (causa infecções respiratórias) - 17425.47, 867.56
+Gardnereila_vaginalis_HC (causa infecção do trato ovariano e genital) - 16927.60, 842.78
+Antisséptico_geral - 10000, 5000, 3176, 2145, 1552, 1488, 880, 802, 786, 776, 766, 760, 728, 688, 683, 676, 666, 660, 464, 450, 444, 428, 120, 20
+Antisséptico_geral_1 - 10000, 5000, 3176, 2720, 2000, 1865, 1770, 1550, 1360, 880, 804, 802, 787, 786, 760, 728, 690, 660, 590, 555, 465, 450, 428, 768, 523, 333, 14
+General_demo (maiores sucessos) - 10000, 4412, 3040, 2128, 2112, 1862, 1550, 880, 800, 786, 732, 728, 712, 688, 676, 644, 464, 422, 128, 120, 20
+Doença_geral - 40000, 10000, 5000
+General_prog_Blaster5 - 2489, 2128, 2008, 2000, 1998, 1840, 1800, 1600, 1570, 1560, 1550, 1500, 880, 800, 787, 784, 776, 740, 727, 690, 666, 622, 600, 500, 400, 120, 80
+Programa_geral_EMEM - 720, 1550, 20, 4200
+Profilaxia_geral - 20, 64, 95, 125, 225, 427, 440, 664, 728, 784, 880, 802, 832, 680, 760, 1550, 464, 10000, 676, 1488
+Geotrichum_candidum (fungo encontrado em fezes e laticínios cujas manifestações se assemelham às da cândida) - 350, 355, 384, 386, 403, 404, 407, 409, 410, 412, 415, 418, 543, 544, 687, 987, 988, 737, 700
+German_measles (Use Sarampo, rubéola)
+Giardia (use Parasitas, giárdia)
+Gengivite (inflamação das gengivas. Veja também Dentário, Focos dentários, Estomatite. Tome cálcio e magnésio internamente e escove com CoQ10 e mirra ou selo de ouro) - 1550, 880, 802, 787, 728, 726, 465, 20, 1556, 776, 465
+Mormo (use Pseudomonas mallei )
+Febre glandular - 10000, 20
+Febre glandular tireóide ( exp ) - 10000, 20, 16000
+Gliocladium (fungo cerebral) - 855, 469, 633
+Bócio (use Struma )
+Gônadas_inflamação (use Orquite)
+Gonorreia - 7120, 6000, 2330, 1500, 712, 660, 600, 233, 150
+Gonorréia_neisseria_HC - 16628.88, 927.90
+Gota (Use também cura com água e bromelina em altas doses ou outras enzimas. Veja também frequências renais) - 9,39, 3000, 10000, 880, 787, 727, 20
+Granuloma_dent - 441
+Cascalho_urina - 2,65, 3000, 880, 787, 727, 20
+Doença de Graves e bócio - 20, 727, 787, 880
+Greatest_Hits (use a demonstração geral)
+Corante_verde - 563, 2333
+Gripe (use Influenza, gripe)
+Griseofulvina - 14338,68, 713,88
+Síndrome_da_Guerra_do_Golfo_v - 7755, 6007, 5419, 2688, 1370, 1365, 975, 866, 837, 771, 714, 639, 633, 578, 533, 435, 392, 255, 253, 136
+Síndrome de Guillain-Barré TR - 10000, 7344, 5000, 2950, ​​ 2900, 2650, 2600, 1550, 1234, 740, 880, 787, 727, 330, 165, 82,6, 41,75, 20,87, 30, 7344, 4412, 5000
+Doença gengival (use Gengivite_Piorréia )
+Hemofilia_tônica (distúrbios hemorrágicos hereditários nos quais o sangue não coagula facilmente) - 778, 845, 751
+Haemophilus_influenzae_HC (causa meningite bacteriana, infecta articulações) - 16728.45, 832.86
+Cabelo_humano - 646
+Halitose (mau hálito. Veja também Strep pneumonia, Strep aureus, Faringite, Dentário, Parasita geral e Conjuntos antissépticos gerais) - 1550, 802, 880, 787, 727, 20
+Alucinações - 10000, 880, 787, 727, 20
+Síndrome mão-pé-boca (uma infecção viral leve encontrada em crianças pequenas) - 232, 237, 1214, 1243, 1244, 1271, 5411
+Ressaca (veja também frequências de suporte do Rim e do Fígado) - 10000, 522, 146
+Febre do feno (apenas alguns tipos) - 880, 787, 727, 20
+Head_injury_followup (Procure atendimento médico imediato para ferimentos na cabeça!) - 9,6, 3000, 880, 787, 727, 522, 72, 5,8, 4,9
+Dores de cabeça - 144, 160, 1,2, 520, 10, 10000, 304
+Dores de cabeça_causadas_por_desalinhamento_vertebral (Não substitui o ajuste) - 9.6, 3000
+Dores de cabeça_comp - 10000, 3000, 880, 787, 727, 650, 625, 600, 522, 520, 304, 160, 146, 144, 125, 95, 73, 20, 10, 9,6, 9,39, 7,83, 6,3, 5,8, 4,9, 4, 1,2
+Dores de cabeça devido a parasitas (ver também Parasitas, strongyloides ) - 125, 95, 73, 20, 727, 3000
+Dores de cabeça devido à toxicidade - 522, 146, 4,9, 3000, 880, 787, 727, 20
+Dores de cabeça_causa_desconhecida - 10, 4, 5,8, 6,3, 7,83, 3000, 650, 625, 600
+Dores de cabeça_de_causa_urogenital - 9.39, 3000
+Cura_e_regeneração - 2720, 266, 47
+Bloqueio_cardíaco_1 - 59, 60, 61
+Coração_geral - 20, 81, 162, 5000
+Heart_tonic (somente animais de laboratório. Veja também Clamídia, Infecção por estafilococos, Estase circulatória e Conjuntos de frequência renal) - 80, 160, 20, 73, 3,9, 3000, 880, 787, 727, 465, 162, 125, 95, 20, 1,2
+Azia crônica (use suplemento de cálcio e magnésio e The Water Cure. Veja também os conjuntos gerais de estafilococos e estreptococos e H. pylori ) - 676, 832, 2720, 2170, 2127, 1800, 1600, 1550, 802, 1500, 880, 787, 727, 685, 465, 444, 1865, 125, 95, 72, 20
+Dirofilariose (use Parasitas, dirofilariose )
+Toxicidade_de_metal_pesado_TR - 31905,6, 38014,4, 39032,6, 43644,3, 56656,4, 76677,5, 43644,3, 38014,3, 4202,3, 5333,7, 9887, 1902, 317
+Esporas de calcanhar (use esporas de osso)
+Helicobacter_pylori (úlcera. Execute 676 por 10 min, 676*) - 2950, ​​ 2819, 2779, 2167, 880, 728, 705, 695, 676, 352, 347
+Helicobacter_pylori_1 - 2167, 728, 880, 2950
+Helicobacter_pylori_2 - 695, 2779, 705, 2819
+Helicobacter_pylori_3 - 0,2, 0,4, 0,6, 0,8
+Helminthosporium (o elemento reprodutivo de alguns vermes parasitas) - 793, 969
+Hemobartinella_felis - 603, 957
+Hemofilia - 603
+Hemorragia - 1550, 802
+Hemorróidas - 4474, 6117, 774, 1550, 447, 880, 802, 727
+Hepatite_A (adicione frequências gerais de hepatite se necessário) - 321, 346, 414, 423, 487, 558, 578, 693, 786, 878, 3220, 717
+Hepatite_B (adicione frequências gerais de hepatite se necessário) - 334, 433, 767, 869, 876, 477, 574, 752, 779
+Hepatite_B_HC (antígeno) - 20562.06, 1023.72
+Hepatite_C (tente também Parasitas, esquistossoma mansoni e frequências gerais de hepatite, se necessário) - 5000, 3220, 3176, 2489, 2189, 1865, 1600, 1550, 1500, 1371, 933, 931, 929, 880, 802, 665, 650, 633, 625, 528, 444, 329, 317, 250, 224, 166, 146, 125, 95, 72, 28, 20
+Hepatite_C_1 - 10000, 5000, 3220, 3176, 2489, 1865, 1600, 1550, 1500, 880, 802, 665, 650, 600, 444, 250, 166, 146, 125, 95, 72, 28, 20
+Hepatite_C_TR - 728, 166, 224, 317, 727, 787, 880, 2189
+Hepatite_geral - 1550, 1351, 922, 880, 802, 727, 477, 329, 317, 224, 28
+Hepatite_geral_secundária - 284, 458, 477, 534, 788, 922, 9670, 768, 777, 1041
+Hepatite_geral_v - 987, 934, 922, 878, 876, 842, 786, 781, 563, 562, 558, 534, 528, 477, 334, 321, 317, 224, 213, 166
+Hérnia - 10000, 787, 727, 2720, 5000
+Herpes_general (use 1488 e 2950 por 15min, 1488*) - 2950, ​​ 1900, 1577, 1550, 1489, 1488, 629, 464, 450, 383, 304, 165, 141
+Herpes_geral_secundário - 37000
+Herpes_geral_v - 165, 141, 383, 450, 629
+Herpes_progenetalis (genital. Use também Herpes simplex II) - 141, 878, 898, 5310, 440, 171, 660, 590, 1175
+Herpes_simplex_I (secundário. Herpes labial: principalmente não genital, primeira tentativa Herpes, geral) - 322, 476, 589, 664, 785, 822, 895, 944, 1043, 1614, 2062, 1489, 2950
+Herpes_simples_I_1 - 339, 343, 480, 591, 778, 782, 843, 1614, 657, 699, 700, 734
+Herpes_simples_I_2 - 2489, 1800, 465, 1550, 1500, 880, 787, 727, 1850, 428
+Herpes_simples_I_3 - 470, 647, 648, 650, 652, 654, 656, 658, 660, 847, 5641, 8650
+Herpes_simplex_I_4 (use 2950 por 20min) - 2950
+Herpes_simplex_I_HC - 14537,82, 17201,43, 723,80, 856,41
+Herpes_simples_II - 556, 832
+Herpes_simplex_II_HC - 17923,34, 17674,41, 892,35, 879,96
+Herpes_simples_IU2 - 808
+Herpes_simplex_RTI (com base no conjunto de herpes da Resonant Light Technology, a maioria das frequências contrai e espalha. Também pode ser usado para sarampo, varicela e varíola, mononucleose, herpes zoster, rubéola, herpes labial, epstein barr , varíola, estomatose estomacal e piorreia.) - 10000, 5000, 3176, 2489, 186, 372, 427, 446, 465, 484, 503, 522, 541, 560, 579, 598, 617, 636, 655, 674, 693, 712, 731, 750, 769, 788, 807, 826, 845, 864, 883, 902, 921, 940, 959, 978, 997, 1016, 1035, 1054, 1073, 1488, 1550, 1568, 1644, 1865, 1909, 2976, 5310, 5952
+Herpes_TR (executar três vezes, pausando 10 minutos entre as execuções. Todas as frequências podem executar 60 segundos, exceto 2950, ​​ que executa 180 segundos) - 2950, ​​ 322, 476, 468, 589, 664, 785, 822, 895, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748
+Herpes_type_1_anec_comp (combina a maioria das frequências anedóticas para Simplex I) - 8650, 7484, 5641, 3742, 2950, ​​ 2489, 1871, 1850, 1800, 1614, 1550, 1500, 935,5, 880, 847, 843, 787, 782, 778, 734, 727, 700, 660, 656, 652, 648, 591, 480, 467,8, 428, 343, 339
+Herpes_tipo_2_comp - 8778, 1402, 888, 880, 848, 846, 832, 808, 776, 732, 717, 685, 665, 556, 540, 532, 528, 373, 370, 366, 362
+Herpes_tipo_2A - 532, 848
+Herpes_tipo_2A_secundário - 360, 362, 364, 366, 368, 370, 373, 528, 685, 846, 880, 888, 8778, 540, 665, 716, 717, 718, 731, 732, 733, 776, 1402
+Herpes_tipo_5 (citomegalovírus. 2145*) - 126, 597, 629, 682, 1045, 2145, 8848, 8856
+Herpes_tipo_C - 395, 424, 460, 533, 554, 701, 745, 2450
+Herpes_zoster (catapora, herpes zoster. 664*) - 3343, 2320, 2170, 1600, 1500, 1160, 914, 880, 833, 802, 787, 664, 580, 3,9
+Herpes_zoster_1 (4 min cada frequência) - 10000, 833, 802, 3,9
+Herpes_zoster_secundário - 1550, 802, 1800, 1865, 728, 2720, 2128, 5000, 464, 800, 574, 1557, 304, 20
+Herpes_zoster_v - 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
+Hérnia de hiato (use kits de estafilococos e estreptococos)
+Soluços - 20, 10000
+Dor no quadril (use também Artrite) - 880, 787, 727, 20
+Hirudo_medicinalis (um remédio homeopático preparado a partir de uma sanguessuga usado para fins terapêuticos) - 128
+Histomonas_meleagridis_HC - 18769,72, 934,49
+Histoplasma - 424, 616, 749
+Histoplasma_capsulatum_HC - 15035,69, 748,58
+HIV (ver também AIDS) - 683, 714, 3554, 830, 450
+HIV_HC - 18172,28, 904,74
+Urticária (use Urticária)
+Rouquidão - 880, 760, 727
+Doença de Hodgkin (use Câncer, Doença de Hodgkin)
+Ancilostomíase (use Parasitas ancilostomíase)
+Hordeolum (use terçol)
+Hormodendrum (um gênero de fungos que inclui patógenos humanos) - 663, 678, 695, 532, 627
+Desequilíbrios hormonais - 5.5
+Ondas de calor (complicações) - 10000, 880, 787, 727
+Foliculite_de_banheira_de_folha (use Pseudomonas freqs )
+Mistura_de_insetos_domésticos - 723, 100
+Human_T_lymphocyte_Virus1 (usado para EM e doenças autoimunes) - 725, 2432, 243, 6353, 732, 844, 646
+Human_T_lymphocyte_Virus2 (usado para síndrome da Guerra do Golfo) - 725, 1230, 245, 314, 965
+Vírus_do_linfócito_T_humano_3 (usado para AIDS) - 633, 1220, 6230, 8225, 111, 392, 776, 837, 1675, 2664, 3806, 714
+Vírus_do_linfócito_T_humano_4 - 444, 2323
+Vírus_do_linfócito_T_humano_5 - 83, 235, 645, 2323, 3432, 4093, 5532
+Vírus_do_linfócito_T_humano_6 - 702, 747, 2245, 183
+Hidrocele (fluido no testículo, etc.) - 880, 787, 727
+Hiperacidez_estômago - 7,82, 20, 230
+Hiperosmia (cheiro e paladar muito agudos) - 20, 10000, 522, 146
+Hiperparatireoidismo - 4,6, 9,5, 9,6
+Hipertensão - 3176, 2112, 20, 95, 324, 528, 15, 9,19, 7,83, 6, 10000, 880, 787, 727, 304
+Hipertensão_renina_induzida (vermelho alto, pressão diastólica alta. Veja também frequências renais) - 9,19, 6
+Hipertensão_espástica - 95
+Hipertireoidismo - 3, 0,5
+Hipocôndrio_abdômen_superior - 20, 10000
+Distúrbios hipofisários (hipófise) - 4
+Hipotensão (pressão arterial baixa) - 20, 727, 787, 880
+Hipotireoidismo - 2, 12, 35, 16000, 10000, 160, 80, 20
+Hipóxia (baixo nível de oxigênio, usar também estase circulatória) - 727, 787, 880, 10000
+Icterícia hemolítica (uma forma crônica de icterícia envolvendo anemia) - 243, 768
+Ileocolite_colon_inflamação (use também Colite se necessário e veja Parasita geral e conjuntos de lombrigas) - 802, 832, 440
+Estabilização do sistema imunológico TR - 330, 10000, 7344, 5000, 1550, 1234, 740, 880, 835, 787, 727, 30
+Estimulação do sistema imunológico - 10000, 5611, 5000, 4014, 3448, 3347, 3176, 2929, 2867, 2855, 2791, 2720, 2489, 2180, 2128, 2008, 1862, 1488, 880, 800, 787, 728, 665, 464, 432, 304, 120, 20, 8
+Estimulação do sistema imunológico 1 - 40,4, 40,5, 40,6, 40,7, 40,8
+Impotência (várias classes. Use também estase circulatória) - 9,39, 2127, 2008, 465, 10000, 880, 802, 787, 727, 690, 666, 125, 95, 73, 72, 20, 650, 625, 600
+Incontinência_1 (usar todas as frequências por 10 min) - 2250, 2050, 2128, 690, 666
+Indigestão (use Dispepsia)
+Paralisia infantil (também use Poliomielite) - 1500, 880, 787, 727, 776, 5000, 10000
+Infecções_geral (ver Antisséptico Geral) - 1550, 880, 802, 786, 728, 465, 444, 125, 95, 72, 48, 20, 304, 1,2, 5500, 676, 422, 766
+Infecções_gerais_secundárias - 5000, 1600, 1500, 832, 776, 760, 700, 690, 666, 650, 625, 600, 1865, 500, 450, 440, 428, 660, 2112
+Infecções_gerais_terciárias - 1800, 2720, 2489, 832, 3040, 2008, 1850, 610, 732, 751, 40000
+Infertilidade (ver também Impotência) - 2127, 2008, 465, 880, 802, 787, 727, 690, 666, 650, 625, 600, 9,39
+Inflamação_geral (veja também conjuntos gerais de infecção) - 1.5, 3.6, 2720
+Influencinum_Berlim_55 - 430, 720, 733, 787
+Influencinum_vesic_NW - 332, 364, 519, 588, 590, 238, 239, 715
+Influencinum_vesic_SW - 433, 645, 658, 824
+Influencinum_vesica_general (bolhas) - 203, 292, 588, 612, 975, 407, 682
+Influenza (sofre mutações constantes para novas cepas, mas estas podem ser úteis. Veja também Influenza, Gripe e Vírus da Influenza. Use todas as frequências por 5 min, se necessário) - 7766, 7764, 7762, 7760, 7344, 5000, 3672, 2720, 2050, 2008, 1947, 1674, 1550, 1500, 1234, 885, 880, 875, 800, 786, 728, 683, 512, 464, 440, 304, 20
+Gripe_1_99_00 - 10000, 880, 727, 330, 728
+Influenza_1957_A_Asiática - 768, 574
+Gripe_1978 - 844, 814, 610
+Gripe_1979 - 123, 513, 522, 565, 788, 601
+Gripe_1983 - 424, 730, 734, 428
+Gripe_1989 - 216, 322, 627, 703, 748
+Gripe_1993 - 522, 615, 778, 850, 959
+Influenza_1993_secundária - 207, 254, 580, 582, 584, 586, 588, 848, 947, 7967, 8910, 739, 741, 760, 765, 773, 915
+Gripe_1994 - 689, 697, 699, 798
+Influenza_1994_secundária - 337, 690, 868, 869, 702, 727, 729, 776, 779
+Gripe_1997_1998 - 2008, 880, 787, 727, 35, 20, 465
+Gripe_2_99_00 - 440, 465, 613, 666, 727, 787, 800, 1000, 5000, 10000
+Gripe_2003_2004_1 - 7344, 3672, 1234, 880, 743, 727, 683, 464, 452, 333, 72, 200, 93,9, 2720, 2489, 1800, 1600, 1550, 885, 875, 832, 802, 787, 776, 766, 1500, 832, 787, 650, 625, 600, 465, 144, 582
+Gripe_2003_2004_2 - 8911,25, 9113,5, 9141,5, 9393,13, 6654,69, 7255, 7284,06, 8041,5, 10334,06, 10346,56, 10976,38, 7414,28, 7631,09, 7632,66, 7667,38, 7676,94, 8045,81, 8082,59, 8305,19, 5548,59, 5549,22, 5554,69, 5554,84, 5558,75, 5560,78, 5562,5, 7118,2, 5045,03, 6752,01
+Influenza_2005_outono_TR - 2950, ​​ 322, 476, 468, 589, 664, 785, 822, 895, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748
+Influenza_2005-2006_TR - 2748,8, 5695,9, 2856,7, 2935,4, 4159,2, 4534,4, 2276,3, 2504,5, 3229,4, 6466,6, 1715,1, 4633,9, 4769,4, 1192,6, 599, 2390, 1257,2, 315,7, 5190,7, 1734, 6936,5, 867,9, 434, 217,1, 6951, 4448,9, 6306,3, 4220, 8478, 1216, 1214, 1060, 1010, 935, 778, 777, 465, 457, 445, 433, 425
+Influenza_A_e_B_HC (vacina contra gripe) - 15931,86, 15682,93, 793,20, 780,81
+Dores_de_gripe_e_respiratório (use 7760 e 7766 por 10 min, todos os outros por 5) - 440, 512, 683, 728, 784, 787, 800, 875, 880, 885, 2050, 2720, 5000, 7760, 7766, 304
+Gripe_e_resfriado_1 (inverno 01 a 02) - 959, 962
+Influenza_Asian_grippe_A - 516, 656, 434
+Influenza_avian_exp_TR (varredura de 4896,1 a 5060,9 por .03125 permanência 1)
+Influenza_outono_1998 (use 8700 e 7760 por 15min) - 250, 465, 8210, 8700, 7760
+Influenza_Bach_Poli - 122, 350, 487, 572, 634, 768, 823, 1043, 1272, 764, 771
+Influenza_geral_1 (inverno de 98 a 99) - 6984, 6986, 6988, 6990, 6992, 6994, 6996, 6998, 7000, 7002, 7004, 7006, 7008, 7010, 7012, 7014, 7016
+Influenza_grippe_1986_tri - 532, 588, 660, 662, 664, 666, 668, 670, 994, 462, 712
+Influenza_grippe_1987 - 140, 332, 581, 953, 4868, 730
+Influenza_grippe_1988 - 267, 536, 568, 2050, 752, 781
+Influenza_grippe_1989 - 353, 536, 874
+Influenza_grippe_1990 - 541, 560, 656
+Influenza_grippe_geral - 343, 500, 512, 541, 862, 1000, 1192, 3012, 3423, 10223
+Influenza_grippe_vapch - 153, 343
+Influenza_haemophilus - 542, 552, 885, 959, 734, 633,1, 2532,4
+Influenza_haemophilus_tipo_B (pode causar um tipo de meningite) - 652, 942, 483, 731, 746
+Influenza_espanhol - 462, 787
+Influenza_2005_sweep_TR (varredura longa de 9750 a 10156,25 por 0,03125 passos com duração de 0,25 seg /passo)
+Influenza_overnight_TR (Combina muitas das frequências de gripe CAFL em um conjunto grande. TR especifica para pulsar 0,25 90, use duração de 90 segundos por frequência para fazer um conjunto de aproximadamente 8 horas) - 10223, 10000, 9090, 8910, 8700, 8250, 8210, 8000, 7967, 7766, 7764, 7762, 7760, 7344, 6984, 6986, 6988, 6990, 6992, 6994, 6996, 6998, 7000, 7002, 7004, 7006, 7008, 7010, 7012, 7014, 7016, 5608, 5000, 4868, 3672, 3423, 3122, 3012, 2720, 2544, 2532,4, 2489, 2558, 2398, 2050, 2008, 1947, 1922, 1800, 1674, 1600, 1550, 1500, 1422, 1272, 1242, 1234, 1215, 1192, 1191, 1186, 1043, 1020, 1000, 995, 994, 985, 984, 969, 967, 962, 959, 954, 953, 947, 946, 945, 942, 932, 922, 915, 895, 889, 885, 880, 878, 875, 874, 869, 868, 863, 862, 861, 850, 848, 844, 841, 839, 836, 833, 832, 823, 814, 802, 800, 798, 788, 787, 786, 784, 782, 781, 780, 779, 778, 777, 776, 773, 771, 770, 768, 766, 765, 764, 763, 762, 761, 760, 758, 757, 756, 753, 752, 750, 748, 746, 745, 743, 742, 741, 740, 739, 734, 732, 731, 730, 729, 728, 727, 726, 724, 722, 720, 715, 713, 712, 703, 702, 699, 697, 690, 689, 687, 683, 680, 679, 678, 676, 674, 672, 670, 668, 666, 664, 663, 662, 660, 656, 653, 652, 651, 650, 649, 647, 640, 632, 634, 633,1, 627, 625, 615, 613, 610, 601, 600, 597, 588, 582, 581, 580, 574, 572, 568, 566, 565, 560, 558, 555, 553, 552, 542, 541, 537, 536, 535, 534, 532, 530, 525, 524, 523, 522, 518, 516, 513, 512, 500, 496, 487, 483, 482, 472, 469, 468, 465, 464, 462, 461, 457, 452, 447, 442, 440, 434, 432, 428, 425, 424, 421, 413, 387, 360, 358, 356, 354, 353, 352, 350, 345, 343, 341, 340, 338, 337, 336, 334, 333, 332, 330, 324, 322, 316, 304, 272, 267, 254, 250, 232, 216, 207, 200, 153, 144, 140, 123, 122, 93,9, 72, 47, 35, 20
+Influenza_triplo_nosódio - 421, 632, 1242, 1422, 1922, 3122
+Gripe_V_influenza - 861
+Gripe_V2_gripe - 324, 652, 653
+Gripe_V3_gripe - 550, 553
+Influenza_V4_grippe - 232, 352, 2558
+Gripe_V5_gripe - 945, 518
+Influenza_V75_Victoria - 343, 316, 1020
+Gripe_VA2_gripe - 334, 472, 496, 833, 836, 922, 728
+Gripe_VA2L_influenza - 447
+Vírus da gripe 1991 1992 - 153, 345, 387, 758, 984, 985
+Vírus da gripe 1991 1992 secundário - 330, 332, 334, 336, 338, 340, 350, 352, 354, 356, 358, 360, 525, 632, 740, 761, 762, 776, 777, 780
+Vírus da gripe 1992 1993 - 535, 946
+Vírus da gripe 1992 1993 secundário - 272, 534, 566, 668, 674, 776, 782, 947, 632, 640, 713, 715, 742, 773, 777
+Vírus da gripe 1993 1994 - 757, 885, 895, 969
+Vírus da gripe 1993 1994 secundário - 447, 457, 597, 756, 764, 776, 798, 878, 967, 9090, 663, 720, 728, 729, 745, 762, 764, 770, 773, 779
+Influenza_vírus_A - 322, 332, 776
+Vírus da gripe A 1974 - 442
+Vírus da gripe A Port Chalmers - 622, 863
+Vírus da gripe B - 468, 530, 532, 536, 537, 568, 722, 740, 742, 744, 746, 748, 750, 1186, 679
+Vírus da gripe B Hong Kong - 555
+Vírus da gripe britânico - 558, 932
+Vírus da gripe geral - 728, 800, 880, 7760, 8000, 8250
+Vírus da gripe suína - 413, 432, 663, 839, 995
+Gripe_com_febre_v - 954, 889, 841, 787, 763, 753, 742, 523, 513, 482, 469, 461, 425, 341, 332
+Gripe_com_doença_respiratória_1 (inverno de 99 a 00) - 47, 1191, 2398, 2544, 5608, 7760, 7766, 672, 674, 676, 678, 680, 647, 649, 651, 653, 1215, 724, 726, 728, 730, 732, 746, 768, 687
+Influenzum_toxicum - 854
+Injeção_alérgica_reação - 10000
+Insônia (veja também conjunto geral do Parasita) - 3,59, 3, 7,83, 10, 1550, 1500, 880, 802, 6000, 304
+Inteligência_e_clareza_de_pensamento - 20, 10000
+Neuralgia intercostal (dor na musculatura das costelas) - 3000, 1550, 880, 802, 787, 776, 727, 125, 20, 1865, 444
+Interleucina (usada para estimular a produção de linfócitos) - 3448, 2929, 4014, 5611, 2867, 2855, 2791
+Claudicação intermitente - 45, 48
+Problemas intestinais cólon (ver também Colite) - 10, 440, 880, 787, 727
+Problemas intestinais gerais (veja também Conjunto geral de parasitas e Antisséptico geral) - 802
+Intestinos_inflamação (ver também Colite) - 727, 787, 880, 832, 1550, 105, 791
+Iodamoeba_butschlii_HC - 22155.25, 1103.04
+Síndrome do intestino irritável (ver também Conjunto geral de parasitas e Colite) - 6766, 5429, 4334, 2018, 1550, 880, 832, 829, 812, 802, 787, 727, 465, 422, 407, 334, 20
+Coceira (prurido. Tome um banho quente com uma xícara de vinagre de maçã depois. Se for crônico e não houver alívio a longo prazo, use kits de parasitas, incluindo parasitas gerais e parasitas vermes sanguíneos.) - 880, 787, 727, 444, 125, 95, 72, 20, 1865, 3176
+Icterícia (ver também Suporte hepático, vesícula biliar, Leptospirose e Parasitas, conjunto de frequências gerais) - 5000, 1600, 1550, 1500, 880, 802, 650, 625, 600, 444, 1865, 146, 250, 125, 95, 72, 20
+Jock_itch (use Epidermophyton floccinum )
+Inflamação das articulações (veja também conjuntos de artrite) - 10000
+Joint_pain_basic_TR (também conhecido como Pain.Bio , execute 160, 500, 1600, 5000 com pulso 4 60, 1600 500 160 com pulso 2 60, 160 324 528 com pulso 2 60 converge 1 1) - 160, 500, 1600, 5000, 324, 528
+Kaposis_sarcoma (use Cancer_Kaposis_sarcoma )
+Insuficiência renal - 9,2, 10, 40, 440, 1600, 1550, 1500, 880, 802, 650, 625, 600, 444, 1865, 146, 250, 125, 95, 72, 20
+Papiloma renal (crescimento pequeno, geralmente benigno, em um rim) - 110, 148, 264, 634, 767, 848, 917, 760, 762, 1102
+Estimulação_dos_rins_TR (especificado por True Rife como pode ajudar contra infecções comuns na insuficiência renal aguda) - 4412, 2720, 2400, 2112, 1864, 1600, 1550, 1500, 880, 854, 800, 784, 751, 732, 728, 712, 668, 651, 644, 625, 600, 524, 465, 442, 334, 250, 240, 152, 146, 28, 125, 120, 112, 100, 96, 93, 72, 64, 40, 20, 2222, 1153, 1134, 1016, 582, 676, 440
+Pedras nos rins (uso com suplementação de vitaminas, minerais e ervas) - 444, 727, 787, 880, 10000, 6000, 3000, 3,5, 1552
+Tônico_renal_geral - 440, 248, 8, 880, 20, 10000, 800, 5000, 3000
+Kieferosteíte (um tipo de inflamação óssea caracterizada por aumento e dor) - 432, 516, 384
+Klebsiella_pneumoniae (use Pneumoniae klebsiella )
+Dor na articulação do joelho - 1550, 880, 802, 787, 727, 28, 20, 7,69, 3, 1,2, 250, 9,6, 9,39
+L_lisina (estimula) - 195,5, 391, 782, 1564,1, 3128,2, 6256,4
+Lac_deflorat - 230, 371, 232, 2121
+Lactobacillus_acidophilus_HC - 17375,69, 865,08
+Lamblia (use Parasitas, Giardia )
+Tônico_intestino_grosso - 8, 440, 880
+Pólipo laríngeo - 765, 202
+Laringe - 10, 440, 465, 444, 1550, 880, 802, 787, 727, 28, 7,69, 3, 1,2, 250, 9,6, 9,39
+Esclerose lateral (degeneração da medula espinhal levando à paraplegia espástica. Veja também ELA.) - 254
+Laxante_suave - 802
+Legionella (Doença dos legionários, causada por uma bactéria gram-negativa associada à água condensada ou tratada que migra para o tecido pulmonar e estimula manifestações respiratórias graves, febre, dor de cabeça, dor abdominal e pode afetar rins e fígado.) - 723, 724, 897, 975, 8120, 8856, 690, 693
+Leiomioma (use Fibroma)
+Leishman_Donovan (use Parasitas, Leishmania)
+Lepra - 10000, 6000, 743, 600, 252
+Lepra_infecção_secundária - 1600, 1550, 1500, 880, 832, 802, 787, 776, 760, 727, 700, 690, 666, 650, 625, 600, 465, 444, 20, 500, 450, 440, 428, 660
+Leptospira_interrogans_HC - 19865.04, 989.02
+Leptospirose (uma doença bacteriana espiroqueta que se espalha para humanos através da urina animal e pode causar meningite, icterícia, anemia, aborto espontâneo e morte) - 612, 663
+Leucocitogênese_estimulação (ver também Estimulação do sistema imunológico) - 20, 727
+Leucocitozoário_HC - 19914.83, 991.50
+Leucoencefalite (inflamação da substância branca do cérebro, geralmente em bebês e crianças, mas também encontrada em cavalos como resultado de envenenamento por forragem) - 324, 572, 776, 934, 1079, 1111, 1333
+Leucoencefalite_secundária - 338, 783, 932, 1035, 1160, 1630, 712, 713, 715, 1244
+Leucoplasia (manchas brancas nas membranas mucosas, veja também EBV, Papiloma e Câncer, frequências de carcinoma) - 465, 2127, 2008, 727, 690, 666
+Leucose (proliferação de tecidos que formam glóbulos brancos; considerada o estágio fundamental da leucemia. Veja também Leucemia cancerosa, Parasita geral, Conjuntos de parasitas) - 612, 633, 653, 3722, 644
+Líquen_plano_TR - 728, 166, 224, 317, 727, 787, 880, 2189, 7344, 4412, 1550, 1234, 740, 880, 787, 727, 330, 10000, 5000, 30
+Líquen_escleroso_TR - 1600, 500, 160, 324, 528, 7344, 4412, 1550, 1234, 740, 880, 787, 727, 330, 10000, 5000, 30
+Lipoma (tumor benigno e mole de tecido adiposo. Também use suporte para fígado.) - 47, 606, 709
+Listeriose (uma doença grave que causa aborto espontâneo, meningite e endocardite em humanos; conhecida como doença circulante em ruminantes e causa necrose hepática em animais com estômagos únicos. Veja também Strep general e Infecção geral) - 377, 471, 626, 628, 634, 774, 2162, 7867, 714, 724
+Aumento do fígado - 727, 787, 880
+Liver_fluke (Use parasitas, vermes)
+Necrose hepática (use Listeriose, Suporte hepático, Parasitas schistosoma mansoni)
+Fígado_armazena_colesterol_bile - 21,34
+Liver_support (tente também E_coli , Parasites_general e Parasites_flukes_general ) - 33,13, 1552, 802, 751, 331,3
+Tétano (usar tétano)
+Disfunção locomotora_incoordenação (podem ser resultados lentos. Veja também resposta Schumann) - 10000, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20
+Pressão_baixa_sangue (usar hipotensão)
+Luesinum_Syphilinum (use Sífilis)
+Lumbago - 10000, 800, 880, 787, 727, 125, 95, 72, 444, 1865, 9,19, 8,25, 7,69, 300
+Pulmão (geral) - 9, 3672
+Abscesso pulmonar (use Nocardia asteroides)
+Infecção_pulmonar_1 - 10.3, 10.5, 11.8, 11.9, 12.1, 12.4
+Tônico_geral_pulmonar - 318, 307,9, 568
+Bactérias do seio pulmonar - 244, 1466, 597, 1311
+Lupus_general (degeneração localizada da pele por várias doenças; vulgaris é uma forma comum desta doença que é na verdade uma forma rara de tuberculose que se manifesta com desfiguração e destruição da pele e cartilagem do rosto. Use também conjuntos de parasitas para qualquer tipo. Use 633 por 5 min, 2125 e 3612 por 4 min, 2008 e 802 por 8 min) - 3612, 2489, 2125, 2010, 2008, 2006, 942, 802, 800, 798, 702, 633, 632, 442, 386, 243
+Lúpus_geral_secundário - 205, 244, 352, 633, 847, 921, 993, 1333, 1464, 7865, 771
+Lúpus_LES_secundário - 2180, 2128, 2008, 1552, 880, 784, 664, 304, 386, 678, 481
+Luxação (deslocamento de órgãos ou articulações) - 9.1, 110
+Lycogala_HC - 6273,17, 312,32
+Febre_maculosa_de_Lyme_e_das_Montanhas_Rochosas_v - 7989, 1590, 239, 846, 422, 417, 1455, 39975, 40439, 884, 797, 758, 693, 673, 577, 4870, 4880, 578, 128, 579
+Doença de Lyme (também conhecida como borreliose ; febre recorrente em humanos e animais causada por espiroquetas parasitas de carrapatos. Use também Babesia se necessário.) - 6870, 6863, 46866, 46851, 34170, 34112, 4200, 2050, 2016, 1520, 1455, 920, 884, 800, 797, 758, 673, 625, 615, 605, 432, 345, 344, 338, 254
+Doença de Lyme_1 - 864, 495, 485, 490, 495, 500, 505, 625, 610, 615, 620, 625, 630, 690, 790, 785, 790, 795
+Lyme_2 (use 625 por 10 min, 615 por 5 min) - 10000, 6870, 6863, 4200, 2720, 2050, 2016, 1520, 1455, 943, 920, 885, 884, 880, 864, 800, 797, 795, 790, 785, 758, 732, 727, 699, 690, 688, 673, 664, 673, 660, 644, 630, 625, 620, 615, 610, 605, 597, 534, 533, 525, 510, 505, 495, 485, 490, 500, 484, 432, 345, 344, 338, 306, 254, 230, 3
+Doença de Lyme_3 - 27735768, 1380882,58, 68750,10, 3422,87
+Lyme_4 (use 2016 e 625 por 10 min, outros por 5 min) - 2050, 1520, 615, 2016, 625
+Lyme_5 (use 920 por 10 min) - 920
+Doença de Lyme_6 ( borrelia afzellii ) - 387500
+Doença de Lyme_7 ( borrelia burgdorferi ) - 380000
+Lyme_8 ( borrelia garinii ) - 382000
+Ovos de filhotes de Lyme - 640, 8554, 203, 412, 414, 589, 667, 840, 1000, 1072, 1087, 1105
+Doença de Lyme_JB - 27735768
+Doença de Lyme_secundária (254*) - 254, 525, 597, 644, 885, 699
+Doença de Lyme_terciária - 306, 432, 484, 610, 625, 690, 864, 2016, 790
+Lyme_TR_A (Programa A, executado em dias alternados) - 6675, 4879, 2899, 2720, 2016, 1800, 1600, 1550, 1519, 1455, 1433, 885, 880, 863, 828, 802, 786, 776
+Lyme_TR_B (Programa B, executado em dias alternados) - 765, 758, 749, 726, 672, 604, 600, 581, 464, 451, 432, 345, 250, 144, 62
+Placa linfática - 596, 346
+Estase linfática (use 3176 por 10 minutos) - 3176
+Estase linfática secundária (ver também Linfangite) - 6,3, 148, 522, 146, 444, 440, 880, 787, 727, 10000, 2,5, 465, 10
+Suporte linfático - 15.05, 10.36, 3176
+Linfangite (inflamação dos vasos linfáticos de humanos e cavalos, mais comumente causada por estreptococos, mas também por outras bactérias, fungos de levedura e câncer. Veja também Strep General) - 880, 574, 778, 1120, 1078, 3176
+Linfogranuloma (use Câncer, Doença de Hodgkin)
+Linfas_e_desintoxicação - 10000, 3177, 3176, 3175, 880, 787, 751, 727, 676, 635, 625, 522, 465, 444, 440, 304, 148, 146, 15,2, 15,05, 10,36, 10, 7,83, 6,3, 2,5
+Linfático_mover - 100000
+Lyssinum (use Raiva)
+Degeneração macular e acuidade visual (use com frequências de catarata se necessário, 1830*) - 8, 1830, 1832, 1834, 1836, 1838, 1840, 1842, 1844, 1846, 1848, 1850, 1852, 1854, 1856, 1858, 1860
+Degeneração macular_1 - 0,6, 1,1, 1,4, 1,9, 9,9, 10, 21, 23,6, 24, 25,6, 26,7, 32, 34,1, 410
+Magnésio - 480
+Síndrome de má absorção (usar com Parasitas, conjunto geral) - 727, 787, 880, 800, 1552, 3000
+Malária (uma doença infecciosa, originária de áreas tropicais, que é transmitida por uma picada de mosquito e caracterizada por febre, anemia e aumento do baço. Use também absinto annua . Veja também Perniciosia ) - 4, 20, 28, 222, 550, 713, 880, 930, 1032, 1433, 1444, 1445, 455, 743
+Malária_1 - 20, 555
+Malária_2 - 20, 28, 787, 880
+Malária_3 (todas as frequências de 5 a 15 min cada) - 880, 800, 787, 728, 20
+Malária_Falciparum_1 - 1518, 1348, 1473, 1002, 1019
+Malassezia_furfur (causa tinea versicolor. Veja também Fungus general) - 222, 225, 491, 616, 700
+Mamma_fibromatosis (use Mama, cistos fibroides)
+Sarna_folicular - 253, 693
+Mannan - 961, 661
+Marsh_elder - 474
+Mastite (inflamação da mama geralmente causada por infecção bacteriana) - 654, 698
+Mastoidite (inflamação da estrutura óssea da cabeça na região das orelhas abaixo dos olhos) - 287
+Sarampo - 727, 787, 880, 342, 442, 443, 467, 520, 521, 552, 1489, 745, 757, 763, 712
+Sarampo_HC (antígeno) - 18471.00, 919.62
+Sarampo_rubéola (sarampo alemão ou de 3 dias) - 431, 459, 510, 517, 796, 967, 368, 734, 772
+Sarampo_rubéola_secundária - 727, 787, 880
+Vacina_contra_sarampo_rubéola - 429, 459, 832, 926, 505
+Sarampo_rubéola (sarampo de 9 dias) - 342, 467, 520, 784, 787, 962, 1489
+Vacina contra sarampo - 214, 725, 747, 783, 962
+Sarampo_com_vacina (tente para autismo) - 1489, 962, 880, 787, 783, 763, 757, 747, 745, 727, 725, 712, 552, 521, 467, 443, 342, 214
+Medorrhinum ( nosódio homeopático para corrimento uretral. Veja também Vaginose.) - 230, 442, 554, 843, 854, 1700, 1880, 2222, 602
+Ménières_1 - 8,8, 8,9, 9,0
+Ménières_2 - 456,6, 723, 880
+Doença de Ménières (vertigem auditiva associada à surdez e zumbido. Use 5000 por 16 min, 782 por 26 min, outros por 7 min. Use também Antisséptico geral) - 1550, 802, 880, 787, 727, 465, 428, 33, 329, 5000, 1130, 782, 9
+Vírus meningocócico - 720
+Meningioma (um tumor benigno e de crescimento lento das membranas que envolvem o cérebro e a medula espinhal) - 446, 535, 537
+Meningite (inflamação das membranas que envolvem o cérebro e a medula espinhal. Bacteriana: use também Streptococcus pneumoniae , Influenza haemophilus tipo B e veja Listeriose e Leptospirose. Viral: use também Echo, Coxsackie e Polio ) - 5000, 1795, 1422, 1044, 928, 822, 764, 733, 720, 517, 427, 423, 322, 20
+Meningite_secundária - 130, 676, 677, 507
+Meningite_terciária - 1550, 802, 880, 832, 787, 727, 650, 625, 600, 465, 444, 1865, 125, 95, 72, 20, 428, 660
+Sintomas da menopausa TR - 880, 787, 727, 5,5
+Problemas menstruais (ducha com água pura primeiro) - 880, 1550, 802, 787, 727, 465, 20
+Concentração_mental - 10000, 7,82
+Transtornos mentais (ajuda geral; especialmente se toxinas forem a causa. Use também suplemento mineral) - 522, 146, 10000, 125, 95, 72, 20, 4,9, 428, 550, 802, 7,83
+Mercúrio_toxicidade_v - 47, 48, 49, 75
+Toxicidade do metotrexato - 584
+Microsporum_audouini (um fungo que comumente causa micose no couro cabeludo e outras áreas) - 422, 831, 1222, 285
+Microsporum_canis (um fungo que causa micose em gatos, cães e crianças) - 347, 970, 1644, 402, 650
+Enxaqueca (também use Parasitas strongyloides e conjuntos gerais) - 10
+Mofo (ver também tipos específicos) - 222, 242, 523, 565, 592, 623, 745, 933, 1130, 1155, 1333, 1833, 4442
+Mold_and_fungus_general_v (veja também tipos específicos) - 4442, 2411, 1833, 1823, 1333, 1155, 1130, 1016, 942, 933, 886, 880, 866, 784, 774, 766, 745, 743, 728, 623, 623, 594, 592, 565, 555, 524, 512, 464, 414, 374, 344, 337, 321, 254, 242, 222, 158, 132
+Mols - 20, 120, 177, 600, 625, 626, 650, 659, 660, 728, 784, 880, 464
+Moles_1 (use 761,7 por 15 min, outros por 10 min) - 761,7, 650, 625, 600, 76,2
+Mononucleose (use o vírus Epstein Barr)
+Monotospora_languinosa (remédio homeopático para alérgeno fúngico) - 788
+Morbilino - 467, 520, 1489
+Morbus_Parkinson (usar doença de Parkinson)
+Morgan ( bact ) - 778, 784, 787, 788, 988, 726
+Doença de Morgellons TR - 5858,25, 5856,375, 4271,25, 4264, 330, 10000, 7344, 5000, 1550, 1234, 740, 880, 835, 787, 727, 160, 500, 1600, 5611, 4014, 3448, 3347, 3176, 2929, 2867, 2855, 2791, 2720, 2489, 2180, 1862, 1488, 880, 800, 787, 728, 665, 464, 432, 304, 120, 30, 20, 8, 920, 2016, 625
+Enjoo (ver também náusea) - 10000, 5000, 648, 624, 600, 465, 440, 648, 444, 1865, 522, 190, 146, 125, 95, 72, 20
+Erupções_bocais_herpes (use Herpes e Herpes Simplex I)
+Erupções na boca_manchas_brancas (use leucoplasia )
+Mucocutan_perniciose - 833, 667, 756
+Mucor_mucedo (causa podridão em frutas e produtos assados ​​ e às vezes é encontrado em pés e pele) - 612, 1000, 488, 766, 9788, 735
+Mucor_plumbeus - 361, 578, 785, 877
+Mucor_racemosis (cresce em vegetação em decomposição e pão e pode causar infecção de ouvido) - 310, 474, 875
+Mucor_racemose_secundária - 473, 686, 871, 873, 876, 878, 887, 7768, 7976, 8788, 713, 729, 731, 751, 760, 778, 1200
+Mucormicose (use Zigomicose)
+Inflamação_da_membrana_mucosa_geral - 380
+Mucoviscidose (use Fibrose cística)
+Esclerose_múltipla_1 (use 5000 por 30min) - 5000, 4992, 23570,5, 3767, 3056,9, 2720, 2466,9, 2252,8, 2213, 2189, 2088,59, 1883, 1875, 1550, 1331, 880, 854, 840, 802, 787, 784, 728, 690, 660, 624, 620, 524, 470, 464, 430, 421, 317, 304,6, 275, 253, 241,68, 235, 224, 218, 166, 143, 80,9, 20
+Esclerose_múltipla_2 - 5000, 23570,5, 3056,9, 2466,9, 2252,8, 2088,59, 880, 787, 728, 690, 660, 304,6, 241,68, 80,9, 20
+Esclerose_múltipla_3 - 2253, 2467, 2357, 2358, 242, 305, 2089, 3057, 81, 5000, 1550, 802, 880, 787, 728, 690, 660, 20
+Esclerose_múltipla_4 - 3040, 5000, 2720, 10000, 470, 120, 240, 300, 328, 728, 880, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 20
+Esclerose_múltipla_5 (use 5000 por 30 min) - 5000, 728, 166, 224, 317, 727, 787, 880, 218
+Esclerose_múltipla_6 (use 5000 por 10 min) - 10000, 6000, 5000, 3176, 2489, 3057, 2008, 2358, 1488, 2467, 3040, 880, 787, 800, 728, 665, 464, 242, 224, 304, 166, 120, 20
+Esclerose_múltipla_cérebro - 0,3, 140, 158, 166, 169, 190, 199
+Esclerose_múltipla_infecção_cerebral - 2.6, 2.8, 5.1, 6.7, 7.2, 7.5, 11.3
+Reparo da bainha de mielina da esclerose múltipla - 4,4, 8, 9,4, 9,5, 9,8, 12,6, 13,3, 14,2, 14,4, 14,8, 225, 259, 280
+Esclerose_múltipla_secundária - 20, 143, 275, 430, 470, 524, 620, 624, 802, 840, 854, 1550, 2213, 5000, 728, 784, 880, 464
+Esclerose_múltipla_pernas_rígidas - 315,77
+Tremor ou contração muscular na esclerose múltipla - 470
+Esclerose_múltipla_v ( aspertame , mercúrio, benzeno, chumbo e tolueno podem causar os mesmos sintomas. Use também Clamídia Geral e Herpes tipo 6 e veja os conjuntos ALS, Herpes geral, Blastocystis hominus , Parasitas flukes , Shigella , Nocardia e Herpes zoster) - 2145, 938, 862, 841, 741, 739, 682, 660, 572, 532, 520, 477, 442, 433, 344, 343, 342, 338, 324, 322, 253, 242, 112
+Caxumba (inflamação viral aguda das glândulas salivares. Veja também Coxsackie ) - 152, 242, 642, 674, 922
+Mumps_HC (antígeno) - 19018,66, 946,88
+Caxumba_secundária - 190, 235, 516, 1243, 1660, 2630, 3142, 9667, 729, 741, 759, 761, 1170
+Caxumba_terciária - 10000, 727, 2720, 2489, 2127, 2008, 428, 880, 787, 727, 20
+Vacina contra caxumba - 273, 551, 711, 730, 1419
+Tônico muscular - 20, 120, 240, 300, 304, 324, 328, 728, 880, 5000, 10000
+Músculos_para_relaxar - 965, 20, 120, 240, 760, 6.8, 6000, 304
+Distrofia muscular (distúrbio caracterizado por fraqueza e atrofia progressiva dos músculos esqueléticos, apesar de não haver atrofia concomitante do tecido nervoso. Aspartame, mercúrio, benzeno, chumbo e tolueno podem causar os mesmos sintomas. Use também Parasitas flukes e veja Parasitas gerais, ELA, conjuntos de EM) - 153, 522, 146, 880, 787, 727
+Dor_e_lesão_muscular (veja também Dor e Antisséptico geral) - 2720, 6000, 324, 320, 250, 240, 160, 125, 80, 40, 20, 10, 5,8, 2,5, 1,5, 1,2, 1, 0,5
+Mycobacterium_phlei_HC - 20412,70, 1016,29
+Mycobacterium_tuberculosis_HC (causa tuberculose) - 21508.01, 1070.82
+Mycogone_fungoides - 488, 532, 662, 764, 852, 1444
+Mycogone_fungoides_secundário - 328, 367, 490, 491, 495, 496, 628, 678, 761, 766, 768, 1055, 1074, 9979, 709, 714, 729, 746, 757
+Mycogone_spp (preparação homeopática alergênica à base de fungo) - 371, 446, 1123, 748
+Mycoplasma_fermentans (pode ser um fator na ELA, fadiga crônica, Alzheimer, Parkinson e EM) - 2900, 878,2, 880,2, 864, 790, 706,7, 690, 610, 484, 986, 644, 254
+Mycoplasma_general (pode ser útil para problemas de pulmão, sinusite e outros que não respondem a outras frequências) - 7344, 2950, ​​ 2900, 2842, 1147, 1113, 1067, 1062, 1045, 969,9, 880,2, 878,2, 865, 829,3, 800,4, 790, 783,6, 779,9, 706,7, 690,7, 686,6, 684,1, 679,2, 673,9, 664, 644, 610, 484, 254
+Micoplasma_HC - 16106,12, 17226,33, 801,88, 857,65
+Pneumonia por micoplasma - 688, 975, 777, 2688, 660, 709,2, 2838,5
+Micoplasma_pulmonis - 2404,2, 601, 300,5, 150,3, 75,1
+Mycoplasma_salivarium_1 (execute cada um por 18 min após a construção) - 253, 279, 420, 453, 761, 832
+Micose fungoide (uma forma de câncer de pele semelhante ao eczema) - 532, 662, 678, 852, 1444
+Myocardite_narbe ( narbe significa cicatriz) - 279, 761
+Myocardite_necrose (remédio homeopático de células cardíacas que morreram como resultado de fluxo sanguíneo inadequado para elas. Veja também Estase circulatória) - 706, 789
+Mioma (tumor benigno no útero) - 253, 420, 453, 832
+Miosite (envolve fraqueza muscular progressiva) - 120, 122, 125, 129, 1124, 1169, 762
+Mixossoma_HC - 20611,85, 1026,20
+Naegleria_fowleri_HC - 18022.92, 897.31
+Nanobacter ( Nanobacterium sanguineum , uma nanobactéria que pode ser encontrada em alguns depósitos de cálcio nas artérias, rins, vesícula biliar, músculos e articulações, bem como em maior número em pessoas com doenças "autoimunes", como lúpus, psoríase, esclerodermia e distúrbios semelhantes) - 634, 317, 1268, 1902
+Nanobactérias_2 - 6771,59, 6772,13, 6749, 6773,44, 6772,29, 6725,50, 5965,19, 5198,33, 5543,65, 5631,24, 9916,73, 8798,81, 8661,95, 4628,34, 4128,50, 2931,45, 2208,53, 2100,67
+Nanobactérias_3 - 13543,18, 13543,89, 13544,26, 13544,49, 13546,48, 13546,88, 13544,59, 13545,21, 13546,95, 11930,39, 10396,66, 9916,73, 8798,81, 8661,95, 4628,34, 4128,50, 2931,45, 2208,53, 2100,67
+Nanobacteria_sanguineum_TR - 7635,45, 6653,86, 6346,71, 5631,24, 5543,65, 2962,14, 2642,24, 1876,13, 1413,46, 1344,43, 1902, 317
+Infecção nasal (use Sinusite e/ou Rinite)
+Pólipo nasal (crescimento benigno dentro da passagem nasal) - 542, 1436
+Capuchinha (uma erva curativa) - 143
+Náuseas e cólicas (veja também Parasitas, enterobíase , lombrigas e Parasitas, geral para condições crônicas) - 72, 95, 190, 880, 832, 787, 727, 20, 4,9
+Nematoides (Use Parasitas, nematoides)
+Neoplasias (Use câncer)
+Nefrite (doença inflamatória renal. Também trate pedras e cristais suplementarmente, ou nefrose doença renal não inflamatória) - 1550, 274, 423, 636, 688, 880, 787, 727, 10, 20, 10000, 40, 73, 465, 3000
+Distúrbios nervosos e neuropatia - 10000, 3176, 2720, 2489, 2170, 2112, 1800, 1600, 1550, 880, 802, 787, 727, 660, 650, 625, 600, 440, 125, 95, 72, 20, 7,83, 3
+Nervos_cura - 200, 10, 7,64
+Nervosismo_Prozac_agitação (acatisia. Veja também Relaxamento) - 3, 7,83
+Neuralgia (um distúrbio doloroso do sistema nervoso) - 833, 3,9, 10000
+Neuralgia_intercostal - 802
+Neuralgia_trigeminal - 880
+Neurose - 28
+Neurospora_sitophila - 705, 878
+Nigrospora_spp - 302, 350, 764
+Nocardia_asteroides (o microrganismo causador da Nocardiose , uma doença pulmonar infecciosa caracterizada por abscessos nos pulmões. Veja também Streptothrix .) - 228, 231, 237, 694, 719, 747, 887, 2890
+Nocardia_asteroides_HC (encontrado na doença de Parkinson) - 17679,39, 880,20
+Frequências Nogier - 1,14, 2,28, 4,56, 9,125, 18,25, 36,5, 73, 146, 292, 584, 1168, 2336, 4672
+Nose_infection_congestion (use Sinusite e Rinite)
+Dormência (ver também Estase circulatória) - 10000, 2720, 2489, 2170, 1800, 1600, 1550, 802, 880, 787, 727, 650, 625, 600, 440, 660
+Carvão de aveia - 806
+Oligodena - 853
+Oospora - 9599, 5346
+Lesões orais (casos crônicos sempre retornarão até que o trabalho odontológico de metal seja substituído por porcelana sem urânio. Veja também herpes simplex I e use Estomatite) - 2720, 2489, 2008, 1800, 1600, 1550, 802, 880, 787, 727, 465, 444, 522, 146
+Orquite (inflamação dos testículos devido à tuberculose, caxumba, gonorreia, câncer, bactérias, etc. Veja também a condição causadora, se conhecida) - 2720, 2489, 2170, 2127, 2008, 1800, 1600, 1550, 802, 1500, 880, 832, 787, 776, 727, 690, 666, 650, 625, 600, 125, 95, 72, 20, 9
+Orquite_secundária - 727, 787, 880, 10000
+Ornitose (Psitacose ou Febre do Papagaio; uma pneumonia infecciosa transmitida por certas aves) - 233, 331, 332, 583, 859, 1217
+Osteíte (inflamação óssea) - 770
+Osteoartrite (use também Artrite) - 962, 1500, 770
+Osteoíte - 2,65
+Osteomielite - 2720, 2489, 2170, 2127, 2008, 1800, 1600, 1550, 802, 1500, 880, 832, 787, 776, 727, 690, 666
+Osteomieloesclerose (substituição da medula óssea por osso em resposta a infecção de baixo grau) - 79, 330
+Osteosinusite_max - 243, 327
+Ostite - 770, 743, 736, 724
+22, 622, 932, 5122, 488, 781
+Câncer_leucemia_linfática - 478, 833
+Câncer_leucemia_mieloide (caracterizada pelo rápido crescimento de glóbulos brancos incompletamente formados) - 422, 822
+Câncer_leucemia_célula_T - 222, 262, 822, 3042, 3734
+Câncer_leucemia_TR - 2127, 2008, 880, 822, 787, 727, 690, 666, 590, 10000, 2008, 1850, 450, 440, 422, 428, 2030, 2030, 2030, 465, 15, 14, 6,8
+Cancer_liver (use Câncer, carcinoma, fígado)
+Cancer_liver_secondary (use Hepatite B e Parasitas, verme, fígado)
+Cancer_lung (use Câncer, carcinoma, brônquico)
+Câncer_linfogranuloma_linfoma (use doença de Hodgkin)
+Câncer_linfogranuloma_venéreo_secundário (use Chlamydia trachomatis )
+Câncer_linfossarcoma - 482
+Câncer_manutenção_secundária - 120, 250, 428, 465, 600, 626, 650, 661, 664, 667, 690, 728, 776, 784, 800, 802, 832, 880, 1489, 1550, 1600, 1865, 2000, 2012, 2100, 2170, 2490, 2730
+Câncer_melanoma_1 - 10000, 2217, 2128, 2127, 2050, 2008, 1050, 1000, 880, 787, 728, 666, 495, 465, 450, 125, 100, 95, 80, 60, 45, 20, 10, 7,5
+Câncer_melanoma_2 - 2217, 2128, 2050, 2008, 1552, 1102, 1050, 1000, 979, 907, 880, 802, 787, 728, 666, 495, 466, 465, 450, 125, 110, 100, 95, 80, 60, 45, 20, 10, 7,5
+Câncer_melanoma_metástase - 979
+Câncer_mieloma_múltiplo - 21275, 11780, 5122, 4750, 4213, 2950, ​​ 2145, 2128, 2107, 2008, 1488, 822, 781, 647, 526, 475, 422, 418, 263, 249
+Cancer_mycosis_fungoides (uma forma de câncer de pele semelhante ao eczema) - 852
+Câncer_nasofaríngeo_secundário (usar EBV)
+Câncer_neuroblastoma ( exp ) - 7027, 6148, 5270, 4392, 3513, 2635, 1757, 878
+Cancer_non_Hodgkins_1 (também use Cancer , Melanoma) - 574, 588, 666, 778, 1078, 1120, 1340, 1744, 3524, 3713
+Cancer_non_Hodgkins_2 (também use Simian_virus_40) - 2008, 2004, 2012, 2116, 2128, 3672, 7760
+Câncer_não_morto_até_2008_2128 - 2180, 2182, 2184
+Dor_do_câncer - 3000, 95, 2127, 2008, 727, 690, 666
+Câncer_pancreático (use Câncer_adenocarcinoma )
+Câncer_plasmocitoma (um tumor com células plasmáticas que ocorre na medula óssea, como no mieloma múltiplo, ou fora da medula óssea, como em tumores dos órgãos internos e revestimento do nariz, boca e garganta) - 475
+Câncer_de_próstata (veja também Adenoma da próstata e Hiperplasia da próstata) - 20, 60, 72, 95, 125, 666, 727, 787, 790, 766, 800, 920, 1998, 1875, 442, 2008, 2127, 2128, 2217, 2720, 2050, 2250, 5000, 2130, 2120, 690, 304
+Cancer_prostate_1 (usar todas as frequências por 6 min após avaliar a desintoxicação) - 2128, 2125, 2131, 2140, 2145, 666, 3672
+Câncer_de_próstata_Vega_1 - 854, 1840, 2145, 2288
+Câncer_rabdomiossarcoma_1 - 2000, 2005, 2008, 2016, 2048, 2084, 2093, 6024, 2100, 2128, 2127, 2184, 2217, 6384, 728, 784, 880, 464
+Câncer_rabdomiossarcoma_embrionário (2586*) - 6384, 6024, 2586, 2217, 2184, 2128, 2127, 2100, 2093, 2084, 2060, 2048, 2040, 2032, 2016, 2008, 2005, 2000, 880, 784, 728, 464
+Câncer_rabdomiossarcoma_embrionário_v - 2586, 5476, 4445
+Câncer_sarcoma_geral (BY) - 1755, 3524, 2007.5, 2005, 2015.9, 2083.8, 728, 880, 802, 785
+Cancer_skin (use Câncer, carcinoma, pele de células basais e formas específicas)
+Câncer_estômago_secundário (use Helicobacter pylori )
+Câncer_terciário - 20, 421, 965, 50, 383
+Cancrum_oris (úlcera oral ou nasal de crescimento rápido) - 20, 727, 787, 802, 880
+Candida (veja também Parasita geral, lombriga e ascaris se estes não funcionarem a longo prazo. Alguns acham que a cândida crônica não pode ser curada a menos que o acúmulo de metais tóxicos seja reduzido ou eliminado usando uma limpeza de metais. 464*) - 3176, 2644, 1403, 1151, 943, 886, 877, 866, 762, 742, 661, 465, 464, 450, 414, 412, 386, 381, 254,2, 120, 95, 64, 20
+Candida_1 - 10000, 5000, 3176, 2489, 1395, 1276, 1160, 1044, 928, 877, 812, 728, 696, 580, 465, 464, 381, 348, 232, 116, 58, 20
+Candida_2 (inclui carcinomas de cândida e tropicalis ) - 1403, 675, 709, 2167, 2128, 2182, 465, 20, 60, 95, 125, 225, 427, 464, 727
+Candida_albicans_HC - 19217,81, 956,80
+Candida_carcinomas - 2167, 2128, 2182, 465
+Candida_secondary (use também outros conjuntos de parasitas, especialmente frequências de lombrigas, se necessário) - 72, 422, 582, 727, 787, 802, 1016, 1134, 1153, 1550, 2222, 412, 543, 2128
+Candida_sweep_TR (varredura de 12006,25 a 12137,5 por 0,03125 permanência 0,5 pulso 64 75)
+Candida_tertiary (alguns fatores causais) - 880, 95, 125, 20, 60, 225, 427, 240, 650, 688, 152, 442, 8146, 751, 1146
+Candida_tropicalis - 1403, 675, 709
+Parvovírus canino - 185, 188, 323, 428, 433, 562, 613, 622, 1000, 4027
+Cepa mutante do parvovírus canino - 323, 514
+Parvovírus canino tipo B - 323, 535, 613, 755, 761, 764, 766, 768
+Canker_sore (use estomatite aftosa)
+Carbo_animalis (remédio homeopático feito de carvão de osso animal) - 444
+Carbúnculos (use Staphylococcus aureus)
+Cardiocedema - 9.19
+Carpal_tunnel_secondary (também use Arthritis ) - 2008, 666
+Carvularia_spiratera - 879
+Febre da arranhadura do gato (use Bartonella henslae )
+Catarata (use também o suplemento antioxidante Eye Formula para todos os problemas de degeneração macular, use 1830 por 10 min, 1830*) - 1830, 728, 784, 787, 800, 880, 10000
+Catarata_1 - 1830, 1600, 9999, 1552, 2110, 1335, 1654, 2187, 2195, 2211
+Catarata_2 - 292, 30, 9,1, 0,3
+Catarata_brunescente (opacidade marrom na vida adulta, 1830*) - 2010, 1335, 1830
+Catarata_complicada (tipo secundário causado por doença, degeneração ou cirurgia, 1830*) - 1830, 496, 325, 774
+Cataract_general (executar 1830 período estendido, 1830*) - 10000, 2211, 2195, 2187, 2110, 2010, 1830, 1654, 1600, 1552, 1335, 1335, 880, 800, 787, 784, 774, 728, 496, 325
+Catarro - 1800, 1713, 1550, 802, 800, 880, 787, 727, 444, 20
+Causticum - 540, 1013
+Doença celíaca_1 - 39, 2, 3, 4.18, 5.13
+Células_de_Leudig (tônico de cólon) - 2500
+Cephalosporium (fungos que são a fonte de alguns antibióticos de amplo espectro) - 481, 3966, 544
+Cefalotécio - 371, 574, 6933
+Paralisia cerebral - 880, 787, 727, 522, 146
+Problemas_cerebraispinais - 10000
+Cerúmen (cera de ouvido) - 311, 320, 750, 984, 720
+Pólipo cervical - 277, 288, 867, 687, 744
+Cervicite (inflamações do colo do útero) - 20, 727, 787, 880
+Adenoma do colo do útero (tumor epitelial do colo do útero) - 433
+Chaetomium_globosum (867*) - 221, 867, 102
+Chakra_base_root (pulso a 4Hz) - 20
+Cancro (use Sífilis)
+Quelidônio - 162
+Sensibilidade química (ver também Suporte hepático) - 727
+Chemtrail_detox (também pode ser útil para problemas de pulmão e sinusite. Todas as frequências por 5 min) - 664, 7344, 2842, 1147, 686,6, 684,1, 1113, 779,9, 829,3, 679,2, 865, 969,9, 1067, 783,6, 800,4, 1045, 1062, 673,9, 690,7
+Infecção_peito_secundária - 72, 333, 452, 683
+Varicela (quando as marcas de varíola aparecem, a doença já está resolvida e as toxinas estão sendo expelidas pela pele, então deve ser usado nos estágios iniciais de sintomas semelhantes aos da gripe após a exposição. Use herpes zoster.)
+Chillbains (use Perniosis )
+Chilomastix_HC (cistos de ameba) - 19367.17, 964.23, 21209.29, 1055.95
+Chilomonas_HC - 19815.25, 986.54
+Clamídia_geral - 3773, 3768, 2223, 2218, 2213, 942, 866, 840, 622, 555, 470, 430
+Chlamydia_pneumoniae - 7543,4, 7520,5, 4710,5, 3773,3, 3760,3, 1886, 1880, 943,3, 940, 620, 479, 471,66, 470,9, 941,8, 3767,3
+Chlamydia_trachomatis (uma infecção bacteriana geralmente transmitida sexualmente que causa tracoma, conjuntivite de inclusão, linfogranuloma venéreo, uretrite e proctite.) - 430, 620, 624, 840, 1111,4, 2213, 866, 555,7, 2222,8
+Chlamydia_trachomatis_HC - 18968,87, 944,40
+Colecistite aguda (crise dolorosa de cálculos biliares) - 481, 743, 865, 928
+Colecistite crônica (inflamação prolongada da vesícula biliar) - 432, 1551, 801
+Cólera (uma infecção bacteriana extremamente contagiosa e grave do intestino delgado) - 1035, 968, 961, 851, 844, 843, 691, 591, 556, 330
+Cólera_secundária - 880, 802, 450, 832, 787, 727
+Colesteatoma (tumor benigno geralmente encontrado no ouvido médio e na região mastoide) - 453, 618, 793, 5058
+Colesterol - 1386, 173, 620, 635, 780
+Síndrome_de_fadiga_crônica (use com conjuntos gerais de parasitas, lombrigas e vermes, se necessário. Veja também conjuntos gerais de EBV e fadiga. Se não houver resposta a estes, tente leucemia de células pilosas do câncer) - 10000, 660, 2127, 787, 465, 424, 664, 120, 880, 1550
+Fadiga_crônica_v - 1902, 1000, 959, 649, 568, 243, 922, 2422, 730, 1522, 116, 1489, 962, 172, 1333
+Cimicifuga (família de plantas que inclui raiz de cobra preta e cimicifuga preta) - 334, 594
+Perturbações_de_circulação - 40, 9.39
+Estase circulatória (estimula a circulação sanguínea. Veja também Distúrbios da circulação) - 40, 2112, 2145, 2720, 2489
+Cirrose biliar (uma condição inflamatória na qual o fluxo de bile através do fígado é obstruído) - 381, 514, 677, 2271
+Cirrose_hepatite - 291
+Cladosporium_fulvum (um fungo patogênico) - 438, 233, 776, 510
+Clostridium_acetobutylicum_HC - 19118.23, 951.84
+Clostridium_botulinum_HC (produz toxina botulínica que causa botulismo, um tipo de intoxicação alimentar) - 18022.92, 897.31
+Clostridium_difficile (pode causar diarreia após tratamento com antibióticos) - 387, 635, 673
+Clostridium_perringens_HC (esporos) - 19715.68, 981.59
+Clostridium_septicum_HC - 18122,49, 902,27
+CMV (use Citomegalovírus)
+Celiácia - 154, 594, 656, 586, 668, 787, 7958, 665, 674
+Cold_1 (use 800 e 880 por 10 min, outros por 5 min) - 5500, 4400, 802, 787, 727, 720, 552, 440, 400, 125, 72, 800, 880
+Frio_2 - 652, 725, 746, 751, 768, 1110, 333, 666, 542, 522
+Cold_3 (queda, 99. Use todas as frequências 5 min) - 20, 120, 146, 440, 444, 465, 727, 776, 787, 880, 1500, 1550, 5000, 1000
+Cold_4 (use 880 e 800 por 10 min, 728 por 5 min) - 3176, 2489, 880, 800, 728
+Cold_5 (use 7728 e 4888 por 10 min) - 7728, 4888, 8238, 2413, 880, 787, 776, 727, 440, 746, 567, 7880, 787, 300, 310, 1234, 9999
+Frio_6 - 7660, 7344, 5000, 3702, 3672, 2688, 2400, 1862, 1550, 1238, 1234, 1200, 975, 880, 802, 787, 780, 778, 776, 774, 772, 770, 768, 766, 727, 688, 683, 660, 450, 412, 352
+Resfriado_e_Gripe (outono, 98. Use 8700 e 7760 por 15 min, outros por 5 min) - 250, 465, 8210, 8700, 7760
+Resfriado_e_gripe_inverno_01 - 959, 962
+Cold_in_head_chest (Muta constantemente; muitas cepas para incluir a lista completa de frequências. Veja também os conjuntos Strep Pneumonia, Adenovirus , Rhinitis , Coronavirus , Sinusite, Pneumonia, Infecção torácica e Rhino pneumonitis . Use bastante equinácea no início para evitar danos celulares que prolongam a cura, mesmo se as frequências corretas forem encontradas.) - 10000, 7344, 4412, 3176, 2489, 1550, 880, 802, 787, 776, 766, 728, 712, 688, 683, 665, 660, 600, 444, 333, 20
+Frio_2005_TR - 10000, 7344, 5000, 2950, ​​ 2900, 2650, 2600, 1550, 1234, 740, 880, 787, 727, 330, 165, 82,6, 41,75, 20,87, 30
+Herpes labial (use Herpes Simplex I)
+Cólica - 1550, 832, 802, 787, 727, 20
+Colite_e_Diarreia (inflamação do cólon) - 10000, 5000, 1550, 880, 832, 802, 787, 727, 621, 465, 454, 440, 433, 344, 152
+Coletotrichum - 1482
+Problemas_de_cólon_geral - 20, 440, 880, 1552, 802, 832
+Cores (decodificação de cores da Jade Machine) - 2155, 2055, 960, 920, 858, 815, 800, 745, 677, 640, 624, 470
+Comedões (cravos) - 778
+Guindaste_inicial_completo - 34750, 31750, 31000, 10000, 5000, 3500, 2720, 2489, 2452, 2250, 2200, 2180, 2130, 2127,5, 2120, 2100, 2093, 2050, 2008, 2000, 1998, 1865, 1862, 1850, 1840, 1800, 1600, 1570, 1560, 1552, 1550, 1500, 1100, 1050, 1027, 1000, 885, 880, 875, 864, 804, 803, 802, 800, 799, 787, 784, 781, 780, 776, 775, 770, 764, 740, 730, 727,5, 725, 712, 700, 690, 676, 666, 664, 660, 650, 625, 622, 600, 500, 465, 450, 440, 432, 428, 423, 400, 304, 250, 240, 162, 160, 125, 121, 120, 100, 95, 82, 81, 80, 78, 72, 70, 60, 41, 36, 30, 28, 26, 22, 20, 18, 15, 14, 13, 10, 9, 8, 7, 5,5, 5, 4, 3,5, 1,8, 1
+Rife_inicial_completo - 10000, 5000, 3500, 2489, 2250, 2127,5, 2093, 2008, 2000, 1865, 1850, 1800, 1600, 1570, 1560, 1550, 1500, 880, 802, 800, 787, 784, 776, 740, 727,5, 660, 650, 625, 622, 600, 500, 465, 450, 400, 250, 125, 120, 100, 80, 60, 20
+Condiloma (geralmente verrugas venéreas, causadas pelo vírus do papiloma. Ocorrem perto da intersecção das membranas mucosas e da pele. Use também Papiloma.) - 466
+Conjuntivite (também conhecida como olho rosa. Use também Chlamydia trachomatis e veja Bacillus subtilis se necessário) - 2025, 1830, 1552, 1550, 1246, 1206, 880, 822, 802, 787, 727, 722, 489, 432, 80, 20
+Constipação (use também os conjuntos Parasitas gerais e lombrigas, se necessário) - 3176, 1550, 880, 832, 802, 787, 776, 727, 444, 440, 422, 20
+Contusão (hematoma) - 9.1, 110, 2720
+Convoforce - 774
+Convulsões_1 - 10000, 880, 787, 727
+Convulsões_espasticidade - 9,19, 8,25, 7,69
+Coraforce - 774
+Coralino - 533
+Carvão de milho - 546, 1642, 289
+Coronavírus_SARS - 9918, 9740, 4959, 4870, 2479,5, 2435, 1394,7, 1369,6, 1239,7, 1217,5, 774,8, 760,9, 619,9, 608,7, 464,9, 456,5, 309,9, 304,4, 155, 152,2
+CoronaCOV19_1 - 10.000, 5.000, 1.048, 1.000, 937, 774, 720, 795, 651, 597, 563, 524, 499, 120, 13
+CoronaCOV19_2 - 9918,0, 4870,0, 2435,0, 1239,7, 774,8, 619,9, 608,7, 369,9, 153,2
+CoronaCOV19_3 (algumas frequências se repetem e a ordem pode ser importante) - 10000, 9918, 9740, 5000, 4959, 4870, 2479, 2435, 1369, 1304, 1239, 1217, 774, 760, 619, 608, 464, 309, 155, 120, 10000, 9335, 5301, 5000, 4667, 2651, 2333, 1491, 1325, 1312, 1167, 627, 583, 497, 437, 331, 291, 165, 145
+CoronaCOV19_4 - 902,27, 899,79, 901,03, 903,51, 904,74, 1022,49
+Corynebacterium_diptheriae (use Diptheria )
+Corynebacterium_diptheriae_HC - 17027.18, 847.73
+Corynebacterium_xerose_HC - 15732,71, 783,29
+Costalgia (dor nas costelas) - 10000, 880, 787, 727
+Tosse - 7760, 7344, 3702, 3672, 1550, 1500, 1234, 776, 766, 728, 720, 688, 683, 530, 525, 524, 522, 514, 444, 440, 432, 146, 125, 95, 72, 20, 7,7, 0,5
+Tosse_persistente_TR - 4664,45, 3444,55, 2543,35, 1666,35, 3665,65
+Tosse_da_vacina_contra_gripe_1 - 453, 550, 674, 728, 1109, 7160, 634, 639, 1089, 522, 524, 525, 146, 1500, 1550, 0,5, 514, 530, 432, 440, 444, 720, 1234, 3702, 20, 125, 72, 95, 7,7
+Coxsackie_B1 - 353, 384, 834, 587, 723
+Coxsackie_B1_HC - 18122,49, 902,27
+Coxsackie_B2 - 705, 534, 867
+Coxsackie_B3 - 612, 487, 868, 653, 654
+Coxsackie_B4 - 421, 353, 540, 8632
+Coxsackie_B4_HC - 18047,81, 898,55
+Coxsackie_B5 - 462, 1043, 1083, 569, 647, 708, 774
+Coxsackie_B6 - 488, 736, 814, 343, 551, 657, 668, 669
+Coxsackie_General (ver também Caxumba) - 612, 136, 144, 232, 380, 422, 424, 435, 921, 923, 769, 1189, 595, 676
+Cólicas e náuseas - 72, 95, 190, 880, 832, 787, 727, 20, 4,9
+Cãibras - 10000, 880, 787, 727, 26
+Cólicas menstruais - 26
+Crinis_humansis - 646
+Crocus_sotillus - 710
+Doença_de_Crohn_e_outros_problemas_intestinais_v - 141, 488, 866, 468, 782, 664, 604, 187, 543, 1423, 972, 110, 133, 979, 173, 233, 672, 510, 447, 350
+Doença de Crohn (também use colite, cólon e frequências de parasitas) - 10000, 727, 786, 440, 832, 880, 1550, 20
+Doença de Crohn protozoários 1 - 200, 206, 249, 298
+Doença de Crohn - Viroid 1 - 585, 593, 600
+Crupe (caracterizado por uma tosse alta que lembra o latido de uma foca, dificuldade para respirar e um ruído de grunhido ou chiado durante a respiração) - 10000, 7344, 3702, 3672, 1234, 1165, 580, 290, 870, 333, 666, 523, 786, 728, 880, 1550, 960, 712, 278, 683, 688, 776, 766, 444, 95, 72, 20
+Cryptococcus_neoformans (levedura que causa infecção respiratória que pode se transformar em meningite. Também conhecida como torulose .) - 367, 428, 444, 476, 478, 522, 579, 594, 785, 792, 872, 2121, 5880, 5884, 597, 613, 624
+Cryptosporidium (protozoário parasita que às vezes causa diarreia em humanos) - 220, 482, 575, 4122, 698, 711, 893, 895, 1276, 5690
+Cunninghamella - 311, 323
+Curva_spic - 435
+Ciclospora - 543, 316, 992, 751, 268, 2144
+Cisto_ovariano - 982
+Cisto_sebáceo_TR ( streptothrox mais nocardia e actinomyces israelense) - 694, 719, 784, 228, 231, 237, 887, 2890, 222, 262, 2154, 465, 488, 567, 7880, 10000, 787, 747, 727, 20
+Cisto_solitário - 75, 76, 543
+Fibrose cística (também chamada de mucoviscidose , um distúrbio das glândulas exócrinas que faz com que elas liberem muco muito espesso. Use Pseudomonas_aeruginosa , Respiração profunda e Antisséptico geral e veja Parasitas gerais e frequências de lombrigas) - 523, 557, 478, 776, 660, 727, 778, 787, 802, 880
+Cistite crônica (inflamação prolongada da bexiga urinária e dos ureteres) - 246, 1550, 880, 802, 787, 727, 465, 20
+Cystopyelo_nefrite (inflamação da bexiga ao rim) - 1385
+Cistos_hidáticos (use Parasitas tênia)
+Citocalasina_HC - 4530,62, 3833,60, 225,57, 190,86
+Citomegalovírus (CMV, conhecido como vírus da glândula salivar ou herpes humano tipo 5, 2145*) - 126, 597, 629, 682, 1045, 2146, 2144, 2145, 8848, 8856
+Citomegalovírus_HC - 20362.91, 1013.81
+Cytophaga_rubra_HC - 21408,44, 1065,86
+Surdez (parcial a completa) - 10000, 1550, 880, 802, 787, 727, 20
+Carrapato_de_veado_1 - 7989, 289, 737, 738, 271, 671, 773
+Dematium_nigrum (fungos do solo encontrados em lesões humanas) - 243, 738
+Dengue_fever_TR - 160, 500, 1600, 5000, 7344, 4412, 1550, 1234, 740, 880, 787, 727, 330, 10000, 5000, 30, 10551,5, 5275,8, 2627,9
+Infecções_dentárias_e_mandíbulares_1 (use converge 1 1 em todos, exceto use converge 1 0,1 em 728) - 7270, 2720, 2489, 880, 787, 727, 500, 190, 728
+Infecções_dentárias_e_maxilares_2 - 15, 326, 465, 727, 787, 880
+Dental_foci (Negligenciar isso pode impedir a recuperação de qualquer doença se a infecção for um problema) - 5170, 3000, 2720, 2489, 1800, 1600, 1550, 1500, 880, 832, 802, 787, 776, 727, 666, 650, 646, 600, 465, 190, 95, 47,5
+Dental_general (veja também Dor de dente) - 728, 784, 635, 640, 1036, 1043, 1094, 685, 60, 48, 465
+Infecção dentária (raízes e gengivas) - 960, 660, 666, 690, 727, 784, 787, 800, 880, 1560, 1840, 1998, 2489
+Infecção_dentária_1 - 5170, 3000, 2720, 2489, 1800, 1600, 1550, 1500, 1094, 1043, 1036, 880, 832, 802, 787, 776, 727, 685, 666, 650, 646, 640, 635, 600, 465, 190, 95, 60, 48, 47,5
+Infecção_dentária_2 - 10000, 5000, 1562, 1552, 1550, 880, 800, 799, 787, 784, 776, 774, 728, 727, 664, 620, 464, 254,2, 120, 64, 20
+Infecção_dentária_e_dor_de_ouvido_1 - 960, 930, 900, 880, 832, 802, 800, 787, 776, 775, 768, 760, 750, 727, 685, 680, 666, 650, 646,3, 646, 640, 635, 622,3, 547, 521, 518
+Infecções_dentárias_TR - 3400, 2489, 1700, 1560
+Infecções_dentárias_v - 981, 138, 142, 177, 183, 210, 222, 233, 436, 534, 626, 723, 835, 875, 5227, 7059
+Depressão_ansiedade_tremor_fraqueza - 3,5, 800
+Depressão_drogas_ou_toxinas - 1.1, 73
+Depressão_geral (evite amidos na dieta, use um multivitamínico e multimineral e beba bastante água) - 10000, 5000, 3176, 800, 787, 73, 35, 7,83, 3,5, 1,1
+Desintoxicação e linfas - 10000, 3176, 3040, 880, 787, 751, 727, 676, 635, 625, 522, 465, 444, 440, 304, 306, 148, 146, 15,2, 15,05, 10,36, 10, 7,83, 6,3, 2,5, 3176
+Desintoxicação_assist - 10000, 3176
+Desintoxicação_1 - 10000, 3176, 522, 164, 89, 24
+Diabetes_1 (Aviso; pode causar grande queda no nível de açúcar no sangue. Use 5000 por 15 min) - 5000, 2127, 2080, 2050, 2013, 2008, 2003, 2000, 1850, 880, 803, 800, 787, 727, 660, 484, 465, 440, 35, 20, 6,8
+Diabetes_2 - 4200, 2128, 1865, 1850, 1550, 787, 465, 444, 125, 95, 72, 48, 302
+Infecção_associada_ao_diabetes - 2020, 800, 727, 786, 190, 80, 20
+Diabetes_secundário - 10000, 2720, 2170, 1800, 1550, 880, 802, 727, 465, 20
+Diabetes_terciário - 1850, 32000, 4000, 500
+Carga_diabética - 35.700
+Úlcera_diabética_no_dedo_do_pé_1 (use também as frequências de Staph aureus e veja Staph geral, Antisséptico geral e Estimulação da circulação conforme necessário) - 786, 2112, 1050, 1,2, 5000, 832, 20
+Diarreia (veja também Colite, Clostridium difficile , E. coli, e para problemas crônicos, giárdia e frequências de SII. Veja também Conjunto geral de parasitas se não houver alívio.) - 1550, 880, 832, 802, 786, 727, 465
+Dientamoeba_fragilis_HC - 20113,98, 1001,42
+Difteria (infecção bacteriana que causa dor de garganta, febre, taquicardia, náusea, calafrios, dor de cabeça e pode progredir para danos ao coração e nervos devido a toxinas bacterianas. Rara nos EUA.) - 10000, 1000, 925, 800, 788, 776, 624, 590, 432, 340, 151
+Diplococcus_diptheriae_HC - 17973,13, 894,83
+Diplococcus_pneumoniae_HC - 17923,34, 18172,28, 892,35, 904,74
+Dirofilaria_immitis (use dirofilariose parasitas)
+Hérnia de disco - 727, 787, 2720, 10000
+Cinomose - 242, 253, 254, 255, 312, 442, 551, 573, 624, 671, 712, 760, 940, 950, 1269, 1950, 8567, 660
+Distorção (torção dos músculos, coluna) - 9.1, 110
+Diverticulite aguda (ver Intestinos, inflamação. Todas as frequências por 10 min) - 120, 500
+Diverticulose (caracterizada por pequenas hérnias de tecido intestinal que se projetam através da parede muscular do cólon) - 154, 934
+Tontura (use Vertigo )
+DNA_reparação ( exp ) - 528, 731, 732
+Hostilidade_de_cachorros_e_gatos_1 - 3.6
+Síndrome de Down paliativa - 20
+Droglioma (use Câncer, droglioma )
+Dependência de drogas - 20
+Úlcera_duodenal (use Úlcera, duodenal)
+Duodenite - 223
+Contratura de Dupuytrens (4º e 5º dedos curvados para dentro da mão, incapaz de endireitar) - 1,2, 250
+Disenteria (diarreia aguda com sangue e muco. Use também Entamoeba histolytica , Salmonella e Shigella ) - 1552, 802, 832
+Dismenorreia (menstruação dolorosa. Use com ducha de água pura) - 26, 4.9, 1550, 880, 802, 787, 727, 465
+Dispepsia (indigestão. Se crônica ou com inchaço, veja também Parasitas em geral) - 10000, 880, 1550, 832, 800, 787, 727, 465, 444, 20, 125, 95, 72, 4,9
+E_coli (Escherichia coli; pode causar infecções em feridas e no trato urinário. Se o uso destes levar a sintomas de resfriado comum, siga com frequências de adenovírus, 800/802*, 1550/1552*) - 7849, 7847, 1730, 1722, 1552, 1550, 1320, 1244, 1000, 957, 934, 856, 840, 832, 804, 802, 800, 799, 776, 642, 634, 556, 548, 413, 333, 330, 327, 289, 282
+E_coli_1 (recomendado como adjuvante para câncer) - 7847, 1730, 1712, 1244, 1000, 934, 856, 840, 800, 776, 642, 634, 556, 539, 358, 330
+E_coli_comp - 7849, 7847, 1730, 1722, 1712, 1703, 1552, 1550, 1320, 1244, 1242, 1000, 957, 934, 856, 840, 832, 804, 802, 800, 799, 776, 642, 634, 632, 556, 548, 539, 413, 358, 333, 330, 327, 289, 282
+E_coli_HC - 17724,20, 19566,32, 974,15, 882,44
+Cepa mutante E_coli - 556, 934, 1242, 1244, 1703, 632, 634, 776
+Condições do ouvido_várias (secreções, zumbido, coceira, perda auditiva. Veja também Otite.) - 10000, 880, 787, 727, 776, 766, 688, 683, 652, 645, 542, 535, 440, 410, 340, 201, 158, 20, 9,19
+Fungo_de_orelha_1 - 854
+Cera de ouvido (use cerume)
+EBV (use o vírus Epstein-Barr)
+Echinococcinum (use Parasitas, tênias, echinococcinum )
+Echo_Virus (Endometriose Tuberilosa , pode causar um tipo de meningite viral) - 922, 788, 765, 722, 625, 620, 614, 613, 612, 611, 610, 609, 608, 607, 606, 605, 604, 603, 514, 461
+Eczema - 9,19, 707, 1550, 802, 787, 727, 10000, 5000, 2720, 2008, 2180, 2128, 664, 120, 20
+Eczema_1 - 770, 916, 415
+Eczema_2 - 730,2, 1550, 802, 787, 690
+Eczema_distúrbios_vasculares_e_pulmonares - 9.39
+Edema (ver também Estimulação renal e linfática) - 40, 522, 146, 6,3, 148, 444, 440, 880, 787, 727, 465, 20, 5000, 10000
+Eikenella_corrodens_HC - 19018.66, 946.88
+Níveis de eletrólitos (para melhorar) - 8.1, 20, 10000
+Eletrosmog_1 - 99,5
+Elefantíase (uso com parasitas, especialmente lombrigas e nematóides ) - 623, 824, 865, 710
+Laços emocionais com doenças - 764, 664
+Enfisema (uso com mycoplasma pulmonis , mycoplasma pneumonia e parasitas frequentes, especialmente lombrigas) - 1234, 3672, 7344, 880, 787, 727, 120, 20, 80
+Enfisema_comp - 7344, 3672, 2838,5, 2688, 2404,2, 1234, 975, 880, 787, 777, 766, 727, 709,2, 688, 683, 660, 650, 601, 422, 300,5, 240, 150,3, 128, 120, 80, 75,1, 20
+Encefalite (inflamação dos tecidos do cérebro e da medula espinhal) - 841
+Endocardite (use Listeriose)
+Endocrine_RX_TR (inclui frequências estimulantes para glândulas pineal, hipotálamo, hipófise, tireoide, adrenal e timo) - 662, 1725, 1342, 1534, 1413, 1351, 635, 763, 1335, 645, 10000
+Endolimax_nana_HC (trofozoítos e cistos) - 19715,68, 981,59, 21508,01, 1070,82
+Endometriose_1 (use 246, 800 e 1550 por 5 min) - 6766, 6672, 6641, 6578, 2150, 2128, 2082, 2013, 2008, 2003, 2000, 1850, 1550, 945, 854, 846, 830, 800, 763, 676, 651, 524, 435, 275, 246, 142
+Endometriose crônica (crescimento de tecido uterino fora do útero que pode causar dor, infertilidade e sangramento uterino anormal. Use com parasitas, vermes, geral) - 246, 800, 1550
+Endometriose_tuberculosa (use vírus Echo)
+Energia_vitalidade - 9999
+Entamoeba_coil_HC (trofozoíto) - 19715.68, 981.59
+Entamoeba_gingivalis_HC (trofozoíto) - 21806,74, 1085,69
+Entamoeba_histolytica (protozoários altamente prejudiciais que causam disenteria e infecção hepática) - 148, 166, 308, 393, 631, 778
+Entamoeba_histolytica_HC - 19168.02, 954.32
+Entamoeba_histolytica_secundária - 1552, 880, 802, 1550, 832, 787, 727, 690, 660, 465, 786, 768, 523, 333
+Enterobacter_aerogenes_HC (causa problemas intestinais) - 18620.36, 927.05
+Enterobíase - (oxiúros. Use Parasitas, enterobíase )
+Enterococcinum ( nosódio homeopático para organismos da família Strep encontrados nos tratos digestivo e urinário) - 686, 409
+Enterohepatite (inflamação do intestino e do fígado) - 552, 932, 953
+Enterovirus_General (termo genérico que significa vírus pequeno, inclui Echo, Coxsackie e Polio ) - 5000, 3636, 2632, 1850, 1500, 1488, 1422, 1189, 1044, 922, 868, 845, 822, 788, 776, 766, 742, 733, 721, 676, 654, 625, 620, 612, 610, 608, 595, 515, 487, 461, 435, 423, 380, 322, 283, 232, 144, 136, 20
+Enurese (molhar a cama. Usar com conjuntos de parasitas) - 10000, 880, 787, 727
+Epicócumo - 734, 778
+Epicondilite (cotovelo de tenista, lateral ou vertical) - 1,2, 250, 728, 766, 776, 880
+Epidermophyton_floccinum (fungo que ataca a pele e as unhas, incluindo alguns pé de atleta e micoses de micose de virilha. Use também Microsporum freqs e Fungal general se necessário.) - 22107, 465, 784, 644, 766, 345
+Epididimite (inflamação da área dos testículos, ductos. Veja também Orquite.) - 2250, 1500, 880, 787, 727, 20
+Epilepsia (tente também Shigella ) - 10000, 880, 802, 787, 727, 700, 650, 600, 210, 633, 125, 20
+Epstein_Barr_HC - 18919,09, 18670,15, 941,93, 929,53
+Epstein_Barr_virus (o vírus do herpes que causa mononucleose) - 8768, 6618, 1920, 1013, 825, 738, 669, 667, 663, 660, 274, 253, 172, 105
+Epstein_Barr_virus_secondary (tente também frequências gerais de parasitas e lombrigas) - 744, 776, 778, 465, 880, 787, 727, 1032, 1920
+Ergot_HC - 14687,19, 731,23
+Erwinia_amylovora_HC - 17425,47, 867,56
+Erwinia_carotovora_HC - 18570.58, 924.57
+Erisipela (infecção bacteriana que se manifesta na inflamação da pele causada por estreptococos pirógenos ou outros patógenos e possivelmente relacionada à forma suína da doença) - 616, 776, 735, 845, 660, 10000, 880, 787, 727, 465, 20
+Eritema infeccioso ( parvovírus humano B19, às vezes conhecido como Quinta doença, uma infecção viral contagiosa que causa erupção cutânea vermelha manchada ou elevada com doença leve. exp ) - 809, 1618, 3236
+Eritema_nosodum - 9,39
+Escherichia_coli (use E. coli)
+Esôfago (constrição. Veja também Frequências gerais antissépticas e odontológicas) - 880, 787, 727
+Euglena - 432, 3215, 3225, 3325, 6448
+Eustachian_tube_inflammation (também use General_Antiseptic ) - 1550, 880, 802, 787, 776, 727, 465
+Distúrbios oculares (visão turva, catarata, estrabismo, diplopia, infecções, etc.) - 10000, 2010, 1831, 1830, 1829, 1600, 1552, 1335, 880, 787, 727, 496, 400, 360, 350, 160, 20
+Inflamação ocular (ver também Antisséptico geral) - 1.2, 80
+Pálpebra caída (use Ptose)
+Olhos_glaucoma - 1600, 1830, 880, 787, 727
+Visão_afiada - 350, 360, 1830
+Cãibras faciais - 10000, 6000, 304, 1131, 33
+Paralisia facial - 10000, 880, 787, 727
+Tonificação facial - 1.2
+Desmaio - 20
+Fáscia (tecido fibroso sob a pele. Veja também frequências de miomas) - 20
+Fadiga_geral - 428, 424, 664, 660, 464, 125, 120, 95, 72, 20, 444, 1865, 10000, 5000
+Febris_wolhynia (uma doença de Rickettsia, transmitida por piolhos, que é debilitante e propícia à recaída) - 547, 356
+Fel_tauri (preparação homeopática de bílis de boi) - 672
+Feli - 435, 742
+Felis - 430, 834, 2232, 3233
+Felon_1 (pus, infecção nas pontas dos dedos) - 657, 659, 738, 751
+Criminoso_2 - 663, 665, 720, 722
+Feloris_Wolyhnica - 547
+Febre (algumas causas) - 1552, 880, 800, 832, 422, 2112, 787, 727, 20
+Febre_insolação - 20, 440, 880
+Fibroadenoma_mamae (nódulos fibrosos não cancerosos nas mamas. Use cápsulas de algas também) - 1384, 2128, 2189
+Miomas_geral (ver Parasitas, vermes, geral) - 2950, ​​ 2189, 2128, 2127, 2008, 1744, 1552, 1550, 1488, 1384, 1234, 880, 802, 787, 776, 727, 690, 666, 465, 267
+Fibroma - 2127, 2008, 727, 690, 666, 1550, 802, 465
+Fibromialgia (faça desintoxicação depois, se necessário) - 328, 880, 800, 728, 5000, 2720, 2180, 2128, 664, 464, 304, 120, 20
+Fibromialgia_1 - 120, 140, 304, 464, 728, 800, 880, 2489, 3176, 5000, 6000, 9000
+Fibromialgia_2 - 2008, 2050, 2080, 2127, 880, 800, 787, 728, 600, 420, 320, 120, 3790, 3792, 3794, 3796, 3798, 3800, 3802, 3804, 3806, 3808, 3810
+Fibromialgia_TR (inclui frequências de relaxamento muscular. Corra 321, 384 e 40 por 12 min cada) - 321, 384, 40, 965, 200, 120, 240, 760, 68, 6000, 304
+Fibropêndulo - 661, 7465, 211, 233, 766
+Fibrossarcoma - 1744
+Fibrose_pulmão (use Fibrose pulmonar)
+Quinta_doença (use Eritema infeccioso)
+Peixe pirogênio - 832
+Fissuras - 787, 20, 10000
+Fístula_dentalis (727*, 878*, 1122*) - 550, 727, 844, 878, 1122, 786
+Fístula_úlcera (use também frequências de estafilococos) - 880, 832, 787, 727
+FIV - 262, 323, 372, 404, 567, 712, 742, 760, 773, 916, 1103, 1132, 3701
+Flatulência - 1550, 880, 832, 802, 787, 727, 465
+Gripe (use Influenza)
+Flukes (use Parasitas, flukes )
+Fluor_Alb (sal celular homeopático) - 110, 342, 420, 423, 688, 757
+Sarna_folicular (dermatite contagiosa encontrada em muitos animais, causada por ácaros e cuja atividade principal é nos folículos capilares. Também molhe com óleo vegetal, deixe descansar por pelo menos 15 minutos e enxágue com chá de tomilho.) - 253, 693, 701, 774
+Foliculite_hot_tub (pequenas espinhas) - 174, 482, 5311
+Intoxicação alimentar (algumas classes. Use também Salmonella typhimurium e veja Antisséptico geral, Dor abdominal e Inflamação abdominal.) - 1552, 802, 832
+Síndrome de pé e boca (uma infecção viral leve encontrada em crianças pequenas, mas também pode ser um fator na ELA) - 232, 237, 1214, 1243, 1244, 1271, 5411
+Fraturas_cicatrização - 220, 230, 10000, 880, 787, 727
+Frequency_fatigue (cansaço que não é desintoxicado pelo uso do gerador de frequência por muito tempo) - 10,55, 7,83
+Frigidez_feminina - 10000, 20
+Queimadura por frio - 880, 787, 727
+Ombro congelado (use também pneumonia estreptocócica se necessário) - 10000, 880, 802, 787, 766, 727
+Mosca da fruta - 2167
+Fungo_e_mofo_v - 4442, 2411, 1833, 1823, 1333, 1155, 1130, 1016, 942, 933, 886, 880, 866, 784, 774, 766, 745, 743, 728, 623, 623, 594, 592, 565, 555, 524, 512, 464, 414, 374, 344, 337, 321, 254, 242, 222, 158, 132
+Faixa de EW do fungo - 823, 824, 825, 826, 827, 828, 829
+Flora_fungo_1 - 331, 336, 555, 587, 632, 688, 757, 882, 884, 887
+Fungus_foot_and_general_1(use 1550 por 30min) - 1550
+Fungus_general (veja também candida , levedura e outros tipos específicos) - 2222, 1552, 1550, 1153, 1134, 1016, 880, 802, 787, 784, 727, 582, 465, 422, 254, 72, 20
+Furunculose (furúnculos na pele. Também use Staph aureus freqs ) - 1550, 1000, 880, 802, 787, 784, 770, 728, 727, 660, 465, 200, 116, 20
+Furunkulosis_herpes (ver também Herpes geral e Furunkulosis ) - 200, 1000, 1550, 802, 787, 727
+Furunkulosis_TR (também use Staph aureus) - 1550, 1000, 880, 802, 787, 784, 770, 728, 727, 660, 465, 200, 116, 20
+Fusarium_geral - 768, 625, 746
+Fusarium_oxysporum (um fungo que causa inflamação da córnea do olho) - 102, 332, 705, 795, 780
+Gaffkya_tetragena_HC (causa infecções respiratórias) - 17425.47, 867.56
+Gardnereila_vaginalis_HC (causa infecção do trato ovariano e genital) - 16927.60, 842.78
+Antisséptico_geral - 10000, 5000, 3176, 2145, 1552, 1488, 880, 802, 786, 776, 766, 760, 728, 688, 683, 676, 666, 660, 464, 450, 444, 428, 120, 20
+Antisséptico_geral_1 - 10000, 5000, 3176, 2720, 2000, 1865, 1770, 1550, 1360, 880, 804, 802, 787, 786, 760, 728, 690, 660, 590, 555, 465, 450, 428, 768, 523, 333, 14
+General_demo (maiores sucessos) - 10000, 4412, 3040, 2128, 2112, 1862, 1550, 880, 800, 786, 732, 728, 712, 688, 676, 644, 464, 422, 128, 120, 20
+Doença_geral - 40000, 10000, 5000
+General_prog_Blaster5 - 2489, 2128, 2008, 2000, 1998, 1840, 1800, 1600, 1570, 1560, 1550, 1500, 880, 800, 787, 784, 776, 740, 727, 690, 666, 622, 600, 500, 400, 120, 80
+Programa_geral_EMEM - 720, 1550, 20, 4200
+Profilaxia_geral - 20, 64, 95, 125, 225, 427, 440, 664, 728, 784, 880, 802, 832, 680, 760, 1550, 464, 10000, 676, 1488
+Geotrichum_candidum (fungo encontrado em fezes e laticínios cujas manifestações se assemelham às da cândida) - 350, 355, 384, 386, 403, 404, 407, 409, 410, 412, 415, 418, 543, 544, 687, 987, 988, 737, 700
+German_measles (Use Sarampo, rubéola)
+Giardia (use Parasitas, giárdia)
+Gengivite (inflamação das gengivas. Veja também Dentário, Focos dentários, Estomatite. Tome cálcio e magnésio internamente e escove com CoQ10 e mirra ou selo de ouro) - 1550, 880, 802, 787, 728, 726, 465, 20, 1556, 776, 465
+Mormo (use Pseudomonas mallei )
+Febre glandular - 10000, 20
+Febre glandular tireóide ( exp ) - 10000, 20, 16000
+Gliocladium (fungo cerebral) - 855, 469, 633
+Bócio (use Struma )
+Gônadas_inflamação (use Orquite)
+Gonorreia - 7120, 6000, 2330, 1500, 712, 660, 600, 233, 150
+Gonorréia_neisseria_HC - 16628.88, 927.90
+Gota (Use também cura com água e bromelina em altas doses ou outras enzimas. Veja também frequências renais) - 9,39, 3000, 10000, 880, 787, 727, 20
+Granuloma_dent - 441
+Cascalho_urina - 2,65, 3000, 880, 787, 727, 20
+Doença de Graves e bócio - 20, 727, 787, 880
+Greatest_Hits (use a demonstração geral)
+Corante_verde - 563, 2333
+Gripe (use Influenza, gripe)
+Griseofulvina - 14338,68, 713,88
+Síndrome_da_Guerra_do_Golfo_v - 7755, 6007, 5419, 2688, 1370, 1365, 975, 866, 837, 771, 714, 639, 633, 578, 533, 435, 392, 255, 253, 136
+Síndrome de Guillain-Barré TR - 10000, 7344, 5000, 2950, ​​ 2900, 2650, 2600, 1550, 1234, 740, 880, 787, 727, 330, 165, 82,6, 41,75, 20,87, 30, 7344, 4412, 5000
+Doença gengival (use Gengivite_Piorréia )
+Hemofilia_tônica (distúrbios hemorrágicos hereditários nos quais o sangue não coagula facilmente) - 778, 845, 751
+Haemophilus_influenzae_HC (causa meningite bacteriana, infecta articulações) - 16728.45, 832.86
+Cabelo_humano - 646
+Halitose (mau hálito. Veja também Strep pneumonia, Strep aureus, Faringite, Dentário, Parasita geral e Conjuntos antissépticos gerais) - 1550, 802, 880, 787, 727, 20
+Alucinações - 10000, 880, 787, 727, 20
+Síndrome mão-pé-boca (uma infecção viral leve encontrada em crianças pequenas) - 232, 237, 1214, 1243, 1244, 1271, 5411
+Ressaca (veja também frequências de suporte do Rim e do Fígado) - 10000, 522, 146
+Febre do feno (apenas alguns tipos) - 880, 787, 727, 20
+Head_injury_followup (Procure atendimento médico imediato para ferimentos na cabeça!) - 9,6, 3000, 880, 787, 727, 522, 72, 5,8, 4,9
+Dores de cabeça - 144, 160, 1,2, 520, 10, 10000, 304
+Dores de cabeça_causadas_por_desalinhamento_vertebral (Não substitui o ajuste) - 9.6, 3000
+Dores de cabeça_comp - 10000, 3000, 880, 787, 727, 650, 625, 600, 522, 520, 304, 160, 146, 144, 125, 95, 73, 20, 10, 9,6, 9,39, 7,83, 6,3, 5,8, 4,9, 4, 1,2
+Dores de cabeça devido a parasitas (ver também Parasitas, strongyloides ) - 125, 95, 73, 20, 727, 3000
+Dores de cabeça devido à toxicidade - 522, 146, 4,9, 3000, 880, 787, 727, 20
+Dores de cabeça_causa_desconhecida - 10, 4, 5,8, 6,3, 7,83, 3000, 650, 625, 600
+Dores de cabeça_de_causa_urogenital - 9.39, 3000
+Cura_e_regeneração - 2720, 266, 47
+Bloqueio_cardíaco_1 - 59, 60, 61
+Coração_geral - 20, 81, 162, 5000
+Heart_tonic (somente animais de laboratório. Veja também Clamídia, Infecção por estafilococos, Estase circulatória e Conjuntos de frequência renal) - 80, 160, 20, 73, 3,9, 3000, 880, 787, 727, 465, 162, 125, 95, 20, 1,2
+Azia crônica (use suplemento de cálcio e magnésio e The Water Cure. Veja também os conjuntos gerais de estafilococos e estreptococos e H. pylori ) - 676, 832, 2720, 2170, 2127, 1800, 1600, 1550, 802, 1500, 880, 787, 727, 685, 465, 444, 1865, 125, 95, 72, 20
+Dirofilariose (use Parasitas, dirofilariose )
+Toxicidade_de_metal_pesado_TR - 31905,6, 38014,4, 39032,6, 43644,3, 56656,4, 76677,5, 43644,3, 38014,3, 4202,3, 5333,7, 9887, 1902, 317
+Esporas de calcanhar (use esporas de osso)
+Helicobacter_pylori (úlcera. Execute 676 por 10 min, 676*) - 2950, ​​ 2819, 2779, 2167, 880, 728, 705, 695, 676, 352, 347
+Helicobacter_pylori_1 - 2167, 728, 880, 2950
+Helicobacter_pylori_2 - 695, 2779, 705, 2819
+Helicobacter_pylori_3 - 0,2, 0,4, 0,6, 0,8
+Helminthosporium (o elemento reprodutivo de alguns vermes parasitas) - 793, 969
+Hemobartinella_felis - 603, 957
+Hemofilia - 603
+Hemorragia - 1550, 802
+Hemorróidas - 4474, 6117, 774, 1550, 447, 880, 802, 727
+Hepatite_A (adicione frequências gerais de hepatite se necessário) - 321, 346, 414, 423, 487, 558, 578, 693, 786, 878, 3220, 717
+Hepatite_B (adicione frequências gerais de hepatite se necessário) - 334, 433, 767, 869, 876, 477, 574, 752, 779
+Hepatite_B_HC (antígeno) - 20562.06, 1023.72
+Hepatite_C (tente também Parasitas, esquistossoma mansoni e frequências gerais de hepatite, se necessário) - 5000, 3220, 3176, 2489, 2189, 1865, 1600, 1550, 1500, 1371, 933, 931, 929, 880, 802, 665, 650, 633, 625, 528, 444, 329, 317, 250, 224, 166, 146, 125, 95, 72, 28, 20
+Hepatite_C_1 - 10000, 5000, 3220, 3176, 2489, 1865, 1600, 1550, 1500, 880, 802, 665, 650, 600, 444, 250, 166, 146, 125, 95, 72, 28, 20
+Hepatite_C_TR - 728, 166, 224, 317, 727, 787, 880, 2189
+Hepatite_geral - 1550, 1351, 922, 880, 802, 727, 477, 329, 317, 224, 28
+Hepatite_geral_secundária - 284, 458, 477, 534, 788, 922, 9670, 768, 777, 1041
+Hepatite_geral_v - 987, 934, 922, 878, 876, 842, 786, 781, 563, 562, 558, 534, 528, 477, 334, 321, 317, 224, 213, 166
+Hérnia - 10000, 787, 727, 2720, 5000
+Herpes_general (use 1488 e 2950 por 15min, 1488*) - 2950, ​​ 1900, 1577, 1550, 1489, 1488, 629, 464, 450, 383, 304, 165, 141
+Herpes_geral_secundário - 37000
+Herpes_geral_v - 165, 141, 383, 450, 629
+Herpes_progenetalis (genital. Use também Herpes simplex II) - 141, 878, 898, 5310, 440, 171, 660, 590, 1175
+Herpes_simplex_I (secundário. Herpes labial: principalmente não genital, primeira tentativa Herpes, geral) - 322, 476, 589, 664, 785, 822, 895, 944, 1043, 1614, 2062, 1489, 2950
+Herpes_simples_I_1 - 339, 343, 480, 591, 778, 782, 843, 1614, 657, 699, 700, 734
+Herpes_simples_I_2 - 2489, 1800, 465, 1550, 1500, 880, 787, 727, 1850, 428
+Herpes_simples_I_3 - 470, 647, 648, 650, 652, 654, 656, 658, 660, 847, 5641, 8650
+Herpes_simplex_I_4 (use 2950 por 20min) - 2950
+Herpes_simplex_I_HC - 14537,82, 17201,43, 723,80, 856,41
+Herpes_simples_II - 556, 832
+Herpes_simplex_II_HC - 17923,34, 17674,41, 892,35, 879,96
+Herpes_simples_IU2 - 808
+Herpes_simplex_RTI (com base no conjunto de herpes da Resonant Light Technology, a maioria das frequências contrai e espalha. Também pode ser usado para sarampo, varicela e varíola, mononucleose, herpes zoster, rubéola, herpes labial, epstein barr , varíola, estomatose estomacal e piorreia.) - 10000, 5000, 3176, 2489, 186, 372, 427, 446, 465, 484, 503, 522, 541, 560, 579, 598, 617, 636, 655, 674, 693, 712, 731, 750, 769, 788, 807, 826, 845, 864, 883, 902, 921, 940, 959, 978, 997, 1016, 1035, 1054, 1073, 1488, 1550, 1568, 1644, 1865, 1909, 2976, 5310, 5952
+Herpes_TR (executar três vezes, pausando 10 minutos entre as execuções. Todas as frequências podem executar 60 segundos, exceto 2950, ​​ que executa 180 segundos) - 2950, ​​ 322, 476, 468, 589, 664, 785, 822, 895, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748
+Herpes_type_1_anec_comp (combina a maioria das frequências anedóticas para Simplex I) - 8650, 7484, 5641, 3742, 2950, ​​ 2489, 1871, 1850, 1800, 1614, 1550, 1500, 935,5, 880, 847, 843, 787, 782, 778, 734, 727, 700, 660, 656, 652, 648, 591, 480, 467,8, 428, 343, 339
+Herpes_tipo_2_comp - 8778, 1402, 888, 880, 848, 846, 832, 808, 776, 732, 717, 685, 665, 556, 540, 532, 528, 373, 370, 366, 362
+Herpes_tipo_2A - 532, 848
+Herpes_tipo_2A_secundário - 360, 362, 364, 366, 368, 370, 373, 528, 685, 846, 880, 888, 8778, 540, 665, 716, 717, 718, 731, 732, 733, 776, 1402
+Herpes_tipo_5 (citomegalovírus. 2145*) - 126, 597, 629, 682, 1045, 2145, 8848, 8856
+Herpes_tipo_C - 395, 424, 460, 533, 554, 701, 745, 2450
+Herpes_zoster (catapora, herpes zoster. 664*) - 3343, 2320, 2170, 1600, 1500, 1160, 914, 880, 833, 802, 787, 664, 580, 3,9
+Herpes_zoster_1 (4 min cada frequência) - 10000, 833, 802, 3,9
+Herpes_zoster_secundário - 1550, 802, 1800, 1865, 728, 2720, 2128, 5000, 464, 800, 574, 1557, 304, 20
+Herpes_zoster_v - 7160, 3343, 2431, 2323, 1577, 1544, 40887, 958, 934, 787, 786, 738, 718, 716, 686, 668, 643, 576, 574, 573, 572, 563, 554, 542, 453, 446, 436, 425, 423, 411, 345, 333, 223, 134
+Hérnia de hiato (use kits de estafilococos e estreptococos)
+Soluços - 20, 10000
+Dor no quadril (use também Artrite) - 880, 787, 727, 20
+Hirudo_medicinalis (um remédio homeopático preparado a partir de uma sanguessuga usado para fins terapêuticos) - 128
+Histomonas_meleagridis_HC - 18769,72, 934,49
+Histoplasma - 424, 616, 749
+Histoplasma_capsulatum_HC - 15035,69, 748,58
+HIV (ver também AIDS) - 683, 714, 3554, 830, 450
+HIV_HC - 18172,28, 904,74
+Urticária (use Urticária)
+Rouquidão - 880, 760, 727
+Doença de Hodgkin (use Câncer, Doença de Hodgkin)
+Ancilostomíase (use Parasitas ancilostomíase)
+Hordeolum (use terçol)
+Hormodendrum (um gênero de fungos que inclui patógenos humanos) - 663, 678, 695, 532, 627
+Desequilíbrios hormonais - 5.5
+Ondas de calor (complicações) - 10000, 880, 787, 727
+Foliculite_de_banheira_de_folha (use Pseudomonas freqs )
+Mistura_de_insetos_domésticos - 723, 100
+Human_T_lymphocyte_Virus1 (usado para EM e doenças autoimunes) - 725, 2432, 243, 6353, 732, 844, 646
+Human_T_lymphocyte_Virus2 (usado para síndrome da Guerra do Golfo) - 725, 1230, 245, 314, 965
+Vírus_do_linfócito_T_humano_3 (usado para AIDS) - 633, 1220, 6230, 8225, 111, 392, 776, 837, 1675, 2664, 3806, 714
+Vírus_do_linfócito_T_humano_4 - 444, 2323
+Vírus_do_linfócito_T_humano_5 - 83, 235, 645, 2323, 3432, 4093, 5532
+Vírus_do_linfócito_T_humano_6 - 702, 747, 2245, 183
+Hidrocele (fluido no testículo, etc.) - 880, 787, 727
+Hiperacidez_estômago - 7,82, 20, 230
+Hiperosmia (cheiro e paladar muito agudos) - 20, 10000, 522, 146
+Hiperparatireoidismo - 4,6, 9,5, 9,6
+Hipertensão - 3176, 2112, 20, 95, 324, 528, 15, 9,19, 7,83, 6, 10000, 880, 787, 727, 304
+Hipertensão_renina_induzida (vermelho alto, pressão diastólica alta. Veja também frequências renais) - 9,19, 6
+Hipertensão_espástica - 95
+Hipertireoidismo - 3, 0,5
+Hipocôndrio_abdômen_superior - 20, 10000
+Distúrbios hipofisários (hipófise) - 4
+Hipotensão (pressão arterial baixa) - 20, 727, 787, 880
+Hipotireoidismo - 2, 12, 35, 16000, 10000, 160, 80, 20
+Hipóxia (baixo nível de oxigênio, usar também estase circulatória) - 727, 787, 880, 10000
+Icterícia hemolítica (uma forma crônica de icterícia envolvendo anemia) - 243, 768
+Ileocolite_colon_inflamação (use também Colite se necessário e veja Parasita geral e conjuntos de lombrigas) - 802, 832, 440
+Estabilização do sistema imunológico TR - 330, 10000, 7344, 5000, 1550, 1234, 740, 880, 835, 787, 727, 30
+Estimulação do sistema imunológico - 10000, 5611, 5000, 4014, 3448, 3347, 3176, 2929, 2867, 2855, 2791, 2720, 2489, 2180, 2128, 2008, 1862, 1488, 880, 800, 787, 728, 665, 464, 432, 304, 120, 20, 8
+Estimulação do sistema imunológico 1 - 40,4, 40,5, 40,6, 40,7, 40,8
+Impotência (várias classes. Use também estase circulatória) - 9,39, 2127, 2008, 465, 10000, 880, 802, 787, 727, 690, 666, 125, 95, 73, 72, 20, 650, 625, 600
+Incontinência_1 (usar todas as frequências por 10 min) - 2250, 2050, 2128, 690, 666
+Indigestão (use Dispepsia)
+Paralisia infantil (também use Poliomielite) - 1500, 880, 787, 727, 776, 5000, 10000
+Infecções_geral (ver Antisséptico Geral) - 1550, 880, 802, 786, 728, 465, 444, 125, 95, 72, 48, 20, 304, 1,2, 5500, 676, 422, 766
+Infecções_gerais_secundárias - 5000, 1600, 1500, 832, 776, 760, 700, 690, 666, 650, 625, 600, 1865, 500, 450, 440, 428, 660
+Infecções_gerais_terciárias - 1800, 2720, 2489, 832, 3040, 2008, 1850, 610, 732, 751, 40000
+Infertilidade (ver também Impotência) - 2127, 2008, 465, 880, 802, 787, 727, 690, 666, 650, 625, 600, 9,39
+Inflamação_geral (veja também conjuntos gerais de infecção) - 1.5, 3.6, 2720
+Influencinum_Berlim_55 - 430, 720, 733, 787
+Influencinum_vesic_NW - 332, 364, 519, 588, 590, 238, 239, 715
+Influencinum_vesic_SW - 433, 645, 658, 824
+Influencinum_vesica_general (bolhas) - 203, 292, 588, 612, 975, 407, 682
+Influenza (sofre mutações constantes para novas cepas, mas estas podem ser úteis. Veja também Influenza, Gripe e Vírus da Influenza. Use todas as frequências por 5 min, se necessário) - 7766, 7764, 7762, 7760, 7344, 5000, 3672, 2720, 2050, 2008, 1947, 1674, 1550, 1500, 1234, 885, 880, 875, 800, 786, 728, 683, 512, 464, 440, 304, 20
+Gripe_1_99_00 - 10000, 880, 727, 330, 728
+Influenza_1957_A_Asiática - 768, 574
+Gripe_1978 - 844, 814, 610
+Gripe_1979 - 123, 513, 522, 565, 788, 601
+Gripe_1983 - 424, 730, 734, 428
+Gripe_1989 - 216, 322, 627, 703, 748
+Gripe_1993 - 522, 615, 778, 850, 959
+Influenza_1993_secundária - 207, 254, 580, 582, 584, 586, 588, 848, 947, 7967, 8910, 739, 741, 760, 765, 773, 915
+Gripe_1994 - 689, 697, 699, 798
+Influenza_1994_secundária - 337, 690, 868, 869, 702, 727, 729, 776, 779
+Gripe_1997_1998 - 2008, 880, 787, 727, 35, 20, 465
+Gripe_2_99_00 - 440, 465, 613, 666, 727, 787, 800, 1000, 5000, 10000
+Gripe_2003_2004_1 - 7344, 3672, 1234, 880, 743, 727, 683, 464, 452, 333, 72, 200, 93,9, 2720, 2489, 1800, 1600, 1550, 885, 875, 832, 802, 787, 776, 766, 1500, 832, 787, 650, 625, 600, 465, 144, 582
+Gripe_2003_2004_2 - 8911,25, 9113,5, 9141,5, 9393,13, 6654,69, 7255, 7284,06, 8041,5, 10334,06, 10346,56, 10976,38, 7414,28, 7631,09, 7632,66, 7667,38, 7676,94, 8045,81, 8082,59, 8305,19, 5548,59, 5549,22, 5554,69, 5554,84, 5558,75, 5560,78, 5562,5, 7118,2, 5045,03, 6752,01
+Influenza_2005_outono_TR - 2950, ​​ 322, 476, 468, 589, 664, 785, 822, 895, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748
+Influenza_2005-2006_TR - 2748,8, 5695,9, 2856,7, 2935,4, 4159,2, 4534,4, 2276,3, 2504,5, 3229,4, 6466,6, 1715,1, 4633,9, 4769,4, 1192,6, 599, 2390, 1257,2, 315,7, 5190,7, 1734, 6936,5, 867,9, 434, 217,1, 6951, 4448,9, 6306,3, 4220, 8478, 1216, 1214, 1060, 1010, 935, 778, 777, 465, 457, 445, 433, 425
+Influenza_A_e_B_HC (vacina contra gripe) - 15931,86, 15682,93, 793,20, 780,81
+Dores_de_gripe_e_respiratório (use 7760 e 7766 por 10 min, todos os outros por 5) - 440, 512, 683, 728, 784, 787, 800, 875, 880, 885, 2050, 2720, 5000, 7760, 7766, 304
+Gripe_2003_2004_1 - 7344, 3672, 1234, 880, 743, 727, 683, 464, 452, 333, 72, 200, 93,9, 2720, 2489, 1800, 1600, 1550, 885, 875, 832, 802, 787, 776, 766, 1500, 832, 787, 650, 625, 600, 465, 144, 582
+Gripe_2003_2004_2 - 8911,25, 9113,5, 9141,5, 9393,13, 6654,69, 7255, 7284,06, 8041,5, 10334,06, 10346,56, 10976,38, 7414,28, 7631,09, 7632,66, 7667,38, 7676,94, 8045,81, 8082,59, 8305,19, 5548,59, 5549,22, 5554,69, 5554,84, 5558,75, 5560,78, 5562,5, 7118,2, 5045,03, 6752,01
+Influenza_2005_outono_TR - 2950, ​​ 322, 476, 468, 589, 664, 785, 822, 895, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748
+Influenza_2005-2006_TR - 2748,8, 5695,9, 2856,7, 2935,4, 4159,2, 4534,4, 2276,3, 2504,5, 3229,4, 6466,6, 1715,1, 4633,9, 4769,4, 1192,6, 599, 2390, 1257,2, 315,7, 5190,7, 1734, 6936,5, 867,9, 434, 217,1, 6951, 4448,9, 6306,3, 4220, 8478, 1216, 1214, 1060, 1010, 935, 778, 777, 465, 457, 445, 433, 425
+Influenza_A_e_B_HC (vacina contra gripe) - 15931,86, 15682,93, 793,20, 780,81
+Dores_de_gripe_e_respiratório (use 7760 e 7766 por 10 min, todos os outros por 5) - 440, 512, 683, 728, 784, 787, 800, 875, 880, 885, 2050, 2720, 5000, 7760, 7766, 304
+Gripe_1_99_00 - 10000, 880, 727, 330, 728
+Influenza_1957_A_Asiática - 768, 574
+Gripe_1978 - 844, 814, 610
+Gripe_1979 - 123, 513, 522, 565, 788, 601
+Gripe_1983 - 424, 730, 734, 428
+Gripe_1989 - 216, 322, 627, 703, 748
+Gripe_1993 - 522, 615, 778, 850, 959
+Influenza_1993_secundária - 207, 254, 580, 582, 584, 586, 588, 848, 947, 7967, 8910, 739, 741, 760, 765, 773, 915
+Gripe_1994 - 689, 697, 699, 798
+Influenza_1994_secundária - 337, 690, 868, 869, 702, 727, 729, 776, 779
+Gripe_1997_1998 - 2008, 880, 787, 727, 35, 20, 465
+Gripe_2_99_00 - 440, 465, 613, 666, 727, 787, 800, 1000, 5000, 10000
+Gripe_2003_2004_1 - 7344, 3672, 1234, 880, 743, 727, 683, 464, 452, 333, 72, 200, 93,9, 2720, 2489, 1800, 1600, 1550, 885, 875, 832, 802, 787, 776, 766, 1500, 832, 787, 650, 625, 600, 465, 144, 582
+Gripe_2003_2004_2 - 8911,25, 9113,5, 9141,5, 9393,13, 6654,69, 7255, 7284,06, 8041,5, 10334,06, 10346,56, 10976,38, 7414,28, 7631,09, 7632,66, 7667,38, 7676,94, 8045,81, 8082,59, 8305,19, 5548,59, 5549,22, 5554,69, 5554,84, 5558,75, 5560,78, 5562,5, 7118,2, 5045,03, 6752,01
+Influenza_2005_outono_TR - 2950, ​​ 322, 476, 468, 589, 664, 785, 822, 895, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748
+Influenza_2005-2006_TR - 2748,8, 5695,9, 2856,7, 2935,4, 4159,2, 4534,4, 2276,3, 2504,5, 3229,4, 6466,6, 1715,1, 4633,9, 4769,4, 1192,6, 599, 2390, 1257,2, 315,7, 5190,7, 1734, 6936,5, 867,9, 434, 217,1, 6951, 4448,9, 6306,3, 4220, 8478, 1216, 1214, 1060, 1010, 935, 778, 777, 465, 457, 445, 433, 425
+Influenza_vírus_A - 322, 332, 776
+Vírus da gripe A 1974 - 442
+Vírus da gripe A Port Chalmers - 622, 863
+Vírus da gripe B - 468, 530, 532, 536, 537, 568, 722, 740, 742, 744, 746, 748, 750, 1186, 679
+Vírus da gripe B Hong Kong - 555
+Vírus da gripe britânico - 558, 932
+Vírus da gripe geral - 728, 800, 880, 7760, 8000, 8250
+Vírus da gripe suína - 413, 432, 663, 839, 995
+Gripe_com_febre_v - 954, 889, 841, 787, 763, 753, 742, 523, 513, 482, 469, 461, 425, 341, 332
+Gripe_com_doença_respiratória_1 (inverno de 99 a 00) - 47, 1191, 2398, 2544, 5608, 7760, 7766, 672, 674, 676, 678, 680, 647, 649, 651, 653, 1215, 724, 726, 728, 730, 732, 746, 768, 687
+Influenzum_toxicum - 854
+Injeção_alérgica_reação - 10000
+Insônia (veja também conjunto geral do Parasita) - 3,59, 3, 7,83, 10, 1550, 1500, 880, 802, 6000, 304
+Inteligência_e_clareza_de_pensamento - 20, 10000
+Neuralgia intercostal (dor na musculatura das costelas) - 3000, 1550, 880, 802, 787, 776, 727, 125, 20, 1865, 444
+Interleucina (usada para estimular a produção de linfócitos) - 3448, 2929, 4014, 5611, 2867, 2855, 2791
+Claudicação intermitente - 45, 48
+Problemas intestinais cólon (ver também Colite) - 10, 440, 880, 787, 727
+Problemas intestinais gerais (veja também Conjunto geral de parasitas e Antisséptico geral) - 802
+Intestinos_inflamação (ver também Colite) - 727, 787, 880, 832, 1550, 105, 791
+Iodamoeba_butschlii_HC - 22155.25, 1103.04
+Síndrome do intestino irritável (ver também Conjunto geral de parasitas e Colite) - 6766, 5429, 4334, 2018, 1550, 880, 832, 829, 812, 802, 787, 727, 465, 422, 407, 334, 20
+Coceira (prurido. Tome um banho quente com uma xícara de vinagre de maçã depois. Se for crônico e não houver alívio a longo prazo, use kits de parasitas, incluindo parasitas gerais e parasitas vermes sanguíneos.) - 880, 787, 727, 444, 125, 95, 72, 20, 1865, 3176
+Icterícia (ver também Suporte hepático, vesícula biliar, Leptospirose e Parasitas, conjunto de frequências gerais) - 5000, 1600, 1550, 1500, 880, 802, 650, 625, 600, 444, 1865, 146, 250, 125, 95, 72, 20
+Jock_itch (use Epidermophyton floccinum )
+Inflamação das articulações (veja também conjuntos de artrite) - 10000
+Joint_pain_basic_TR (também conhecido como Pain.Bio , execute 160, 500, 1600, 5000 com pulso 4 60, 1600 500 160 com pulso 2 60, 160 324 528 com pulso 2 60 converge 1 1) - 160, 500, 1600, 5000, 324, 528
+Kaposis_sarcoma (use Cancer_Kaposis_sarcoma )
+Insuficiência renal - 9,2, 10, 40, 440, 1600, 1550, 1500, 880, 802, 650, 625, 600, 444, 1865, 146, 250, 125, 95, 72, 20
+Papiloma renal (crescimento pequeno, geralmente benigno, em um rim) - 110, 148, 264, 634, 767, 848, 917, 760, 762, 1102
+Estimulação_dos_rins_TR (especificado por True Rife como pode ajudar contra infecções comuns na insuficiência renal aguda) - 4412, 2720, 2400, 2112, 1864, 1600, 1550, 1500, 880, 854, 800, 784, 751, 732, 728, 712, 668, 651, 644, 625, 600, 524, 465, 442, 334, 250, 240, 152, 146, 28, 125, 120, 112, 100, 96, 93, 72, 64, 40, 20, 2222, 1153, 1134, 1016, 582, 676, 440
+Pedras nos rins (uso com suplementação de vitaminas, minerais e ervas) - 444, 727, 787, 880, 10000, 6000, 3000, 3,5, 1552
+Tônico_renal_geral - 440, 248, 8, 880, 20, 10000, 800, 5000, 3000
+Kieferosteíte (um tipo de inflamação óssea caracterizada por aumento e dor) - 432, 516, 384
+Klebsiella_pneumoniae (use Pneumoniae klebsiella )
+Dor na articulação do joelho - 1550, 880, 802, 787, 727, 28, 20, 7,69, 3, 1,2, 250, 9,6, 9,39
+L_lisina (estimula) - 195,5, 391, 782, 1564,1, 3128,2, 6256,4
+Lac_deflorat - 230, 371, 232, 2121
+Lactobacillus_acidophilus_HC - 17375,69, 865,08
+Lamblia (use Parasitas, Giardia )
+Tônico_intestino_grosso - 8, 440, 880
+Pólipo laríngeo - 765, 202
+Laringe - 10, 440, 465, 444, 1550, 880, 802, 787, 727, 28, 7,69, 3, 1,2, 250, 9,6, 9,39
+Esclerose lateral (degeneração da medula espinhal levando à paraplegia espástica. Veja também ELA.) - 254
+Laxante_suave - 802
+Legionella (Doença dos legionários, causada por uma bactéria gram-negativa associada à água condensada ou tratada que migra para o tecido pulmonar e estimula manifestações respiratórias graves, febre, dor de cabeça, dor abdominal e pode afetar rins e fígado.) - 723, 724, 897, 975, 8120, 8856, 690, 693
+Leiomioma (use Fibroma)
+Leishman_Donovan (use Parasitas, Leishmania)
+Lepra - 10000, 6000, 743, 600, 252
+Lepra_infecção_secundária - 1600, 1550, 1500, 880, 832, 802, 787, 776, 760, 727, 700, 690, 666, 650, 625, 600, 465, 444, 20, 500, 450, 440, 428, 660
+Leptospira_interrogans_HC - 19865.04, 989.02
+Leptospirose (uma doença bacteriana espiroqueta que se espalha para humanos através da urina animal e pode causar meningite, icterícia, anemia, aborto espontâneo e morte) - 612, 663
+Leucocitogênese_estimulação (ver também Estimulação do sistema imunológico) - 20, 727
+Leucocitozoário_HC - 19914.83, 991.50
+Leucoencefalite (inflamação da substância branca do cérebro, geralmente em bebês e crianças, mas também encontrada em cavalos como resultado de envenenamento por forragem) - 324, 572, 776, 934, 1079, 1111, 1333
+Leucoencefalite_secundária - 338, 783, 932, 1035, 1160, 1630, 712, 713, 715, 1244
+Leucoplasia (manchas brancas nas membranas mucosas, veja também EBV, Papiloma e Câncer, frequências de carcinoma) - 465, 2127, 2008, 727, 690, 666
+Leucose (proliferação de tecidos que formam glóbulos brancos; considerada o estágio fundamental da leucemia. Veja também Leucemia cancerosa, Parasita geral, Conjuntos de parasitas) - 612, 633, 653, 3722, 644
+Líquen_plano_TR - 728, 166, 224, 317, 727, 787, 880, 2189, 7344, 4412, 1550, 1234, 740, 880, 787, 727, 330, 10000, 5000, 30
+Líquen_escleroso_TR - 1600, 500, 160, 324, 528, 7344, 4412, 1550, 1234, 740, 880, 787, 727, 330, 10000, 5000, 30
+Lipoma (tumor benigno e mole de tecido adiposo. Também use suporte para fígado.) - 47, 606, 709
+Listeriose (uma doença grave que causa aborto espontâneo, meningite e endocardite em humanos; conhecida como doença circulante em ruminantes e causa necrose hepática em animais com estômagos únicos. Veja também Strep general e Infecção geral) - 377, 471, 626, 628, 634, 774, 2162, 7867, 714, 724
+Aumento do fígado - 727, 787, 880
+Liver_fluke (Use parasitas, vermes)
+Necrose hepática (use Listeriose, Suporte hepático, Parasitas schistosoma mansoni)
+Fígado_armazena_colesterol_bile - 21,34
+Liver_support (tente também E_coli , Parasites_general e Parasites_flukes_general ) - 33,13, 1552, 802, 751, 331,3
+Tétano (usar tétano)
+Disfunção locomotora_incoordenação (podem ser resultados lentos. Veja também resposta Schumann) - 10000, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20
+Pressão_baixa_sangue (usar hipotensão)
+Luesinum_Syphilinum (use Sífilis)
+Lumbago - 10000, 800, 880, 787, 727, 125, 95, 72, 444, 1865, 9,19, 8,25, 7,69, 300
+Pulmão (geral) - 9, 3672
+Abscesso pulmonar (use Nocardia asteroides)
+Infecção_pulmonar_1 - 10.3, 10.5, 11.8, 11.9, 12.1, 12.4
+Tônico_geral_pulmonar - 318, 307,9, 568
+Bactérias do seio pulmonar - 244, 1466, 597, 1311
+Lupus_general (degeneração localizada da pele por várias doenças; vulgaris é uma forma comum desta doença que é na verdade uma forma rara de tuberculose que se manifesta com desfiguração e destruição da pele e cartilagem do rosto. Use também conjuntos de parasitas para qualquer tipo. Use 633 por 5 min, 2125 e 3612 por 4 min, 2008 e 802 por 8 min) - 3612, 2489, 2125, 2010, 2008, 2006, 942, 802, 800, 798, 702, 633, 632, 442, 386, 243
+Lúpus_geral_secundário - 205, 244, 352, 633, 847, 921, 993, 1333, 1464, 7865, 771
+Lúpus_LES_secundário - 2180, 2128, 2008, 1552, 880, 784, 664, 304, 386, 678, 481
+Luxação (deslocamento de órgãos ou articulações) - 9.1, 110
+Lycogala_HC - 6273,17, 312,32
+Febre_maculosa_de_Lyme_e_das_Montanhas_Rochosas_v - 7989, 1590, 239, 846, 422, 417, 1455, 39975, 40439, 884, 797, 758, 693, 673, 577, 4870, 4880, 578, 128, 579
+Doença de Lyme (também conhecida como borreliose ; febre recorrente em humanos e animais causada por espiroquetas parasitas de carrapatos. Use também Babesia se necessário.) - 6870, 6863, 46866, 46851, 34170, 34112, 4200, 2050, 2016, 1520, 1455, 920, 884, 800, 797, 758, 673, 625, 615, 605, 432, 345, 344, 338, 254
+Doença de Lyme_1 - 864, 495, 485, 490, 495, 500, 505, 625, 610, 615, 620, 625, 630, 690, 790, 785, 790, 795
+Lyme_2 (use 625 por 10 min, 615 por 5 min) - 10000, 6870, 6863, 4200, 2720, 2050, 2016, 1520, 1455, 943, 920, 885, 884, 880, 864, 800, 797, 795, 790, 785, 758, 732, 727, 699, 690, 688, 673, 664, 673, 660, 644, 630, 625, 620, 615, 610, 605, 597, 534, 533, 525, 510, 505, 495, 485, 490, 500, 484, 432, 345, 344, 338, 306, 254, 230, 3
+Doença de Lyme_3 - 27735768, 1380882,58, 68750,10, 3422,87
+Lyme_4 (use 2016 e 625 por 10 min, outros por 5 min) - 2050, 1520, 615, 2016, 625
+Lyme_5 (use 920 por 10 min) - 920
+Doença de Lyme_6 ( borrelia afzellii ) - 387500
+Doença de Lyme_7 ( borrelia burgdorferi ) - 380000
+Lyme_8 ( borrelia garinii ) - 382000
+Ovos de filhotes de Lyme - 640, 8554, 203, 412, 414, 589, 667, 840, 1000, 1072, 1087, 1105
+Doença de Lyme_JB - 27735768
+Doença de Lyme_secundária (254*) - 254, 525, 597, 644, 885, 699
+Doença de Lyme_terciária - 306, 432, 484, 610, 625, 690, 864, 2016, 790
+Lyme_TR_A (Programa A, executado em dias alternados) - 6675, 4879, 2899, 2720, 2016, 1800, 1600, 1550, 1519, 1455, 1433, 885, 880, 863, 828, 802, 786, 776
+Lyme_TR_B (Programa B, executado em dias alternados) - 765, 758, 749, 726, 672, 604, 600, 581, 464, 451, 432, 345, 250, 144, 62
+Placa linfática - 596, 346
+Estase linfática (use 3176 por 10 minutos) - 3176
+Estase linfática secundária (ver também Linfangite) - 6,3, 148, 522, 146, 444, 440, 880, 787, 727, 10000, 2,5, 465, 10
+Suporte linfático - 15.05, 10.36, 3176
+Linfangite (inflamação dos vasos linfáticos de humanos e cavalos, mais comumente causada por estreptococos, mas também por outras bactérias, fungos de levedura e câncer. Veja também Strep General) - 880, 574, 778, 1120, 1078, 3176
+Linfogranuloma (use Câncer, Doença de Hodgkin)
+Linfas_e_desintoxicação - 10000, 3177, 3176, 3175, 880, 787, 751, 727, 676, 635, 625, 522, 465, 444, 440, 304, 148, 146, 15,2, 15,05, 10,36, 10, 7,83, 6,3, 2,5
+Linfático_mover - 100000
+Lyssinum (use Raiva)
+Degeneração macular e acuidade visual (use com frequências de catarata se necessário, 1830*) - 8, 1830, 1832, 1834, 1836, 1838, 1840, 1842, 1844, 1846, 1848, 1850, 1852, 1854, 1856, 1858, 1860
+Degeneração macular_1 - 0,6, 1,1, 1,4, 1,9, 9,9, 10, 21, 23,6, 24, 25,6, 26,7, 32, 34,1, 410
+Magnésio - 480
+Síndrome de má absorção (usar com Parasitas, conjunto geral) - 727, 787, 880, 800, 1552, 3000
+Malária (uma doença infecciosa, originária de áreas tropicais, que é transmitida por uma picada de mosquito e caracterizada por febre, anemia e aumento do baço. Use também absinto annua . Veja também Perniciosia ) - 4, 20, 28, 222, 550, 713, 880, 930, 1032, 1433, 1444, 1445, 455, 743
+Malária_1 - 20, 555
+Malária_2 - 20, 28, 787, 880
+Malária_3 (todas as frequências de 5 a 15 min cada) - 880, 800, 787, 728, 20
+Malária_Falciparum_1 - 1518, 1348, 1473, 1002, 1019
+Malassezia_furfur (causa tinea versicolor. Veja também Fungus general) - 222, 225, 491, 616, 700
+Mamma_fibromatosis (use Mama, cistos fibroides)
+Sarna_folicular - 253, 693
+Mannan - 961, 661
+Marsh_elder - 474
+Mastite (inflamação da mama geralmente causada por infecção bacteriana) - 654, 698
+Mastoidite (inflamação da estrutura óssea da cabeça na região das orelhas abaixo dos olhos) - 287
+Sarampo - 727, 787, 880, 342, 442, 443, 467, 520, 521, 552, 1489, 745, 757, 763, 712
+Sarampo_HC (antígeno) - 18471.00, 919.62
+Sarampo_rubéola (sarampo alemão ou de 3 dias) - 431, 459, 510, 517, 796, 967, 368, 734, 772
+Sarampo_rubéola_secundária - 727, 787, 880
+Vacina_contra_sarampo_rubéola - 429, 459, 832, 926, 505
+Sarampo_rubéola (sarampo de 9 dias) - 342, 467, 520, 784, 787, 962, 1489
+Vacina contra sarampo - 214, 725, 747, 783, 962
+Sarampo_com_vacina (tente para autismo) - 1489, 962, 880, 787, 783, 763, 757, 747, 745, 727, 725, 712, 552, 521, 467, 443, 342, 214
+Medorrhinum ( nosódio homeopático para corrimento uretral. Veja também Vaginose.) - 230, 442, 554, 843, 854, 1700, 1880, 2222, 602
+Ménières_1 - 8,8, 8,9, 9,0
+Ménières_2 - 456,6, 723, 880
+Doença de Ménières (vertigem auditiva associada à surdez e zumbido. Use 5000 por 16 min, 782 por 26 min, outros por 7 min. Use também Antisséptico geral) - 1550, 802, 880, 787, 727, 465, 428, 33, 329, 5000, 1130, 782, 9
+Vírus meningocócico - 720
+Meningioma (um tumor benigno e de crescimento lento das membranas que envolvem o cérebro e a medula espinhal) - 446, 535, 537
+Meningite (inflamação das membranas que envolvem o cérebro e a medula espinhal. Bacteriana: use também Streptococcus pneumoniae , Influenza haemophilus tipo B e veja Listeriose e Leptospirose. Viral: use também Echo, Coxsackie e Polio ) - 5000, 1795, 1422, 1044, 928, 822, 764, 733, 720, 517, 427, 423, 322, 20
+Meningite_secundária - 130, 676, 677, 507
+Meningite_terciária - 1550, 802, 880, 832, 787, 727, 650, 625, 600, 465, 444, 1865, 125, 95, 72, 20, 428, 660
+Sintomas da menopausa TR - 880, 787, 727, 5,5
+Problemas menstruais (ducha com água pura primeiro) - 880, 1550, 802, 787, 727, 465, 20
+Concentração_mental - 10000, 7,82
+Transtornos mentais (ajuda geral; especialmente se toxinas forem a causa. Use também suplemento mineral) - 522, 146, 10000, 125, 95, 72, 20, 4,9, 428, 550, 802, 7,83
+Mercúrio_toxicidade_v - 47, 48, 49, 75
+Toxicidade do metotrexato - 584
+Microsporum_audouini (um fungo que comumente causa micose no couro cabeludo e outras áreas) - 422, 831, 1222, 285
+Microsporum_canis (um fungo que causa micose em gatos, cães e crianças) - 347, 970, 1644, 402, 650
+Enxaqueca (também use Parasitas strongyloides e conjuntos gerais) - 10
+Mofo (ver também tipos específicos) - 222, 242, 523, 565, 592, 623, 745, 933, 1130, 1155, 1333, 1833, 4442
+Mold_and_fungus_general_v (veja também tipos específicos) - 4442, 2411, 1833, 1823, 1333, 1155, 1130, 1016, 942, 933, 886, 880, 866, 784, 774, 766, 745, 743, 728, 623, 623, 594, 592, 565, 555, 524, 512, 464, 414, 374, 344, 337, 321, 254, 242, 222, 158, 132
+Mols - 20, 120, 177, 600, 625, 626, 650, 659, 660, 728, 784, 880, 464
+Moles_1 (use 761,7 por 15 min, outros por 10 min) - 761,7, 650, 625, 600, 76,2
+Mononucleose (use o vírus Epstein Barr)
+Monotospora_languinosa (remédio homeopático para alérgeno fúngico) - 788
+Morbilino - 467, 520, 1489
+Morbus_Parkinson (usar doença de Parkinson)
+Morgan ( bact ) - 778, 784, 787, 788, 988, 726
+Doença de Morgellons TR - 5858,25, 5856,375, 4271,25, 4264, 330, 10000, 7344, 5000, 1550, 1234, 740, 880, 835, 787, 727, 160, 500, 1600, 5611, 4014, 3448, 3347, 3176, 2929, 2867, 2855, 2791, 2720, 2489, 2180, 1862, 1488, 880, 800, 787, 728, 665, 464, 432, 304, 120, 30, 20, 8, 920, 2016, 625
+Enjoo (ver também náusea) - 10000, 5000, 648, 624, 600, 465, 440, 648, 444, 1865, 522, 190, 146, 125, 95, 72, 20
+Erupções_bocais_herpes (use Herpes e Herpes Simplex I)
+Erupções na boca_manchas_brancas (use leucoplasia )
+Mucocutan_perniciose - 833, 667, 756
+Mucor_mucedo (causa podridão em frutas e produtos assados ​​ e às vezes é encontrado em pés e pele) - 612, 1000, 488, 766, 9788, 735
+Mucor_plumbeus - 361, 578, 785, 877
+Mucor_racemosis (cresce em vegetação em decomposição e pão e pode causar infecção de ouvido) - 310, 474, 875
+Mucor_racemose_secundária - 473, 686, 871, 873, 876, 878, 887, 7768, 7976, 8788, 713, 729, 731, 751, 760, 778, 1200
+Mucormicose (use Zigomicose)
+Inflamação_da_membrana_mucosa_geral - 380
+Mucoviscidose (use Fibrose cística)
+Esclerose_múltipla_1 (use 5000 por 30min) - 5000, 4992, 23570,5, 3767, 3056,9, 2720, 2466,9, 2252,8, 2213, 2189, 2088,59, 1883, 1875, 1550, 1331, 880, 854, 840, 802, 787, 784, 728, 690, 660, 624, 620, 524, 470, 464, 430, 421, 317, 304,6, 275, 253, 241,68, 235, 224, 218, 166, 143, 80,9, 20
+Esclerose_múltipla_2 - 5000, 23570,5, 3056,9, 2466,9, 2252,8, 2088,59, 880, 787, 728, 690, 660, 304,6, 241,68, 80,9, 20
+Esclerose_múltipla_3 - 2253, 2467, 2357, 2358, 242, 305, 2089, 3057, 81, 5000, 1550, 802, 880, 787, 728, 690, 660, 20
+Esclerose_múltipla_4 - 3040, 5000, 2720, 10000, 470, 120, 240, 300, 328, 728, 880, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 20
+Esclerose_múltipla_5 (use 5000 por 30 min) - 5000, 728, 166, 224, 317, 727, 787, 880, 218
+Esclerose_múltipla_6 (use 5000 por 10 min) - 10000, 6000, 5000, 3176, 2489, 3057, 2008, 2358, 1488, 2467, 3040, 880, 787, 800, 728, 665, 464, 242, 224, 304, 166, 120, 20
+Esclerose_múltipla_cérebro - 0,3, 140, 158, 166, 169, 190, 199
+Esclerose_múltipla_infecção_cerebral - 2.6, 2.8, 5.1, 6.7, 7.2, 7.5, 11.3
+Reparo da bainha de mielina da esclerose múltipla - 4,4, 8, 9,4, 9,5, 9,8, 12,6, 13,3, 14,2, 14,4, 14,8, 225, 259, 280
+Esclerose_múltipla_secundária - 20, 143, 275, 430, 470, 524, 620, 624, 802, 840, 854, 1550, 2213, 5000, 728, 784, 880, 464
+Esclerose_múltipla_pernas_rígidas - 315,77
+Tremor ou contração muscular na esclerose múltipla - 470
+Esclerose_múltipla_v ( aspertame , mercúrio, benzeno, chumbo e tolueno podem causar os mesmos sintomas. Use também Clamídia Geral e Herpes tipo 6 e veja os conjuntos ALS, Herpes geral, Blastocystis hominus , Parasitas flukes , Shigella , Nocardia e Herpes zoster) - 2145, 938, 862, 841, 741, 739, 682, 660, 572, 532, 520, 477, 442, 433, 344, 343, 342, 338, 324, 322, 253, 242, 112
+Caxumba (inflamação viral aguda das glândulas salivares. Veja também Coxsackie ) - 152, 242, 642, 674, 922
+Mumps_HC (antígeno) - 19018,66, 946,88
+Caxumba_secundária - 190, 235, 516, 1243, 1660, 2630, 3142, 9667, 729, 741, 759, 761, 1170
+Caxumba_terciária - 10000, 727, 2720, 2489, 2127, 2008, 428, 880, 787, 727, 20
+Vacina contra caxumba - 273, 551, 711, 730, 1419
+Tônico muscular - 20, 120, 240, 300, 304, 324, 328, 728, 880, 5000, 10000
+Músculos_para_relaxar - 965, 20, 120, 240, 760, 6.8, 6000, 304
+Distrofia muscular (distúrbio caracterizado por fraqueza e atrofia progressiva dos músculos esqueléticos, apesar de não haver atrofia concomitante do tecido nervoso. Aspartame, mercúrio, benzeno, chumbo e tolueno podem causar os mesmos sintomas. Use também Parasitas flukes e veja Parasitas gerais, ELA, conjuntos de EM) - 153, 522, 146, 880, 787, 727
+Dor_e_lesão_muscular (veja também Dor e Antisséptico geral) - 2720, 6000, 324, 320, 250, 240, 160, 125, 80, 40, 20, 10, 5,8, 2,5, 1,5, 1,2, 1, 0,5
+Mycobacterium_phlei_HC - 20412,70, 1016,29
+Mycobacterium_tuberculosis_HC (causa tuberculose) - 21508.01, 1070.82
+Mycogone_fungoides - 488, 532, 662, 764, 852, 1444
+Mycogone_fungoides_secundário - 328, 367, 490, 491, 495, 496, 628, 678, 761, 766, 768, 1055, 1074, 9979, 709, 714, 729, 746, 757
+Mycogone_spp (preparação homeopática alergênica à base de fungo) - 371, 446, 1123, 748
+Mycoplasma_fermentans (pode ser um fator na ELA, fadiga crônica, Alzheimer, Parkinson e EM) - 2900, 878,2, 880,2, 864, 790, 706,7, 690, 610, 484, 986, 644, 254
+Mycoplasma_general (pode ser útil para problemas de pulmão, sinusite e outros que não respondem a outras frequências) - 7344, 2950, ​​ 2900, 2842, 1147, 1113, 1067, 1062, 1045, 969,9, 880,2, 878,2, 865, 829,3, 800,4, 790, 783,6, 779,9, 706,7, 690,7, 686,6, 684,1, 679,2, 673,9, 664, 644, 610, 484, 254
+Micoplasma_HC - 16106,12, 17226,33, 801,88, 857,65
+Pneumonia por micoplasma - 688, 975, 777, 2688, 660, 709,2, 2838,5
+Micoplasma_pulmonis - 2404,2, 601, 300,5, 150,3, 75,1
+Mycoplasma_salivarium_1 (execute cada um por 18 min após a construção) - 253, 279, 420, 453, 761, 832
+Micose fungoide (uma forma de câncer de pele semelhante ao eczema) - 532, 662, 678, 852, 1444
+Myocardite_narbe ( narbe significa cicatriz) - 279, 761
+Myocardite_necrose (remédio homeopático de células cardíacas que morreram como resultado de fluxo sanguíneo inadequado para elas. Veja também Estase circulatória) - 706, 789
+Mioma (tumor benigno no útero) - 253, 420, 453, 832
+Miosite (envolve fraqueza muscular progressiva) - 120, 122, 125, 129, 1124, 1169, 762
+Mixossoma_HC - 20611,85, 1026,20
+Naegleria_fowleri_HC - 18022.92, 897.31
+Nanobacter ( Nanobacterium sanguineum , uma nanobactéria que pode ser encontrada em alguns depósitos de cálcio nas artérias, rins, vesícula biliar, músculos e articulações, bem como em maior número em pessoas com doenças "autoimunes", como lúpus, psoríase, esclerodermia e distúrbios semelhantes) - 634, 317, 1268, 1902
+Nanobactérias_2 - 6771,59, 6772,13, 6749, 6773,44, 6772,29, 6725,50, 5965,19, 5198,33, 5543,65, 5631,24, 9916,73, 8798,81, 8661,95, 4628,34, 4128,50, 2931,45, 2208,53, 2100,67
+Nanobactérias_3 - 13543,18, 13543,89, 13544,26, 13544,49, 13546,48, 13546,88, 13544,59, 13545,21, 13546,95, 11930,39, 10396,66, 9916,73, 8798,81, 8661,95, 4628,34, 4128,50, 2931,45, 2208,53, 2100,67
+Nanobacteria_sanguineum_TR - 7635,45, 6653,86, 6346,71, 5631,24, 5543,65, 2962,14, 2642,24, 1876,13, 1413,46, 1344,43, 1902, 317
+Infecção nasal (use Sinusite e/ou Rinite)
+Pólipo nasal (crescimento benigno dentro da passagem nasal) - 542, 1436
+Náuseas e cólicas - 72, 95, 190, 880, 832, 787, 727, 20, 4,9
+Nematoides (Use Parasitas, nematoides)
+Neoplasias (Use câncer)
+Nefrite (doença inflamatória renal. Também trate pedras e cristais suplementarmente, ou nefrose doença renal não inflamatória) - 1550, 274, 423, 636, 688, 880, 787, 727, 10, 20, 10000, 40, 73, 465, 3000
+Distúrbios nervosos e neuropatia - 10000, 3176, 2720, 2489, 2170, 2112, 1800, 1600, 1550, 880, 802, 787, 727, 660, 650, 625, 600, 440, 125, 95, 72, 20, 7,83, 3
+Nervos_cura - 200, 10, 7,64
+Nervosismo_Prozac_agitação (acatisia. Veja também Relaxamento) - 3, 7,83
+Neuralgia (um distúrbio doloroso do sistema nervoso) - 833, 3,9, 10000
+Neuralgia_intercostal - 802
+Neuralgia_trigeminal - 880
+Neurose - 28
+Neurospora_sitophila - 705, 878
+Nigrospora_spp - 302, 350, 764
+Nocardia_asteroides (o microrganismo causador da Nocardiose , uma doença pulmonar infecciosa caracterizada por abscessos nos pulmões. Veja também Streptothrix .) - 228, 231, 237, 694, 719, 747, 887, 2890
+Nocardia_asteroides_HC (encontrado na doença de Parkinson) - 17679,39, 880,20
+Frequências Nogier - 1,14, 2,28, 4,56, 9,125, 18,25, 36,5, 73, 146, 292, 584, 1168, 2336, 4672
+Nose_infection_congestion (use Sinusite e Rinite)
+Dormência (ver também Estase circulatória) - 10000, 2720, 2489, 2170, 1800, 1600, 1550, 802, 880, 787, 727, 650, 625, 600, 440, 660
+Carvão de aveia - 806
+Oligodena - 853
+Oospora - 9599, 5346
+Lesões orais (casos crônicos sempre retornarão até que o trabalho odontológico de metal seja substituído por porcelana sem urânio. Veja também herpes simplex I e use Estomatite) - 2720, 2489, 2008, 1800, 1600, 1550, 802, 880, 787, 727, 465, 444, 522, 146
+Orquite (inflamação dos testículos devido à tuberculose, caxumba, gonorreia, câncer, bactérias, etc. Veja também a condição causadora, se conhecida) - 2720, 2489, 2170, 2127, 2008, 1800, 1600, 1550, 802, 1500, 880, 832, 787, 776, 727, 690, 666, 650, 625, 600, 125, 95, 72, 20, 9
+Orquite_secundária - 727, 787, 880, 10000
+Ornitose (Psitacose ou Febre do Papagaio; uma pneumonia infecciosa transmitida por certas aves) - 233, 331, 332, 583, 859, 1217
+Osteíte (inflamação óssea) - 770
+Osteoartrite (use também Artrite) - 962, 1500, 770
+Osteoíte - 2,65
+Osteomielite - 2720, 2489, 2170, 2127, 2008, 1800, 1600, 1550, 802, 1500, 880, 832, 787, 776, 727, 690, 666
+Osteomieloesclerose (substituição da medula óssea por osso em resposta a infecção de baixo grau) - 79, 330
+Osteosinusite_max - 243, 327
+Ostite - 770, 743, 736, 724
+Otite externa (infecção do ouvido externo. Veja também *Pseudomonas aeruginosa*) - 727, 787, 880, 174, 482, 5311
+Otite média (inchaço do ouvido médio e/ou infecção e febre. Use também pneumonia estreptocócica se não houver benefícios imediatos. Use 880, 720 e 1550 por 10 min, outros por 5 min) - 683, 688, 776, 766, 316, 784, 786, 125, 802, 72, 522, 440, 880, 720, 1550
+Otosclerose - 9.19
+Cisto ovariano - 567, 982, 711
+Distúrbios ovarianos gerais - 2720, 2489, 2170, 2127, 2008, 1800, 1600, 1550, 1500, 982, 880, 832, 802, 787, 776, 727, 711, 690, 666, 650, 625, 600, 567, 465, 444, 26, 20
+Estimulação_de_eliminação_ovárica - 20, 800, 1550
+Óvulo - 752
+Bílis de boi (o remédio homeopático derivado dela) - 672
+Ozaena - 184, 222, 439
+Dor_aguda - 3000, 95, 10000, 1550, 802, 880, 787, 727, 690, 666
+Dor_geral (Veja também o nome da condição que causa a dor) - 3000, 2720, 95, 666, 80, 40
+Dor_do_câncer - 3000, 95, 2127, 2008, 727, 690, 666
+Dor_de_infecção - 3000, 95, 880, 1550, 802, 787, 776, 727, 4.9
+Alívio da dor - 304, 6000, 3000, 666, 80
+Paralisia_geral - 10000
+Pâncreas - 440, 464, 600, 624, 648, 1552, 727, 787, 880
+Insuficiência pancreática - 20, 250, 650, 625, 600, 465, 444, 26, 2720, 2489, 2170, 2127, 2008, 1800, 1600, 1550, 802, 1500, 880, 832, 787, 776, 727, 690, 666, 20
+Papiloma_rim (crescimento pequeno, geralmente benigno, em um rim) - 110, 148, 264, 634, 767, 848, 917, 760, 762, 1102
+Papilomavírus (causa verrugas e tumores benignos com uma ramificação ou haste e, em alguns casos, manchas brancas conhecidas como leucoplasia, 874*, 907*) - 67265, 64734, 16970, 9609, 9258, 5657, 1051, 1011, 907, 874, 767, 489, 466, 404, 265, 110, 45
+Papiloma_vírus_cervix_HC (esfregaço) - 20128.91, 1002.16
+Papiloma_vírus_verruga_plantar_HC - 20163.76, 1003.88
+Papiloma_vírus_verruga_HC - 20263.34, 1008.85
+Paraceli - 232
+Paradontose - 424, 1552
+Paralisia_não espástica - 10000, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20, 9,19, 8,25
+Paralisia_espástica - 10000, 880, 787, 776, 727, 650, 625, 600, 444, 1865, 125, 95, 72, 20, 7,69
+
+</script>
+</body>
+</html>
