@@ -3657,5 +3657,522 @@
                 const startIndex = (currentPage - 1) * itemsPerPage;
                 const endIndex = startIndex + itemsPerPage;
                 const pageFrequencies = filteredFrequencies.slice(startIndex, endIndex);
+
+               --------------------------
+
+                // Renderizar cada frequência
+                pageFrequencies.forEach(freq => {
+                    const card = document.createElement('div');
+                    card.className = 'frequency-card bg-gray-700 rounded-lg p-4 border border-gray-600';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="text-lg font-semibold">${freq.name}</h3>
+                                <div class="text-2xl font-bold text-blue-400">${freq.value} Hz</div>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="category-badge bg-blue-600">${getCategoryName(freq.category)}</span>
+                                ${getEvidenceBadge(freq.scientificEvidence[0]?.reliability)}
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-3">${freq.description}</p>
+                        <div class="flex justify-between items-center">
+                            <button class="select-frequency-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition">
+                                Selecionar
+                            </button>
+                            <button class="details-btn bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-sm transition">
+                                Detalhes
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Adicionar evento ao botão de selecionar
+                    card.querySelector('.select-frequency-btn').addEventListener('click', function() {
+                        document.getElementById('frequency').value = freq.value;
+                        updateCurrentFrequency(freq.value);
+                        
+                        // Adicionar ao histórico
+                        addToHistory({
+                            frequency: freq.value,
+                            name: freq.name
+                        });
+                    });
+                    
+                    // Adicionar evento ao botão de detalhes
+                    card.querySelector('.details-btn').addEventListener('click', function() {
+                        showFrequencyDetails(freq);
+                    });
+                    
+                    grid.appendChild(card);
+                });
                 
+                // Atualizar paginação
+                updatePagination();
+            }
+            
+            // Função para obter o badge de evidência
+            function getEvidenceBadge(reliability) {
+                if (!reliability) return '';
+                
+                const badges = {
+                    'high': '<span class="evidence-badge evidence-high">Alta</span>',
+                    'medium': '<span class="evidence-badge evidence-medium">Média</span>',
+                    'low': '<span class="evidence-badge evidence-low">Baixa</span>'
+                };
+                
+                return badges[reliability] || '';
+            }
+            
+            // Função para atualizar a paginação
+            function updatePagination() {
+                const totalPages = Math.ceil(filteredFrequencies.length / itemsPerPage);
+                
+                document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+                
+                document.getElementById('prevPageBtn').disabled = currentPage === 1;
+                document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+            }
+            
+            // Função para aplicar filtros
+            function applyFilters() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                const evidenceFilter = document.getElementById('evidenceFilter').value;
+                const effectivenessFilter = document.getElementById('effectivenessFilter').value;
+                const minFreq = parseInt(document.getElementById('minFreqRange').value);
+                const maxFreq = parseInt(document.getElementById('maxFreqRange').value);
+                
+                // Filtrar as frequências
+                filteredFrequencies = frequenciesData.filter(freq => {
+                    // Filtro de busca
+                    if (searchTerm && !freq.name.toLowerCase().includes(searchTerm) && 
+                        !freq.description.toLowerCase().includes(searchTerm) &&
+                        !freq.mechanism.toLowerCase().includes(searchTerm)) {
+                        return false;
+                    }
+                    
+                    // Filtro de categoria
+                    if (categoryFilter && freq.category !== categoryFilter) {
+                        return false;
+                    }
+                    
+                    // Filtro de evidência
+                    if (evidenceFilter && freq.scientificEvidence[0]?.reliability !== evidenceFilter) {
+                        return false;
+                    }
+                    
+                    // Filtro de eficácia
+                    if (effectivenessFilter && freq.statistics.successRate < parseInt(effectivenessFilter)) {
+                        return false;
+                    }
+                    
+                    // Filtro de faixa de frequência
+                    if (freq.value < minFreq || freq.value > maxFreq) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                // Resetar para a primeira página
+                currentPage = 1;
+                
+                // Renderizar as frequências filtradas
+                renderFrequencies();
+            }
+            
+            // Função para resetar filtros
+            function resetFilters() {
+                // Resetar os campos de filtro
+                document.getElementById('searchInput').value = '';
+                document.getElementById('categoryFilter').value = '';
+                document.getElementById('evidenceFilter').value = '';
+                document.getElementById('effectivenessFilter').value = '';
+                document.getElementById('minFreqRange').value = 20;
+                document.getElementById('maxFreqRange').value = 20000;
+                document.getElementById('minFreqValue').textContent = '20';
+                document.getElementById('maxFreqValue').textContent = '20000';
+                
+                // Resetar as frequências filtradas
+                filteredFrequencies = [...frequenciesData];
+                
+                // Resetar para a primeira página
+                currentPage = 1;
+                
+                // Renderizar as frequências
+                renderFrequencies();
+            }
+            
+            // Função para mostrar favoritos
+            function showFavorites() {
+                // Obter favoritos do localStorage
+                const favorites = JSON.parse(localStorage.getItem('favoriteFrequencies') || '[]');
+                
+                // Filtrar as frequências para mostrar apenas os favoritos
+                filteredFrequencies = frequenciesData.filter(freq => 
+                    favorites.includes(freq.id)
+                );
+                
+                // Resetar para a primeira página
+                currentPage = 1;
+                
+                // Renderizar as frequências
+                renderFrequencies();
+            }
+            
+            // Função para mostrar detalhes da frequência
+            function showFrequencyDetails(freq) {
+                const modal = document.getElementById('detailModal');
+                
+                // Preencher os dados do modal
+                document.getElementById('detailTitle').textContent = freq.name;
+                document.getElementById('detailSubtitle').textContent = `${freq.value} Hz`;
+                
+                // Preencher a aba de visão geral
+                document.getElementById('detailOverview').innerHTML = `
+                    <p><strong>Categoria:</strong> ${getCategoryName(freq.category)}</p>
+                    <p><strong>Subcategoria:</strong> ${freq.subcategory}</p>
+                    <p><strong>Descrição:</strong> ${freq.description}</p>
+                    <p><strong>Uso Tradicional:</strong> ${freq.traditionalUse}</p>
+                `;
+                
+                document.getElementById('detailMechanism').innerHTML = `<p>${freq.mechanism}</p>`;
+                
+                document.getElementById('detailSynergies').innerHTML = `
+                    <div class="flex flex-wrap gap-2">
+                        ${freq.synergies.map(s => `<span class="synergy-tag">${s}</span>`).join('')}
+                    </div>
+                `;
+                
+                // Preencher a aba de ciência
+                document.getElementById('detailEvidence').innerHTML = freq.scientificEvidence.map(evidence => `
+                    <div class="evidence-item">
+                        <div class="evidence-study">${evidence.study} (${evidence.year})</div>
+                        <div class="evidence-description">${evidence.description}</div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('detailResearchStatus').innerHTML = `<p>${freq.researchStatus}</p>`;
+                
+                // Preencher a aba de protocolos
+                document.getElementById('detailProtocols').innerHTML = freq.protocols.map(protocol => `
+                    <div class="protocol-item">
+                        <div class="protocol-name">${protocol.name}</div>
+                        <div class="protocol-details">
+                            <span><i class="fas fa-clock mr-1"></i> ${protocol.duration}</span>
+                        </div>
+                        <div class="mt-2">${protocol.instructions}</div>
+                    </div>
+                `).join('');
+                
+                // Preencher a aba de segurança
+                document.getElementById('detailSafety').innerHTML = `
+                    <div class="mb-3">
+                        <h4 class="font-medium text-red-400 mb-2">Contraindicações:</h4>
+                        <ul class="space-y-1">
+                            ${freq.safety.contraindications.map(c => `
+                                <li class="safety-item">
+                                    <i class="fas fa-exclamation-triangle safety-icon"></i>
+                                    <span>${c}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-yellow-400 mb-2">Efeitos Colaterais:</h4>
+                        <ul class="space-y-1">
+                            ${freq.safety.sideEffects.map(s => `
+                                <li class="safety-item">
+                                    <i class="fas fa-info-circle safety-icon"></i>
+                                    <span>${s}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                // Preencher a aba de estatísticas
+                document.getElementById('detailStatistics').innerHTML = `
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="bg-gray-800 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-blue-400">${freq.statistics.uses.toLocaleString()}</div>
+                            <div class="text-sm text-gray-400">Usos</div>
+                        </div>
+                        <div class="bg-gray-800 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-green-400">${freq.statistics.successRate}%</div>
+                            <div class="text-sm text-gray-400">Taxa de Sucesso</div>
+                        </div>
+                        <div class="bg-gray-800 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-yellow-400">${freq.statistics.userRating}/5</div>
+                            <div class="text-sm text-gray-400">Avaliação</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <div class="w-full bg-gray-700 rounded-full h-2.5 mr-2">
+                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: ${freq.statistics.userRating * 20}%"></div>
+                            </div>
+                            <span class="text-sm">${freq.statistics.userRating}/5</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Mostrar o modal
+                modal.style.display = 'flex';
+                
+                // Adicionar evento para fechar o modal
+                document.getElementById('closeDetailModal').onclick = function() {
+                    modal.style.display = 'none';
+                };
+                
+                // Adicionar evento para as abas
+                document.querySelectorAll('.detail-tab').forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        // Remover classe ativa de todas as abas
+                        document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+                        
+                        // Adicionar classe ativa à aba clicada
+                        this.classList.add('active');
+                        
+                        // Esconder todos os conteúdos de aba
+                        document.querySelectorAll('.detail-tab-content').forEach(content => {
+                            content.classList.remove('active');
+                        });
+                        
+                        // Mostrar o conteúdo da aba selecionada
+                        document.getElementById(`${this.dataset.tab}Tab`).classList.add('active');
+                    });
+                });
+            }
+            
+            // Adicionar evento ao botão de favoritos
+            document.getElementById('favoriteBtn').addEventListener('click', function() {
+                // Obter a frequência atual
+                const currentFreqValue = parseFloat(document.getElementById('frequency').value);
+                const currentFreq = frequenciesData.find(f => f.value === currentFreqValue);
+                
+                if (currentFreq) {
+                    // Obter favoritos do localStorage
+                    let favorites = JSON.parse(localStorage.getItem('favoriteFrequencies') || '[]');
+                    
+                    // Verificar se já é favorito
+                    const index = favorites.indexOf(currentFreq.id);
+                    
+                    if (index === -1) {
+                        // Adicionar aos favoritos
+                        favorites.push(currentFreq.id);
+                        this.innerHTML = '<i class="fas fa-star mr-2"></i>Remover dos Favoritos';
+                        this.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                        this.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                    } else {
+                        // Remover dos favoritos
+                        favorites.splice(index, 1);
+                        this.innerHTML = '<i class="far fa-star mr-2"></i>Adicionar aos Favoritos';
+                        this.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+                        this.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                    }
+                    
+                    // Salvar no localStorage
+                    localStorage.setItem('favoriteFrequencies', JSON.stringify(favorites));
+                }
+            });
+            
+            // Adicionar evento ao botão voltar ao topo
+            const topBtn = document.getElementById('topBtn');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    topBtn.classList.add('show');
+                } else {
+                    topBtn.classList.remove('show');
+                }
+            });
+            
+            topBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Função para iniciar protocolos
+            window.startProtocol = function(protocolType) {
+                // Definir os passos do protocolo com base no tipo
+                let protocolSteps = [];
+                let protocolName = '';
+                
+                switch (protocolType) {
+                    case 'geral':
+                        protocolName = 'Protocolo Geral';
+                        protocolSteps = [
+                            { frequency: 20, waveType: 'square', duration: 5, name: 'Fase 1' },
+                            { frequency: 72, waveType: 'square', duration: 7, name: 'Fase 2' },
+                            { frequency: 120, waveType: 'square', duration: 5, name: 'Fase 3' },
+                            { frequency: 432, waveType: 'sine', duration: 3, name: 'Fase 4' }
+                        ];
+                        break;
+                    case 'intestinal':
+                        protocolName = 'Protocolo Intestinal';
+                        protocolSteps = [
+                            { frequency: 432, waveType: 'sine', duration: 2, name: 'Preparo' },
+                            { frequency: 120, waveType: 'square', duration: 10, name: 'Tratamento' },
+                            { frequency: 440, waveType: 'square', duration: 5, name: 'Reforço' },
+                            { frequency: 528, waveType: 'sine', duration: 3, name: 'Finalização' }
+                        ];
+                        break;
+                    case 'sistemico':
+                        protocolName = 'Protocolo Sistêmico';
+                        protocolSteps = [
+                            { frequency: 1865, waveType: 'square', duration: 15, name: 'Dia 1: Giárdia' },
+                            { frequency: 800, waveType: 'square', duration: 15, name: 'Dia 2: Ancilostomídeos' },
+                            { frequency: 2127, waveType: 'square', duration: 15, name: 'Dia 3' },
+                            { frequency: 0, waveType: 'sine', duration: 0, name: 'Descanso' }
+                        ];
+                        break;
+                    case 'energia':
+                        protocolName = 'Protocolo de Energia';
+                        protocolSteps = [
+                            { frequency: 25, waveType: 'sawtooth', duration: 8, name: 'Ativação' },
+                            { frequency: 50, waveType: 'sine', duration: 10, name: 'Amplificação' },
+                            { frequency: 100, waveType: 'sawtooth', duration: 7, name: 'Estabilização' },
+                            { frequency: 432, waveType: 'sine', duration: 5, name: 'Integração' }
+                        ];
+                        break;
+                    case 'foco':
+                        protocolName = 'Protocolo de Foco';
+                        protocolSteps = [
+                            { frequency: 15, waveType: 'sine', duration: 5, name: 'Preparação' },
+                            { frequency: 40, waveType: 'sine', duration: 12, name: 'Concentração' },
+                            { frequency: 50, waveType: 'sine', duration: 8, name: 'Manutenção' },
+                            { frequency: 852, waveType: 'sine', duration: 5, name: 'Integração' }
+                        ];
+                        break;
+                    case 'desinflamacao':
+                        protocolName = 'Desinflamação Intestinal';
+                        protocolSteps = [
+                            { frequency: 285, waveType: 'sine', duration: 8, name: 'Calma' },
+                            { frequency: 432, waveType: 'sine', duration: 12, name: 'Tratamento' },
+                            { frequency: 7.83, waveType: 'sine', duration: 10, name: 'Equilíbrio' },
+                            { frequency: 639, waveType: 'sine', duration: 7, name: 'Harmonização' }
+                        ];
+                        break;
+                    case 'harmonia':
+                        protocolName = 'Protocolo de Harmonia';
+                        protocolSteps = [
+                            { frequency: 136.1, waveType: 'sine', duration: 8, name: 'Centramento' },
+                            { frequency: 639, waveType: 'sine', duration: 10, name: 'Conexão' },
+                            { frequency: 852, waveType: 'sine', duration: 8, name: 'Expansão' },
+                            { frequency: 963, waveType: 'sine', duration: 7, name: 'Integração' }
+                        ];
+                        break;
+                }
+                
+                // Mostrar os controles do protocolo
+                const protocolControls = document.getElementById('protocolControls');
+                protocolControls.classList.remove('hidden');
+                
+                // Configurar o nome do protocolo
+                document.getElementById('protocolName').textContent = protocolName;
+                
+                // Configurar os indicadores de passo
+                const stepIndicators = document.getElementById('stepIndicators');
+                stepIndicators.innerHTML = '';
+                
+                protocolSteps.forEach((step, index) => {
+                    const indicator = document.createElement('button');
+                    indicator.className = `px-3 py-1 rounded-full text-sm ${index === 0 ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'}`;
+                    indicator.textContent = index + 1;
+                    indicator.dataset.step = index;
+                    
+                    indicator.addEventListener('click', function() {
+                        goToStep(parseInt(this.dataset.step));
+                    });
+                    
+                    stepIndicators.appendChild(indicator);
+                });
+                
+                // Configurar o passo atual
+                let currentStep = 0;
+                
+                // Função para ir para um passo específico
+                function goToStep(step) {
+                    // Validar o passo
+                    if (step < 0 || step >= protocolSteps.length) return;
+                    
+                    // Atualizar o passo atual
+                    currentStep = step;
+                    
+                    // Atualizar os indicadores
+                    document.querySelectorAll('#stepIndicators button').forEach((btn, index) => {
+                        if (index === currentStep) {
+                            btn.className = 'px-3 py-1 rounded-full text-sm bg-purple-600 text-white';
+                        } else {
+                            btn.className = 'px-3 py-1 rounded-full text-sm bg-gray-700 text-gray-300';
+                        }
+                    });
+                    
+                    // Atualizar o nome do passo
+                    document.getElementById('currentStepName').textContent = protocolSteps[currentStep].name;
+                    
+                    // Atualizar o progresso
+                    updateProtocolProgress();
+                    
+                    // Se o passo tiver frequência, configurá-la
+                    if (protocolSteps[currentStep].frequency > 0) {
+                        document.getElementById('frequency').value = protocolSteps[currentStep].frequency;
+                        updateCurrentFrequency(protocolSteps[currentStep].frequency);
+                        
+                        // Configurar o tipo de onda
+                        waveType = protocolSteps[currentStep].waveType;
+                        
+                        // Atualizar os botões de tipo de onda
+                        document.querySelectorAll('.wave-type-btn').forEach(btn => {
+                            btn.classList.remove('bg-blue-600');
+                            btn.classList.add('bg-gray-700');
+                            
+                            if (btn.dataset.wave === waveType) {
+                                btn.classList.remove('bg-gray-700');
+                                btn.classList.add('bg-blue-600');
+                            }
+                        });
+                        
+                        // Atualizar a recomendação de onda
+                        updateWaveRecommendation();
+                    }
+                }
+                
+                // Função para atualizar o progresso do protocolo
+                function updateProtocolProgress() {
+                    const progress = ((currentStep + 1) / protocolSteps.length) * 100;
+                    document.getElementById('protocolProgressBar').style.width = `${progress}%`;
+                    document.getElementById('protocolProgressText').textContent = `${currentStep + 1}/${protocolSteps.length}`;
+                }
+                
+                // Configurar os botões de navegação
+                document.getElementById('prevStepBtn').onclick = function() {
+                    if (currentStep > 0) {
+                        goToStep(currentStep - 1);
+                    }
+                };
+                
+                document.getElementById('nextStepBtn').onclick = function() {
+                    if (currentStep < protocolSteps.length - 1) {
+                        goToStep(currentStep + 1);
+                    }
+                };
+                
+                // Configurar o botão de sair
+                document.getElementById('exitProtocolBtn').onclick = function() {
+                    protocolControls.classList.add('hidden');
+                    stopTone();
+                };
+                
+                // Iniciar no primeiro passo
+                goToStep(0);
+            };
+        });
+    </script>
+</body>
+</html>
                        
+
